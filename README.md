@@ -4,6 +4,12 @@ Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarınd
 
 > Arayüz Türkçedir. Şimdilik Windows için yazıldı.
 
+![Ana sayfa: dersler rafta kitaplar olarak](assets/ekran-ana-sayfa.png)
+
+![Ders sayfası: sekmeli dosya kartları ve PDF küçük resimleri](assets/ekran-ders.png)
+
+*Ekran görüntülerindeki dersler ve dosyalar örnek amaçlı uydurma verilerdir.*
+
 ## Özellikler
 
 - Klasörler = dersler: Gezgin'e eklediğin dosya kendiliğinden görünür, içe aktarma yok.
