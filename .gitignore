@@ -40,3 +40,6 @@ dist-installer/
 dist-portable/
 build-portable/
 release/
+
+# Yerel demo başlatıcı (repoda tutulmaz)
+baslat.bat

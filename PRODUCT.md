@@ -28,7 +28,7 @@ The filesystem is the database. A course is just a folder (locally, or a cloud-s
 
 ## Operating Context
 
-- Launched locally (`baslat.bat` → Python server on `127.0.0.1:8765`) and used in a desktop browser on one Windows computer; a packaged desktop app is planned.
+- Launched locally (Python server on `127.0.0.1:8765`, opened in a desktop browser) or, for end users, as the packaged Windows desktop app (installer or portable exe).
 - Optional: students who take notes on a tablet (e.g. Notability with auto-backup to Google Drive) can point libzie's content folder at the synced Drive folder (Ayarlar). Nothing depends on this setup.
 - Typical session: open a course, scan thumbnails, open several PDFs as tabs, read with the sidebar collapsed; occasionally upload, rename, move or delete files.
 

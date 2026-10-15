@@ -15,7 +15,7 @@ python server.py               # serves http://127.0.0.1:8765 and opens the brow
 python server.py --no-browser  # same, without opening a browser (used by .claude/launch.json)
 ```
 
-`baslat.bat` is the user-facing launcher (double-click on Windows). `PORT` env var overrides the port (useful when 8765 is already taken by the user's own running instance — don't kill it; test on another port with a scratch copy of the project so the user's real files aren't touched).
+End users get the packaged Windows app (installer / portable exe, see "Masaüstü uygulaması" below); `baslat.bat` is only a local, untracked (gitignored) demo launcher kept by the maintainer. `PORT` env var overrides the port (useful when 8765 is already taken by the user's own running instance — don't kill it; test on another port with a scratch copy of the project so the user's real files aren't touched).
 
 The content folder defaults to `./kaynaklar`. It can be changed from the in-app Ayarlar dialog (writes the gitignored `ayarlar.json`, applied immediately without a restart; see `ayarlar.ornek.json`) or pinned with the `KAYNAK_KLASORU` env var (which locks the dialog) — intended for a Google Drive folder that Notability auto-backs-up PDFs into. If the configured folder doesn't exist at startup (e.g. Drive not mounted) the server falls back to `./kaynaklar` and `/api/tree` returns a `warning` that the UI shows as a banner; it never creates the configured path.
 
