@@ -60,6 +60,10 @@ Dosyaların bilgisayarından çıkmaz. Sunucu yalnızca `127.0.0.1`'e bağlıdı
 
 Windows uygulaması `app.py` (pywebview) ve `.github/workflows/windows.yml` ile derlenir. Mimari ve kurallar için [CLAUDE.md](CLAUDE.md), ürün bağlamı için [PRODUCT.md](PRODUCT.md), görsel sistem için [DESIGN.md](DESIGN.md) dosyalarına bak. Sunucu Python standart kütüphanesiyle, arayüz tek bir `static/index.html` dosyasıyla yazılmıştır.
 
+## Yol haritası
+
+Planlanan ve düşünülen özellikler için [ROADMAP.md](ROADMAP.md) dosyasına bak. Fikir ve geri bildirimini issue olarak açabilirsin.
+
 ## Lisans
 
 [MIT](LICENSE). pdf.js (Apache-2.0) ve Linux Libertine/Biolinum (SIL OFL 1.1) kendi lisanslarıyla pakete dahildir (`static/vendor/` içinde lisans metinleri var).
