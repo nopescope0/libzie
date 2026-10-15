@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.bat text eol=crlf
+*.otf binary
+*.png binary
+*.ico binary
+*.pdf binary
