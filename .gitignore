@@ -36,3 +36,7 @@ index.*.html
 build/
 dist/
 *.spec
+dist-installer/
+dist-portable/
+build-portable/
+release/

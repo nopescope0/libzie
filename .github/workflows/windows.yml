@@ -18,20 +18,43 @@ jobs:
           python-version: "3.12"
       - name: Bağımlılıkları kur
         run: pip install pywebview pyinstaller
-      - name: Derle (tek dosya)
-        run: pyinstaller --noconfirm --windowed --onefile --name libzie --icon assets/icon.ico --add-data "static;static" app.py
-      - name: Çıktıyı denetle
+
+      # Kurulum sihirbazı için klasör çıktısı (hızlı açılır), taşınabilir sürüm için tek dosya
+      - name: Derle (klasör, kurulum için)
+        run: pyinstaller --noconfirm --windowed --onedir --name libzie --icon assets/icon.ico --add-data "static;static" app.py
+      - name: Derle (tek dosya, taşınabilir)
+        run: pyinstaller --noconfirm --windowed --onefile --name libzie --icon assets/icon.ico --add-data "static;static" --distpath dist-portable --workpath build-portable app.py
+
+      - name: Çıktıları denetle
         run: |
-          if (-not (Test-Path dist/libzie.exe)) { throw "libzie.exe yok" }
-          $mb = [math]::Round((Get-Item dist/libzie.exe).Length / 1MB, 1)
-          Write-Host "libzie.exe: $mb MB"
+          if (-not (Test-Path dist/libzie/libzie.exe)) { throw "dist/libzie/libzie.exe yok" }
+          if (-not (Test-Path dist/libzie/_internal/static/index.html)) { throw "static/index.html pakete girmemiş" }
+          $mb = [math]::Round((Get-Item dist-portable/libzie.exe).Length / 1MB, 1)
+          Write-Host "taşınabilir libzie.exe: $mb MB"
           if ($mb -lt 5) { throw "libzie.exe beklenenden çok küçük; static/vendor paketlenmemiş olabilir" }
+
+      - name: Kurulum sihirbazını derle (Inno Setup)
+        run: |
+          choco install innosetup -y --no-progress
+          $v = "${{ github.ref_name }}".TrimStart("v")
+          if (-not ($v -match '^\d')) { $v = "0.0.0" }
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$v" installer/libzie.iss
+          if (-not (Test-Path dist-installer/libzie-kurulum.exe)) { throw "libzie-kurulum.exe oluşmadı" }
+
+      - name: Dosyaları topla
+        run: |
+          New-Item -ItemType Directory -Force release | Out-Null
+          Copy-Item dist-installer/libzie-kurulum.exe release/
+          Copy-Item dist-portable/libzie.exe release/libzie-tasinabilir.exe
+
       - uses: actions/upload-artifact@v4
         with:
           name: libzie-windows
-          path: dist/libzie.exe
+          path: release/*
       - name: Sürüme ekle
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/libzie.exe
+          files: |
+            release/libzie-kurulum.exe
+            release/libzie-tasinabilir.exe
