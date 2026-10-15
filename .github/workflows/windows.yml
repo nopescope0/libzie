@@ -18,21 +18,20 @@ jobs:
           python-version: "3.12"
       - name: Bağımlılıkları kur
         run: pip install pywebview pyinstaller
-      - name: Derle
-        run: pyinstaller --noconfirm --windowed --name libzie --icon assets/icon.ico --add-data "static;static" app.py
-      - name: Paketin doğru dosyaları içerdiğini denetle
+      - name: Derle (tek dosya)
+        run: pyinstaller --noconfirm --windowed --onefile --name libzie --icon assets/icon.ico --add-data "static;static" app.py
+      - name: Çıktıyı denetle
         run: |
-          if (-not (Test-Path dist/libzie/libzie.exe)) { throw "libzie.exe yok" }
-          if (-not (Test-Path dist/libzie/_internal/static/index.html)) { throw "static/index.html pakete girmemiş" }
-          if (-not (Test-Path dist/libzie/_internal/static/vendor/pdf.min.js)) { throw "vendor dosyaları pakete girmemiş" }
-      - name: Zip
-        run: Compress-Archive -Path dist/libzie -DestinationPath libzie-windows.zip
+          if (-not (Test-Path dist/libzie.exe)) { throw "libzie.exe yok" }
+          $mb = [math]::Round((Get-Item dist/libzie.exe).Length / 1MB, 1)
+          Write-Host "libzie.exe: $mb MB"
+          if ($mb -lt 5) { throw "libzie.exe beklenenden çok küçük; static/vendor paketlenmemiş olabilir" }
       - uses: actions/upload-artifact@v4
         with:
           name: libzie-windows
-          path: libzie-windows.zip
+          path: dist/libzie.exe
       - name: Sürüme ekle
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: libzie-windows.zip
+          files: dist/libzie.exe

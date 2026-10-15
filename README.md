@@ -15,9 +15,8 @@ Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarınd
 
 ## Kurulum (Windows uygulaması)
 
-1. [Releases](https://github.com/nopescope0/libzie/releases) sayfasından en son `libzie-windows.zip` dosyasını indir.
-2. Zip'i bir klasöre çıkar (örneğin `Belgeler\libzie-app`).
-3. `libzie.exe`'yi çalıştır.
+1. [Releases](https://github.com/nopescope0/libzie/releases) sayfasından en son `libzie.exe` dosyasını indir.
+2. İstediğin bir klasöre koy (örneğin masaüstü) ve çalıştır. Kurulum gerekmez.
 
 İlk açılışta Windows "bilgisayarınızı korudu" uyarısı verebilir: uygulama imzasız olduğu için normaldir. **Daha fazla bilgi → Yine de çalıştır**'a tıkla.
 
