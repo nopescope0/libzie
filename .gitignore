@@ -1,0 +1,12 @@
+kaynaklar/
+ayarlar.json
+__pycache__/
+
+# Kişisel / üretilen dosyalar
+.claude/
+.taste-skill/
+handoff.md
+.impeccable/hook.cache.json
+.impeccable/critique/
+index.*.html
+*.bak
