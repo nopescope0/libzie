@@ -21,6 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Üçüncü taraf dosyalar kendi lisanslarına tabidir:
-- static/vendor/pdf.min.js, pdf.worker.min.js: pdf.js 3.11.174 (Apache-2.0)
+- static/vendor/pdf.min.js, pdf.worker.min.js: pdf.js 3.11.174 (Apache-2.0, bkz. static/vendor/pdfjs-LICENSE-Apache-2.0.txt)
 - static/vendor/LinLibertine*.otf, LinBiolinum*.otf: Linux Libertine / Biolinum
   (SIL OFL 1.1, bkz. static/vendor/LinLibertine-OFL-1.1.txt)

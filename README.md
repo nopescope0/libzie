@@ -13,7 +13,17 @@ Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarınd
 - Tam klavye kullanımı (`?` kısayolları gösterir), `F` ile tam ekran, `Ctrl+B` ile kenar çubuğu.
 - Tamamen çevrimdışı çalışır. İnternete çıkan tek şey isteğe bağlı hava durumu (Open-Meteo, şehri sen yazarsın).
 
-## Kurulum
+## Kurulum (Windows uygulaması)
+
+1. [Releases](https://github.com/nopescope0/libzie/releases) sayfasından en son `libzie-windows.zip` dosyasını indir.
+2. Zip'i bir klasöre çıkar (örneğin `Belgeler\libzie-app`).
+3. `libzie.exe`'yi çalıştır.
+
+İlk açılışta Windows "bilgisayarınızı korudu" uyarısı verebilir: uygulama imzasız olduğu için normaldir. **Daha fazla bilgi → Yine de çalıştır**'a tıkla.
+
+Dersler `Belgeler\libzie\kaynaklar` klasöründe, ayarlar `%APPDATA%\libzie` içinde tutulur; uygulama klasörünü silsen ya da güncellesen de verilerin kalır. Başka bir klasör kullanmak istersen uygulamada **Ayarlar**'dan seç. Uygulama Windows'taki Edge WebView2 bileşenini kullanır (Windows 10/11'de genellikle hazır gelir).
+
+## Kaynak koddan çalıştırma
 
 [Python 3](https://www.python.org/downloads/) kurulu olmalı. Başka bir şey gerekmez (bağımlılık ve derleme yok).
 
@@ -23,7 +33,7 @@ cd libzie
 python server.py
 ```
 
-ya da klasördeki `baslat.bat` dosyasına çift tıkla. Tarayıcıda `http://127.0.0.1:8765` açılır. Sunucu yalnızca kendi bilgisayarına bağlanır, ağdan erişilemez.
+ya da klasördeki `baslat.bat` dosyasına çift tıkla. Tarayıcıda `http://127.0.0.1:8765` açılır. Sunucu yalnızca kendi bilgisayarına bağlanır, ağdan erişilemez. Bu yolda dersler proje içindeki `kaynaklar/` klasöründe durur.
 
 Seçenekler:
 
@@ -32,7 +42,7 @@ Seçenekler:
 
 ## Ders klasörün
 
-Dosyalar varsayılan olarak `kaynaklar/` klasöründe tutulur (git'e girmez). Başka bir klasör kullanmak istersen uygulamada **Ayarlar**'dan seç, örneğin not aldığın uygulamanın Google Drive yedek klasörü. Bu, `ayarlar.json` dosyasına yazılır (örnek: `ayarlar.ornek.json`). `KAYNAK_KLASORU` ortam değişkeni de aynı işi yapar ve Ayarlar penceresini kilitler.
+Kaynak koddan çalıştırırken dosyalar varsayılan olarak `kaynaklar/` klasöründe tutulur (git'e girmez); uygulamada `Belgeler\libzie\kaynaklar`. Başka bir klasör kullanmak istersen uygulamada **Ayarlar**'dan seç, örneğin not aldığın uygulamanın Google Drive yedek klasörü. Bu, `ayarlar.json` dosyasına yazılır (örnek: `ayarlar.ornek.json`). `KAYNAK_KLASORU` ortam değişkeni de aynı işi yapar ve Ayarlar penceresini kilitler.
 
 ## Gizlilik
 
@@ -40,8 +50,8 @@ Dosyaların bilgisayarından çıkmaz. Sunucu yalnızca `127.0.0.1`'e bağlıdı
 
 ## Geliştirme
 
-Mimari ve kurallar için [CLAUDE.md](CLAUDE.md), ürün bağlamı için [PRODUCT.md](PRODUCT.md), görsel sistem için [DESIGN.md](DESIGN.md) dosyalarına bak. Sunucu Python standart kütüphanesiyle, arayüz tek bir `static/index.html` dosyasıyla yazılmıştır.
+Windows uygulaması `app.py` (pywebview) ve `.github/workflows/windows.yml` ile derlenir. Mimari ve kurallar için [CLAUDE.md](CLAUDE.md), ürün bağlamı için [PRODUCT.md](PRODUCT.md), görsel sistem için [DESIGN.md](DESIGN.md) dosyalarına bak. Sunucu Python standart kütüphanesiyle, arayüz tek bir `static/index.html` dosyasıyla yazılmıştır.
 
 ## Lisans
 
-[MIT](LICENSE). pdf.js (Apache-2.0) ve Linux Libertine/Biolinum (SIL OFL 1.1) kendi lisanslarıyla pakete dahildir.
+[MIT](LICENSE). pdf.js (Apache-2.0) ve Linux Libertine/Biolinum (SIL OFL 1.1) kendi lisanslarıyla pakete dahildir (`static/vendor/` içinde lisans metinleri var).
