@@ -6,6 +6,7 @@ klasör yapısı doğrudan diskteki klasör yapısıdır (Gezgin'den de eklenebi
 import json
 import mimetypes
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -75,13 +76,13 @@ def pick_root():
     return DEFAULT_ROOT.resolve(), warning
 
 
-ROOT = TRASH = COLOR_FILE = None
+ROOT = TRASH = COLOR_FILE = ICON_FILE = None
 ROOT_WARNING = ""
 
 
 def set_root(root, warning=""):
-    global ROOT, TRASH, COLOR_FILE, ROOT_WARNING
-    ROOT, TRASH, COLOR_FILE = root, root / ".silinenler", root / ".renkler.json"
+    global ROOT, TRASH, COLOR_FILE, ICON_FILE, ROOT_WARNING
+    ROOT, TRASH, COLOR_FILE, ICON_FILE = root, root / ".silinenler", root / ".renkler.json", root / ".ikonlar.json"
     ROOT_WARNING = warning
 
 
@@ -128,6 +129,30 @@ def load_colors():
 
 def save_colors(colors):
     COLOR_FILE.write_text(json.dumps(colors, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def load_icons():
+    """Derslerin seçili ikonları ({ders adı: ikon kimliği}); seçilmemişse arayüz sıraya göre varsayılanı verir."""
+    try:
+        data = json.loads(ICON_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def save_icons(icons):
+    ICON_FILE.write_text(json.dumps(icons, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def move_course_meta(old, new):
+    """Dersin rengi ve ikonu, ders yeniden adlandırılınca/taşınınca/silinince kayıt dosyalarında da güncellenir (new=None: sil)."""
+    for load, save in ((load_colors, save_colors), (load_icons, save_icons)):
+        data = load()
+        value = data.pop(old, None)
+        if value is not None:
+            if new is not None:
+                data[new] = value
+            save(data)
 
 
 def tree(d):
@@ -247,6 +272,7 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/tree":
                 data = tree(ROOT)
                 data["colors"] = load_colors()
+                data["icons"] = load_icons()
                 data["warning"] = ROOT_WARNING
                 return self.send_json(data)
             if path == "/api/settings":
@@ -329,12 +355,7 @@ class Handler(BaseHTTPRequestHandler):
                 dst_dir.mkdir(parents=True, exist_ok=True)
                 os.rename(src, dst)
                 if src.parent == ROOT:
-                    colors = load_colors()
-                    color = colors.pop(src.name, None)
-                    if color is not None:
-                        if dst.parent == ROOT:
-                            colors[dst.name] = color
-                        save_colors(colors)
+                    move_course_meta(src.name, dst.name if dst.parent == ROOT else None)
                 return self.send_json({"path": rel(dst)})
 
             if u.path == "/api/settings":
@@ -369,14 +390,27 @@ class Handler(BaseHTTPRequestHandler):
                 save_colors(colors)
                 return self.send_json({"ok": True})
 
+            if u.path == "/api/icon":
+                course = safe(body["path"])
+                if course.parent != ROOT or not course.is_dir():
+                    raise ValueError("İkon yalnızca derslere verilebilir")
+                icon = str(body.get("icon") or "")
+                if icon and not re.fullmatch(r"[a-z0-9-]{1,24}", icon):
+                    raise ValueError("Geçersiz ikon")
+                icons = load_icons()
+                if icon:
+                    icons[course.name] = icon
+                else:
+                    icons.pop(course.name, None)
+                save_icons(icons)
+                return self.send_json({"ok": True})
+
             if u.path == "/api/delete":
                 src = safe(body["path"])
                 if src == ROOT or not src.exists():
                     raise ValueError("Öğe bulunamadı")
                 if src.parent == ROOT:
-                    colors = load_colors()
-                    if colors.pop(src.name, None) is not None:
-                        save_colors(colors)
+                    move_course_meta(src.name, None)
                 TRASH.mkdir(exist_ok=True)
                 trashed = unique(TRASH / src.name)
                 shutil.move(str(src), str(trashed))

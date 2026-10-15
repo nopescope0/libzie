@@ -13,6 +13,7 @@ Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarınd
 ## Özellikler
 
 - Klasörler = dersler: Gezgin'e eklediğin dosya kendiliğinden görünür, içe aktarma yok.
+- Her derse renk ve ikon seçebilirsin (fizik, kimya, biyoloji, matematik, edebiyat, müzik… ve elektronik/makine sembolleri): ders menüsünde **Renk seç…** ve **İkon seç…**.
 - Sürükle-bırakla yükleme (klasör dahil), taşıma, yeniden adlandırma, "Geri al" ile yumuşak silme.
 - PDF'ler sayfa içinde sekmelerde açılır; PDF'lerin ilk sayfası küçük resim olur.
 - Türkçe karakterden bağımsız arama (`isletim` → "İşletim"), `Ctrl+K` ile tüm derslerde hızlı arama.
