@@ -9,18 +9,42 @@ import os
 import shutil
 import subprocess
 import sys
+import urllib.request
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
+FROZEN = getattr(sys, "frozen", False)  # PyInstaller ile paketlenmiş uygulama
 BASE = Path(__file__).resolve().parent
-STATIC = BASE / "static"
-HOST, PORT = "127.0.0.1", int(os.environ.get("PORT", 8765))
+STATIC = Path(getattr(sys, "_MEIPASS", BASE)) / "static"
+HOST = "127.0.0.1"
+PORT = int(os.environ.get("PORT", 8765))
+PORT_TRIES = 1 if "PORT" in os.environ else 11  # PORT verilmediyse 8765'ten başlayıp ilk boş portu kullan
 
 
-DEFAULT_ROOT = BASE / "kaynaklar"
-SETTINGS_FILE = BASE / "ayarlar.json"
+def documents_dir():
+    """Kullanıcının Belgeler klasörü (OneDrive'a yönlendirilmiş olabilir); bulunamazsa ~/Documents."""
+    if sys.platform == "win32":
+        try:
+            import ctypes
+            buf = ctypes.c_wchar_p()
+            import uuid
+            guid = ctypes.create_string_buffer(uuid.UUID("FDD39AD0-238F-46AF-ADB4-6C85480369C7").bytes_le, 16)  # FOLDERID_Documents
+            if ctypes.windll.shell32.SHGetKnownFolderPath(guid, 0, None, ctypes.byref(buf)) == 0 and buf.value:
+                return Path(buf.value)
+        except Exception:  # noqa: BLE001 — yedek yol yeter
+            pass
+    return Path.home() / "Documents"
+
+
+if FROZEN:
+    # Paketlenmiş uygulamada veri uygulama klasörünün dışında durur: güncelleme/silme dersleri götürmez.
+    DEFAULT_ROOT = documents_dir() / "libzie" / "kaynaklar"
+    SETTINGS_FILE = Path(os.environ.get("APPDATA") or Path.home()) / "libzie" / "ayarlar.json"
+else:
+    DEFAULT_ROOT = BASE / "kaynaklar"
+    SETTINGS_FILE = BASE / "ayarlar.json"
 ENV_ROOT = os.environ.get("KAYNAK_KLASORU", "")  # ayarlanmışsa arayüzden değiştirilemez
 
 
@@ -47,7 +71,7 @@ def pick_root():
         if p.is_dir():
             return p.resolve(), ""
         warning = f"Ayarlanan kaynak klasörü bulunamadı: {p} — varsayılan klasör gösteriliyor."
-    DEFAULT_ROOT.mkdir(exist_ok=True)
+    DEFAULT_ROOT.mkdir(parents=True, exist_ok=True)
     return DEFAULT_ROOT.resolve(), warning
 
 
@@ -218,6 +242,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if path in ("/", "/index.html"):
                 return self.send_file(STATIC / "index.html")
+            if path == "/api/ping":  # başka bir libzie örneği çalışıyor mu diye bakmak için
+                return self.send_json({"app": "libzie"})
             if path == "/api/tree":
                 data = tree(ROOT)
                 data["colors"] = load_colors()
@@ -324,8 +350,9 @@ class Handler(BaseHTTPRequestHandler):
                     new_root = p.resolve()
                 else:
                     settings.pop("kaynak_klasoru", None)
-                    DEFAULT_ROOT.mkdir(exist_ok=True)
+                    DEFAULT_ROOT.mkdir(parents=True, exist_ok=True)
                     new_root = DEFAULT_ROOT.resolve()
+                SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
                 SETTINGS_FILE.write_text(json.dumps(settings, ensure_ascii=False, indent=1), encoding="utf-8")
                 set_root(new_root)
                 return self.send_json({"root": str(ROOT)})
@@ -381,9 +408,34 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json({"error": str(e)}, 400)
 
 
+def is_libzie(port):
+    try:
+        with urllib.request.urlopen(f"http://{HOST}:{port}/api/ping", timeout=1) as r:
+            return json.loads(r.read()).get("app") == "libzie"
+    except (OSError, ValueError):
+        return False
+
+
+def start():
+    """Çalışan libzie varsa ona bağlanır, yoksa boş ilk portta sunucu açar. (url, sunucu|None) döner;
+    sunucu yalnızca bu süreç açtıysa vardır (çağıran serve_forever'dan ve kapatmaktan sorumlu)."""
+    for port in range(PORT, PORT + PORT_TRIES):
+        if is_libzie(port):
+            return f"http://{HOST}:{port}", None
+        try:
+            return f"http://{HOST}:{port}", ThreadingHTTPServer((HOST, port), Handler)
+        except OSError:
+            continue
+    raise SystemExit(f"{PORT} portundan başlayan portlar dolu; PORT ortam değişkeniyle başka bir port seçin.")
+
+
 def main():
-    server = ThreadingHTTPServer((HOST, PORT), Handler)
-    url = f"http://{HOST}:{PORT}"
+    url, server = start()
+    if server is None:
+        print(f"libzie zaten çalışıyor: {url}")
+        if "--no-browser" not in sys.argv:
+            webbrowser.open(url)
+        return
     print(f"libzie çalışıyor: {url}")
     print(f"Dosyalar: {ROOT}")
     if ROOT_WARNING:
