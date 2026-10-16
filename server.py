@@ -16,6 +16,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
+import guncelleme
+
 FROZEN = getattr(sys, "frozen", False)  # PyInstaller ile paketlenmiş uygulama
 BASE = Path(__file__).resolve().parent
 STATIC = Path(getattr(sys, "_MEIPASS", BASE)) / "static"
@@ -55,6 +57,11 @@ def read_settings():
         return data if isinstance(data, dict) else {}
     except (OSError, ValueError):
         return {}
+
+
+def write_settings(settings):
+    SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    SETTINGS_FILE.write_text(json.dumps(settings, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
 def parse_dir(text):
@@ -281,7 +288,14 @@ class Handler(BaseHTTPRequestHandler):
                     "default": str(DEFAULT_ROOT.resolve()),
                     "configured": ENV_ROOT or str(read_settings().get("kaynak_klasoru") or ""),
                     "locked": bool(ENV_ROOT),
+                    "version": guncelleme.VERSION,
+                    "update_kind": guncelleme.kind(),
+                    "auto_update": bool(read_settings().get("otomatik_guncelleme")),
                 })
+            if path == "/api/update/check":
+                return self.send_json(guncelleme.check())
+            if path == "/api/update/status":
+                return self.send_json(guncelleme.status())
             if path.startswith("/files/"):
                 return self.send_file(safe(path[len("/files/"):]))
             if path.startswith("/vendor/"):
@@ -358,6 +372,24 @@ class Handler(BaseHTTPRequestHandler):
                     move_course_meta(src.name, dst.name if dst.parent == ROOT else None)
                 return self.send_json({"path": rel(dst)})
 
+            if u.path == "/api/update/settings":
+                settings = read_settings()
+                settings["otomatik_guncelleme"] = bool(body.get("auto"))
+                write_settings(settings)
+                return self.send_json({"auto": settings["otomatik_guncelleme"]})
+
+            if u.path == "/api/update/apply":
+                if body.get("auto"):
+                    # Açılışta otomatik güncelleme her sürümü yalnızca bir kez dener: başarısız olursa her açılışta döngüye girmez
+                    latest = guncelleme.check()["latest"]
+                    settings = read_settings()
+                    if settings.get("son_otomatik_deneme") == latest:
+                        raise guncelleme.UpdateError("Bu sürüm otomatik olarak zaten denendi; Ayarlar'dan elle güncelle.")
+                    settings["son_otomatik_deneme"] = latest
+                    write_settings(settings)
+                guncelleme.start_apply()
+                return self.send_json({"ok": True})
+
             if u.path == "/api/settings":
                 if ENV_ROOT:
                     raise ValueError("Klasör KAYNAK_KLASORU ortam değişkeniyle sabitlenmiş")
@@ -373,8 +405,7 @@ class Handler(BaseHTTPRequestHandler):
                     settings.pop("kaynak_klasoru", None)
                     DEFAULT_ROOT.mkdir(parents=True, exist_ok=True)
                     new_root = DEFAULT_ROOT.resolve()
-                SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
-                SETTINGS_FILE.write_text(json.dumps(settings, ensure_ascii=False, indent=1), encoding="utf-8")
+                write_settings(settings)
                 set_root(new_root)
                 return self.send_json({"root": str(ROOT)})
 

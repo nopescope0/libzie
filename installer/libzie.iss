@@ -41,3 +41,5 @@ Name: "{autodesktop}\libzie"; Filename: "{app}\libzie.exe"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\libzie.exe"; Description: "libzie'yi başlat"; Flags: nowait postinstall skipifsilent
+; Uygulama içi güncelleme sihirbazı sessiz çalıştırır; bitince libzie yeniden açılır
+Filename: "{app}\libzie.exe"; Flags: nowait runasoriginaluser; Check: WizardSilent

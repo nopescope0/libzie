@@ -19,6 +19,17 @@ jobs:
       - name: Bağımlılıkları kur
         run: pip install pywebview pyinstaller
 
+      - name: Sürüm numarasını yaz
+        run: |
+          # Uygulama içi güncelleme denetimi bu numarayı etiketle karşılaştırır (v0.1.3 → 0.1.3)
+          $v = "${{ github.ref_name }}".TrimStart("v")
+          if ($v -match '^\d') {
+            $t = [IO.File]::ReadAllText("guncelleme.py")
+            $t = [regex]::Replace($t, '(?m)^VERSION = ".*"', "VERSION = `"$v`"")
+            [IO.File]::WriteAllText("guncelleme.py", $t, (New-Object Text.UTF8Encoding $false))
+            if (-not (Select-String -Path guncelleme.py -Pattern "^VERSION = `"$([regex]::Escape($v))`"" -Quiet)) { throw "guncelleme.py sürümü yazılamadı" }
+          }
+
       # Kurulum sihirbazı için klasör çıktısı (hızlı açılır), taşınabilir sürüm için tek dosya
       - name: Derle (klasör, kurulum için)
         run: pyinstaller --noconfirm --windowed --onedir --name libzie --icon assets/icon.ico --add-data "static;static" app.py

@@ -326,6 +326,19 @@
   dialog input:disabled { opacity: .5; }
   dialog .actions .grow { flex: 1; }
   .btn:disabled { opacity: .4; cursor: default; }
+  .upd { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 16px; }
+  .upd .ver { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0 0 12px; font-size: 13px; }
+  .upd dt { color: var(--muted); }
+  .upd dd { margin: 0; font-variant-numeric: tabular-nums lining-nums; }
+  .upd dd.new { color: var(--accent); }
+  .upd .bar { height: 3px; background: var(--bg); margin: 0 0 12px; }
+  .upd .bar[hidden] { display: none; }
+  .upd .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width var(--duration-fast) var(--ease-smooth-out); }
+  .upd .chk { display: flex; align-items: center; gap: 9px; margin: 0 0 6px; cursor: pointer; font-size: 13px; }
+  .upd .chk input { width: auto; margin: 0; accent-color: var(--accent); cursor: pointer; }
+  .upd .chk input:disabled { cursor: default; }
+  .upd .row-btns { display: flex; gap: 8px; margin-top: 12px; }
+  .upd .row-btns .btn[hidden] { display: none; }
 
   .empty { color: var(--faint); text-align: center; padding: 80px 20px; }
   .empty p { margin: 6px 0; }
@@ -965,6 +978,21 @@
       Gezgin'de klasörü seçip Shift+sağ tık → “Yol olarak kopyala” ile yolu alabilirsiniz.</p>
     <p class="hint" id="s-lock" hidden>Bu klasör <code>KAYNAK_KLASORU</code> ortam değişkeniyle sabitlenmiş, buradan değiştirilemez.</p>
     <p class="hint">Şu an: <code id="s-current"></code><br>Varsayılan: <code id="s-default"></code></p>
+    <section class="upd" aria-labelledby="u-head">
+      <p class="field" id="u-head">Güncelleme</p>
+      <dl class="ver">
+        <dt>Mevcut sürüm</dt><dd id="u-cur">—</dd>
+        <dt>Yeni sürüm</dt><dd id="u-new">—</dd>
+      </dl>
+      <p class="hint" id="u-msg" aria-live="polite"></p>
+      <div class="bar" id="u-bar" hidden><i></i></div>
+      <label class="chk"><input type="checkbox" id="u-auto"><span>Yeni sürümü açılışta otomatik yükle</span></label>
+      <p class="hint">İşaretliyken libzie her açılışta yeni sürüm olup olmadığına bakar, varsa indirir ve yeniden başlar. Bu seçenek hemen kaydedilir.</p>
+      <div class="row-btns">
+        <button type="button" class="btn" id="u-check">Güncellemeleri denetle</button>
+        <button type="button" class="btn primary" id="u-apply" hidden>Şimdi güncelle</button>
+      </div>
+    </section>
     <p class="error" id="s-error"></p>
     <div class="actions">
       <button type="button" class="btn" id="s-reveal">Gezgin'de aç</button>
@@ -2571,6 +2599,7 @@ async function openSettings() {
     $('#s-error').textContent = '';
     $('#settings').showModal();
     if (!s.locked) $('#s-path').focus();
+    initUpdate(s);
   } catch { toast('Ayarlar okunamadı', true); }
 }
 async function saveSettings() {
@@ -2821,6 +2850,86 @@ $('#weather').onclick = async () => {
 };
 loadWeather();
 setInterval(loadWeather, 10 * 60e3); // önbellek 30 dk dolmadıkça istek atmaz
+
+/* ---------- güncelleme ---------- */
+// Sunucu GitHub'daki son sürüme bakar (internete çıkan, isteğe bağlı ikinci istek); indirme ve yerine koyma da sunucuda yapılır.
+function updMsg(text, err) { const m = $('#u-msg'); m.textContent = text; m.style.color = err ? 'var(--danger)' : ''; }
+function updBar(frac) { $('#u-bar').hidden = false; $('#u-bar i').style.width = Math.round(Math.min(1, frac) * 100) + '%'; }
+function pollUpdate(render) {
+  const tick = async () => {
+    let st;
+    try { st = await (await fetch('/api/update/status')).json(); }
+    catch { render({ phase: 'restarting' }); return; } // sunucu kapandı: yeniden başlıyor
+    render(st);
+    if (st.phase === 'downloading' || st.phase === 'restarting') setTimeout(tick, 400);
+  };
+  tick();
+}
+function renderUpdateProgress(st) {
+  const frac = st.total > 0 ? st.done / st.total : 0;
+  if (st.phase === 'downloading') { updBar(frac); updMsg(`İndiriliyor… %${Math.round(frac * 100)}`); }
+  else if (st.phase === 'restarting') { updBar(1); updMsg('Yeni sürüm kuruluyor, libzie birazdan yeniden açılacak…'); }
+  else if (st.phase === 'error') { $('#u-bar').hidden = true; updMsg(st.error, true); $('#u-apply').disabled = false; $('#u-check').disabled = false; }
+}
+async function checkUpdate() {
+  $('#u-check').disabled = true;
+  $('#u-apply').hidden = true;
+  updMsg('Denetleniyor…');
+  try {
+    const u = await (await fetch('/api/update/check')).json();
+    if (u.error) { updMsg(u.error, true); $('#u-new').textContent = '—'; return; }
+    $('#u-cur').textContent = u.current;
+    $('#u-new').textContent = u.latest;
+    $('#u-new').classList.toggle('new', u.available);
+    if (!u.available) updMsg('libzie güncel.');
+    else if (u.kind === 'kaynak') updMsg('Yeni sürüm var. Kaynak koddan çalıştığın için depoyu git pull ile güncelle.');
+    else if (!u.downloadable) updMsg('Yeni sürüm var ama indirme dosyası henüz hazır değil; birkaç dakika sonra tekrar denetle.');
+    else { updMsg('Yeni sürüm hazır.'); $('#u-apply').hidden = false; }
+  } catch { updMsg('Denetlenemedi.', true); }
+  finally { $('#u-check').disabled = false; }
+}
+function initUpdate(s) {
+  $('#u-cur').textContent = s.version;
+  $('#u-new').textContent = '—';
+  $('#u-new').classList.remove('new');
+  $('#u-bar').hidden = true;
+  $('#u-apply').hidden = true;
+  $('#u-apply').disabled = false;
+  $('#u-auto').checked = !!s.auto_update;
+  $('#u-auto').disabled = s.update_kind === 'kaynak';
+  $('#u-auto').title = s.update_kind === 'kaynak' ? 'Kaynak koddan çalışırken otomatik güncelleme yoktur' : '';
+  checkUpdate();
+}
+$('#u-check').onclick = checkUpdate;
+$('#u-auto').onchange = async e => {
+  try { await api('/api/update/settings', { auto: e.target.checked }); }
+  catch (err) { e.target.checked = !e.target.checked; updMsg(err.message, true); }
+};
+$('#u-apply').onclick = async () => {
+  $('#u-apply').disabled = true;
+  $('#u-check').disabled = true;
+  try { await api('/api/update/apply', {}); }
+  catch (e) { updMsg(e.message, true); $('#u-apply').disabled = false; $('#u-check').disabled = false; return; }
+  pollUpdate(renderUpdateProgress);
+};
+// Otomatik güncelleme açıksa: açılışta bir kez bakar, yeni sürüm varsa indirip yeniden başlar
+async function autoUpdate() {
+  try {
+    const s = await (await fetch('/api/settings')).json();
+    if (!s.auto_update || s.update_kind === 'kaynak') return;
+    const u = await (await fetch('/api/update/check')).json();
+    if (!u.available || !u.downloadable) return;
+    toast(`libzie ${u.latest} indiriliyor…`, false, true, 0);
+    await api('/api/update/apply', { auto: true });
+    pollUpdate(st => {
+      const frac = st.total > 0 ? st.done / st.total : 0;
+      if (st.phase === 'downloading') toast(`libzie ${u.latest} indiriliyor… %${Math.round(frac * 100)}`, false, true, frac);
+      else if (st.phase === 'restarting') toast('Güncelleniyor, libzie yeniden açılacak…', false, true);
+      else if (st.phase === 'error') toast(st.error, true);
+    });
+  } catch { $('#toast').className = ''; }
+}
+setTimeout(autoUpdate, 4000);
 
 cur = pathFromHash();
 load();

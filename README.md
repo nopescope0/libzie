@@ -35,7 +35,7 @@ Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarınd
 - PDF'ler sayfa içinde sekmelerde açılır; PDF'lerin ilk sayfası küçük resim olur.
 - Türkçe karakterden bağımsız arama (`isletim` → "İşletim"), `Ctrl+K` ile tüm derslerde hızlı arama.
 - Tam klavye kullanımı (`?` kısayolları gösterir), `F` ile tam ekran, `Ctrl+B` ile kenar çubuğu.
-- Tamamen çevrimdışı çalışır. İnternete çıkan tek şey isteğe bağlı hava durumu (Open-Meteo, şehri sen yazarsın).
+- Tamamen çevrimdışı çalışır. İnternete çıkan tek şeyler isteğe bağlı hava durumu (Open-Meteo, şehri sen yazarsın) ve Ayarlar'ı açınca ya da otomatik güncelleme açıkken başlangıçta yapılan sürüm denetimi (GitHub).
 
 ## Kurulum (Windows uygulaması)
 
@@ -45,6 +45,10 @@ Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarınd
 Kurulum istemiyorsan **libzie-tasinabilir.exe** tek dosya olarak da var: istediğin klasöre koyup çalıştır (açılışı biraz daha yavaştır).
 
 İlk açılışta Windows "bilgisayarınızı korudu" uyarısı verebilir: uygulama imzasız olduğu için normaldir. **Daha fazla bilgi → Yine de çalıştır**'a tıkla.
+
+### Güncelleme
+
+Yeni sürüm yayınlandığında **Ayarlar → Güncelleme** bölümünde mevcut ve yeni sürüm numarası görünür; **Şimdi güncelle**'ye basınca libzie yeni sürümü indirir, kendini yenileyip yeniden açılır (kurulum sürümü sihirbazı sessizce çalıştırır, taşınabilir sürüm kendi exe'sinin yerine geçer). **Yeni sürümü açılışta otomatik yükle** kutusunu işaretlersen libzie her açılışta bakar ve yeni sürüm varsa kendiliğinden günceller. Dersleriniz ve ayarlarınız güncellemeden etkilenmez. Kaynak koddan çalışırken uygulama içi güncelleme yoktur; `git pull` kullan.
 
 Dersler `Belgeler\libzie\kaynaklar` klasöründe, ayarlar `%APPDATA%\libzie` içinde tutulur; uygulama klasörünü silsen ya da güncellesen de verilerin kalır. Başka bir klasör kullanmak istersen uygulamada **Ayarlar**'dan seç. Uygulama Windows'taki Edge WebView2 bileşenini kullanır (Windows 10/11'de genellikle hazır gelir).
 
@@ -71,7 +75,7 @@ Kaynak koddan çalıştırırken dosyalar varsayılan olarak `kaynaklar/` klasö
 
 ## Gizlilik
 
-Dosyaların bilgisayarından çıkmaz. Sunucu yalnızca `127.0.0.1`'e bağlıdır. Hava durumu açıksa şehir adın Open-Meteo'ya gider; istemezsen şehir girme.
+Dosyaların bilgisayarından çıkmaz. Sunucu yalnızca `127.0.0.1`'e bağlıdır. Hava durumu açıksa şehir adın Open-Meteo'ya gider; istemezsen şehir girme. Sürüm denetimi yalnızca GitHub'a "son sürüm nedir" diye sorar, hiçbir kişisel veri göndermez.
 
 ## Geliştirme
 
