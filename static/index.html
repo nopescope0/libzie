@@ -72,6 +72,7 @@
     --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1); /* açılış/kapanış, kayma, konum değişimi */
     --ease-in-out: ease-in-out; /* ikon/metin değişimi */
     --ease-out: ease-out;
+    --ease-bounce: cubic-bezier(0.34, 1.36, 0.64, 1); /* küçük öğenin belirmesi (yalnızca girişlerde) */
     --ease-linear: linear;      /* titreşim, döngü */
     --distance-micro: 4px;
     --distance-base: 8px;       /* sayfa kayması */
@@ -150,7 +151,7 @@
   /* Dijital saat (kenar çubuğu, başlığın altında): SS:DD, ayraç her saniye hafifçe söner; köşeler çok hafif yuvarlak */
   .widgets { display: flex; gap: 6px; margin: 2px 12px 12px; }
   .clock {
-    flex: none; display: flex; align-items: baseline; padding: 8px 10px 9px;
+    flex: none; display: flex; align-items: center; justify-content: center; padding: .64em 10px 0; /* serif rakamların mürekkebi satır kutusunun üstüne yakın durur; optik olarak ortala */
     background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
     font-size: 28px; line-height: 1; letter-spacing: -.5px; color: var(--text);
     font-variant-numeric: lining-nums tabular-nums; cursor: default; user-select: none;
@@ -346,6 +347,26 @@
   .set-title svg { width: 16px; height: 16px; stroke: var(--muted); stroke-width: 1.3; stroke-linejoin: miter; stroke-linecap: square; }
   .set-tab { width: 100%; padding: 7px 8px; gap: 8px; text-align: left; }
   .set-tab[aria-selected="true"] { background: var(--hover); color: var(--text); }
+  /* Sekme ikonları: hover/odakta ve sekme seçilince (.play) bir kez oynar; kısa, dönüşümlü (translate/scale), bulanıklık yok */
+  .set-tab { --tb: var(--side); }
+  .set-tab:hover, .set-tab[aria-selected="true"] { --tb: var(--hover); }
+  .ti * { transform-box: fill-box; transform-origin: center; }
+  .ti .k { fill: var(--tb); transition: fill var(--duration-quick) var(--ease-smooth-out); }
+  .ti-general .k1 { translate: 0 0; } .ti-general .k2 { translate: 0 0; }
+  @keyframes ti-k1 { 50% { translate: -5px 0; } 100% { translate: 0 0; } }
+  @keyframes ti-k2 { 50% { translate: 5px 0; } 100% { translate: 0 0; } }
+  @keyframes ti-pop { 0% { scale: 1; } 40% { scale: 1.9; } 100% { scale: 1; } }
+  @keyframes ti-peek { 0% { translate: 0 0; opacity: 1; } 40% { translate: 0 -3px; opacity: 1; } 41% { opacity: 0; } 42% { translate: 0 3px; opacity: 0; } 100% { translate: 0 0; opacity: 1; } }
+  @keyframes ti-hop { 0% { translate: 0 0; } 35% { translate: 0 -2.5px; } 100% { translate: 0 0; } }
+  @keyframes ti-ring { 0% { scale: 1; } 40% { scale: 1.08; } 100% { scale: 1; } }
+  .ti .doc { transition: none; }
+  .set-tab:hover .ti-general .k1, .set-tab:focus-visible .ti-general .k1, .set-tab.play .ti-general .k1 { animation: ti-k1 var(--duration-very-slow) var(--ease-smooth-out); }
+  .set-tab:hover .ti-general .k2, .set-tab:focus-visible .ti-general .k2, .set-tab.play .ti-general .k2 { animation: ti-k2 var(--duration-very-slow) var(--ease-smooth-out); }
+  .set-tab:hover .ti-theme .d, .set-tab:focus-visible .ti-theme .d, .set-tab.play .ti-theme .d { animation: ti-pop var(--duration-very-slow) var(--ease-bounce); }
+  .ti-theme .d2 { animation-delay: var(--duration-stagger) !important; } .ti-theme .d3 { animation-delay: calc(var(--duration-stagger) * 2) !important; }
+  .set-tab:hover .ti-folder .doc, .set-tab:focus-visible .ti-folder .doc, .set-tab.play .ti-folder .doc { animation: ti-peek var(--duration-very-slow) var(--ease-smooth-out); }
+  .set-tab:hover .ti-about .dot, .set-tab:focus-visible .ti-about .dot, .set-tab.play .ti-about .dot { animation: ti-hop var(--duration-slow) var(--ease-smooth-out); }
+  .set-tab:hover .ti-about .ring, .set-tab:focus-visible .ti-about .ring, .set-tab.play .ti-about .ring { animation: ti-ring var(--duration-very-slow) var(--ease-smooth-out); }
   .set-main { position: relative; min-width: 0; padding: 28px 32px; overflow-y: auto; }
   .set-x { position: absolute; top: 14px; right: 14px; }
   .set-x svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
@@ -1052,19 +1073,19 @@
     <nav class="set-nav" role="tablist" aria-orientation="vertical" aria-labelledby="set-title">
       <p class="set-title" id="set-title"><svg id="set-gear" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-i="nav.settings">Ayarlar</span></p>
       <button type="button" role="tab" class="node set-tab" id="tab-general" data-tab="general" aria-controls="pane-general">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+        <svg class="ti ti-general" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle class="k k1" cx="15" cy="7" r="2"/><circle class="k k2" cx="9" cy="17" r="2"/></svg>
         <span data-i="set.tab.general">Genel</span>
       </button>
       <button type="button" role="tab" class="node set-tab" id="tab-theme" data-tab="theme" aria-controls="pane-theme">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 0 0 16c1.2 0 1.8-.8 1.8-1.7 0-1.3-1-1.5-1-2.5s.8-1.6 1.8-1.6H17a3 3 0 0 0 3-3C20 6.7 16.4 4 12 4Z"/><circle cx="8.3" cy="11" r="1"/><circle cx="11.7" cy="7.8" r="1"/><circle cx="15.5" cy="9.3" r="1"/></svg>
+        <svg class="ti ti-theme" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 0 0 16c1.2 0 1.8-.8 1.8-1.7 0-1.3-1-1.5-1-2.5s.8-1.6 1.8-1.6H17a3 3 0 0 0 3-3C20 6.7 16.4 4 12 4Z"/><circle class="d d1" cx="8.3" cy="11" r="1"/><circle class="d d2" cx="11.7" cy="7.8" r="1"/><circle class="d d3" cx="15.5" cy="9.3" r="1"/></svg>
         <span data-i="set.tab.theme">Tema</span>
       </button>
       <button type="button" role="tab" class="node set-tab" id="tab-folder" data-tab="folder" aria-controls="pane-folder">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h6l2 2h10v11H3Z"/></svg>
+        <svg class="ti ti-folder" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h6l2 2h10v11H3Z"/><path class="doc" d="M7 13h10"/></svg>
         <span data-i="set.tab.folder">Kaynak yolu</span>
       </button>
       <button type="button" role="tab" class="node set-tab" id="tab-about" data-tab="about" aria-controls="pane-about">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.2M12 7.8h.01"/></svg>
+        <svg class="ti ti-about" viewBox="0 0 24 24" aria-hidden="true"><circle class="ring" cx="12" cy="12" r="8.5"/><path class="stem" d="M12 11v5.2"/><path class="dot" d="M12 7.8h.01"/></svg>
         <span data-i="set.tab.about">Hakkında</span>
       </button>
     </nav>
@@ -2773,6 +2794,8 @@ function selectSettingsTab(name, focus = false) {
   document.querySelectorAll('#settings .set-tab').forEach(b => {
     const on = b.dataset.tab === name;
     b.setAttribute('aria-selected', String(on));
+    b.classList.remove('play');
+    if (on && $('#settings').open && b.dataset.tab !== lastSettingsTab) { void b.offsetWidth; b.classList.add('play'); }
     b.tabIndex = on ? 0 : -1;
   });
   const animate = $('#settings').open; // pencere açılırken panel ayrıca animasyon oynatmaz; yalnızca açıkken sekme değişince
