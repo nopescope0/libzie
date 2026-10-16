@@ -813,6 +813,15 @@
   :root.vt-set-close::view-transition-old(vt-dialog) { animation: vt-dialog-close var(--duration-very-slow) var(--ease-smooth-out) both; }
   :root.vt-set-close::view-transition-old(vt-gear) { animation: vt-gear-depart var(--duration-very-slow) var(--ease-in-out) both; }
   :root.vt-set-close::view-transition-new(vt-gear) { animation: vt-fade-in-late var(--duration-very-slow) var(--ease-out) both; }
+  /* Dişli uçarken dönmeye başlar ve ortaya vardığında çok hızlıdır (ivmelenme), sonra yavaşça durulur; kapanırken tersi: hızlı başlar, simgeye yavaşlayarak oturur */
+  :root.vt-set-open::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-up calc(var(--duration-very-slow) * 1.5) linear both; }
+  :root.vt-set-close::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-down var(--duration-very-slow) cubic-bezier(0, .4, .3, 1) both; }
+  @keyframes vt-gear-spin-up {
+    0% { rotate: 0deg; animation-timing-function: cubic-bezier(.6, 0, 1, .5); }
+    67% { rotate: 1080deg; animation-timing-function: cubic-bezier(0, .4, .3, 1); }
+    100% { rotate: 1260deg; }
+  }
+  @keyframes vt-gear-spin-down { from { rotate: 0deg; } to { rotate: -1080deg; } }
   @keyframes vt-fade-out { to { opacity: 0; } }
   @keyframes vt-gear-arrive { 0% { opacity: 0; } 22% { opacity: 1; } 58% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes vt-dialog-open { 0%, 30% { clip-path: circle(0% at 50% 50%); opacity: 0; } 45% { opacity: 1; } 100% { clip-path: circle(100% at 50% 50%); opacity: 1; } }
