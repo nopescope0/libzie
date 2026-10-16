@@ -12,7 +12,7 @@ from pathlib import Path
 
 FROZEN = getattr(sys, "frozen", False)
 THEME_DIR = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent)) / "static" / "themes"
-DEFAULT = "dark"
+DEFAULT = "navy"
 ALLOWED = (
     "--bg", "--side", "--surface", "--hover", "--line", "--line-strong", "--shelf", "--text", "--muted", "--faint",
     "--accent", "--highlight", "--highlight-hover", "--on-accent", "--danger", "--warn", "--shadow", "--scrim",

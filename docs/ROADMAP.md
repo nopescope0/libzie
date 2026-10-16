@@ -38,7 +38,7 @@ Kaynak: ilk eleştiri turu (`.impeccable/critique/`) ve kendi kullanım notları
 ## 3. Orta vadeli (v0.5 – v1.0): kullanıcı tabanını genişletenler
 
 - [x] **İngilizce arayüz:** kimlik anahtarlı dil dosyaları (`static/lang/tr.json`, `en.json`), dil Ayarlar'dan seçilir; yeni dil eklemek bir dosya eklemektir
-- [x] **Açık tema:** tema dosyaları (`static/themes/dark.json`, `light.json`), Ayarlar → Tema'dan koyu/açık/sistem seçimi; `tools/tema_kontrol.py` kontrastları doğrular
+- [x] **Açık tema:** tema dosyaları (`static/themes/navy.json`, `light.json`), Ayarlar → Tema'dan koyu/açık/sistem seçimi; `tools/tema_kontrol.py` kontrastları doğrular
 - [ ] **Özel temalar:** kullanıcı kendi tema dosyasını `%APPDATA%\libzie	hemes\` klasörüne bırakıp Tema sekmesinden seçebilsin. Sunucu zaten doğruluyor (yalnızca izinli renk değişkenleri ve renk değerleri); yapılacaklar: ikinci tema klasörü, dosya adı çakışması/geçersiz tema uyarısı, görünen ad için tema dosyasına çok dilli `name` alanı, "temayı Gezgin'de aç" düğmesi, örnek tema şablonu ve README'de tema yazma rehberi **(M)**
 - [ ] **Daha fazla yerleşik tema:** yüksek kontrast, sıcak (sepya) ve renk körlüğüne uygun vurgu seçenekleri **(S)**
 - [ ] **macOS ve Linux:** sunucu zaten platform bağımsız (`open`/`reveal`); pywebview paketleri ve GitHub Actions'ta üç platformlu derleme **(L)**

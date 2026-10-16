@@ -11,7 +11,7 @@
 (function () {
   var p = 'auto';
   try { p = JSON.parse(localStorage.getItem('theme') || '"auto"'); } catch (e) {}
-  if (p === 'auto' || typeof p !== 'string') p = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  if (p === 'auto' || typeof p !== 'string') p = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'navy'; // koyu şemalı varsayılan tema
   document.documentElement.setAttribute('data-theme', p);
 })();
 </script>
@@ -3153,7 +3153,7 @@ const THEMES = (() => { try { return JSON.parse($('#themes-data').textContent) |
 let themePref = (() => { const v = store.get('theme', 'auto'); return v === 'auto' || THEMES.some(x => x.id === v) ? v : 'auto'; })();
 const systemTheme = () => {
   const want = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-  return (THEMES.find(x => x.scheme === want) || THEMES[0] || { id: 'dark' }).id;
+  return (THEMES.find(x => x.scheme === want) || THEMES[0] || { id: 'navy' }).id;
 };
 function applyTheme() {
   const id = themePref === 'auto' ? systemTheme() : themePref;
