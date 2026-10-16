@@ -807,7 +807,7 @@
      sınıf kalkınca pop yeniden başlar ve pencere ikinci kez açılırdı. */
   #settings.vt-open, #settings.vt-arriving, #settings.vt-closing { animation: none; }
   #settings.vt-arriving .set-gear, #settings.vt-closing .set-gear { display: block; }
-  :root.vt-set-open::view-transition-group(vt-gear) { animation-duration: var(--duration-slow); }   /* uçuş 400ms, varış anı dönüşün tepe hızıyla çakışır */
+  :root.vt-set-open::view-transition-group(vt-gear) { animation-duration: var(--duration-fast); }   /* uçuş 250ms: dişli hızla ortaya varır, varış anı dönüşün tepe hızıyla çakışır */
   :root.vt-set-close::view-transition-group(vt-gear) { animation-duration: var(--duration-medium); } /* kapanış açılıştan hızlı: 350ms */
   :root.vt-set-open::view-transition-old(vt-gear), :root.vt-set-open::view-transition-new(vt-gear),
   :root.vt-set-close::view-transition-old(vt-gear), :root.vt-set-close::view-transition-new(vt-gear) { mix-blend-mode: normal; }
@@ -823,15 +823,15 @@
   :root.vt-set-close::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-down var(--duration-medium) var(--ease-smooth-out) both; }
   @keyframes vt-gear-spin-up {
     0% { rotate: 0deg; animation-timing-function: cubic-bezier(.6, 0, 1, .5); }
-    80% { rotate: 1080deg; animation-timing-function: var(--ease-smooth-out); }
-    100% { rotate: 1200deg; }
+    50% { rotate: 900deg; animation-timing-function: var(--ease-smooth-out); }
+    100% { rotate: 1080deg; }
   }
   @keyframes vt-gear-spin-down { from { rotate: 0deg; } to { rotate: -720deg; } }
   @keyframes vt-fade-out { to { opacity: 0; } }
-  @keyframes vt-gear-arrive { 0% { opacity: 0; } 20% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes vt-gear-arrive { 0% { opacity: 0; } 12% { opacity: 1; } 62% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes vt-dialog-open {
-    0%, 35% { clip-path: circle(0% at 50% 50%); opacity: 0; transform: scale(var(--scale-large)); filter: blur(var(--blur-small)); }
-    55% { opacity: 1; }
+    0%, 42% { clip-path: circle(0% at 50% 50%); opacity: 0; transform: scale(var(--scale-large)); filter: blur(var(--blur-small)); }
+    60% { opacity: 1; }
     100% { clip-path: circle(100% at 50% 50%); opacity: 1; transform: none; filter: none; }
   }
   @keyframes vt-dialog-close { 0% { clip-path: circle(100% at 50% 50%); opacity: 1; } 70% { clip-path: circle(0% at 50% 50%); opacity: 1; } 100% { clip-path: circle(0% at 50% 50%); opacity: 0; } }
