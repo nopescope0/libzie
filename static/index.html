@@ -3208,7 +3208,7 @@ async function loadWeather(force = false) {
     return;
   }
   const cached = store.get('weather', null);
-  const fresh = cached && cached.key === placeKey() && Date.now() - cached.at < 15 * 60e3;
+  const fresh = cached && cached.key === placeKey() && cached.feel != null && Date.now() - cached.at < 15 * 60e3; // eski biçimli önbellek (hissedilen/gece bilgisi yok) bayat sayılır
   if (cached && cached.key === placeKey()) showWeather(cached);
   if (fresh && !force) return;
   box.classList.add('loading');
