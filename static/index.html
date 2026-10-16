@@ -796,11 +796,29 @@
      Ders karosu ⇄ ders sayfası: şekil (vt-shape) konum yolundaki ikona uçar; karo (vt-tile) içine girilir gibi
      büyüyüp bulanıklaşarak çözülür, dönüşte aynı yoldan geri gelir. Küçük resim (vt-doc) görüntüleyiciye büyür. */
   ::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--duration-fast); }
-  ::view-transition-group(vt-shape), ::view-transition-group(vt-doc) { animation-duration: var(--duration-very-slow); animation-timing-function: var(--ease-smooth-out); }
+  ::view-transition-group(vt-shape), ::view-transition-group(vt-doc), ::view-transition-group(vt-gear) { animation-duration: var(--duration-very-slow); animation-timing-function: var(--ease-smooth-out); }
   ::view-transition-old(vt-tile) { animation: vt-tile-out var(--duration-medium) var(--ease-smooth-out) both; }
   ::view-transition-new(vt-tile) { animation: vt-tile-in var(--duration-slow) var(--ease-smooth-out) both; }
   @keyframes vt-tile-out { to { transform: scale(1.6); opacity: 0; filter: blur(var(--blur-medium)); } }
   @keyframes vt-tile-in { from { transform: scale(1.6); opacity: 0; filter: blur(var(--blur-medium)); } }
+  /* Ayarlar: kenar çubuğundaki dişli ekranın ortasına uçup büyür, pencere dişlinin içinden açılır (kapanırken tersi) */
+  .set-gear { display: none; position: absolute; left: 50%; top: 50%; width: 150px; height: 150px; margin: -75px 0 0 -75px; z-index: 6; pointer-events: none; stroke: var(--accent); stroke-width: .5; }
+  #settings.vt-arriving, #settings.vt-closing { animation: none; }
+  #settings.vt-arriving .set-gear, #settings.vt-closing .set-gear { display: block; }
+  :root.vt-set-open::view-transition-old(vt-gear), :root.vt-set-open::view-transition-new(vt-gear),
+  :root.vt-set-close::view-transition-old(vt-gear), :root.vt-set-close::view-transition-new(vt-gear) { mix-blend-mode: normal; }
+  :root.vt-set-open::view-transition-old(vt-gear) { animation: vt-fade-out calc(var(--duration-very-slow) * .45) var(--ease-out) both; }
+  :root.vt-set-open::view-transition-new(vt-gear) { animation: vt-gear-arrive calc(var(--duration-very-slow) * 1.5) var(--ease-in-out) both; }
+  :root.vt-set-open::view-transition-new(vt-dialog) { animation: vt-dialog-open calc(var(--duration-very-slow) * 1.5) var(--ease-smooth-out) both; }
+  :root.vt-set-close::view-transition-old(vt-dialog) { animation: vt-dialog-close var(--duration-very-slow) var(--ease-smooth-out) both; }
+  :root.vt-set-close::view-transition-old(vt-gear) { animation: vt-gear-depart var(--duration-very-slow) var(--ease-in-out) both; }
+  :root.vt-set-close::view-transition-new(vt-gear) { animation: vt-fade-in-late var(--duration-very-slow) var(--ease-out) both; }
+  @keyframes vt-fade-out { to { opacity: 0; } }
+  @keyframes vt-gear-arrive { 0% { opacity: 0; } 22% { opacity: 1; } 58% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes vt-dialog-open { 0%, 30% { clip-path: circle(0% at 50% 50%); opacity: 0; } 45% { opacity: 1; } 100% { clip-path: circle(100% at 50% 50%); opacity: 1; } }
+  @keyframes vt-dialog-close { 0% { clip-path: circle(100% at 50% 50%); opacity: 1; } 65% { clip-path: circle(0% at 50% 50%); opacity: 1; } 100% { clip-path: circle(0% at 50% 50%); opacity: 0; } }
+  @keyframes vt-gear-depart { 0% { opacity: 0; } 25%, 70% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes vt-fade-in-late { 0%, 55% { opacity: 0; } 100% { opacity: 1; } }
   .tile.vt-leaving svg.shape { opacity: .72 !important; transform: none !important; filter: none !important; transition: none !important; }
   .tile.vt-leaving .tile-desc, .tile.vt-leaving .tile-arrow, .tile.vt-leaving .more { opacity: 0 !important; transition: none !important; }
 
@@ -1041,6 +1059,7 @@
 
 <dialog id="settings" aria-labelledby="set-title">
   <form method="dialog" onsubmit="return false" class="set">
+    <svg class="set-gear" id="set-gear" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     <nav class="set-nav" role="tablist" aria-orientation="vertical" aria-labelledby="set-title">
       <p class="set-title" id="set-title" data-i="nav.settings">Ayarlar</p>
       <button type="button" role="tab" class="set-tab" id="tab-general" data-tab="general" aria-controls="pane-general">
@@ -2081,8 +2100,8 @@ function clearVTNames() {
   });
 }
 // nameOld: eski görünümdeki eşleşen öğeleri adlandırır; nameNew: güncellemeden sonra yenilerini
-function transition(update, nameOld, nameNew) {
-  if (!canVT()) { update(); return; }
+function transition(update, nameOld, nameNew, after) {
+  if (!canVT()) { update(); if (after) after(); return; }
   nameOld();
   let done = false;
   const run = () => {
@@ -2096,7 +2115,7 @@ function transition(update, nameOld, nameNew) {
   // Atlanan/iptal edilen geçişte bu sözler reddedilir; konsola yakalanmamış hata düşmesin
   vt.ready.catch(() => {});
   vt.updateCallbackDone.catch(() => {});
-  vt.finished.catch(() => {}).finally(clearVTNames);
+  vt.finished.catch(() => {}).finally(() => { clearVTNames(); if (after) after(); });
   // Güvenlik: tarayıcı kare üretmiyorsa (arka plan, donmuş pencere) geçiş başlamaz; gezinme asla takılmasın
   setTimeout(() => { if (!done) { vt.skipTransition(); run(); } }, 400);
 }
@@ -2794,6 +2813,32 @@ $('#settings .set-nav').addEventListener('keydown', e => {
   e.preventDefault();
   selectSettingsTab(tabs[j].dataset.tab, true);
 });
+// Ayarlar penceresi: kenar çubuğundaki dişli ekranın ortasına gelip büyür, pencere onun içinden açılır; kapanırken tersi.
+// (Ders karosu → ders sayfası geçişiyle aynı View Transitions altyapısı; destek yoksa/hareket azaltılmışsa doğrudan açılır.)
+function showSettingsDialog() {
+  const dlg = $('#settings'), root = document.documentElement;
+  if (dlg.open) return;
+  const finish = () => { dlg.classList.remove('vt-arriving'); root.classList.remove('vt-set-open'); };
+  root.classList.add('vt-set-open');
+  transition(
+    () => { if (canVT()) dlg.classList.add('vt-arriving'); dlg.showModal(); $('#tab-' + lastSettingsTab).focus(); },
+    () => vtName($('#open-settings svg'), 'vt-gear'),
+    () => { vtName(dlg, 'vt-dialog'); vtName($('#set-gear'), 'vt-gear'); },
+    finish
+  );
+}
+function closeSettingsDialog() {
+  const dlg = $('#settings'), root = document.documentElement;
+  if (!dlg.open) return;
+  const finish = () => { dlg.classList.remove('vt-closing'); root.classList.remove('vt-set-close'); };
+  root.classList.add('vt-set-close');
+  transition(
+    () => { dlg.close(); },
+    () => { dlg.classList.add('vt-closing'); vtName(dlg, 'vt-dialog'); vtName($('#set-gear'), 'vt-gear'); },
+    () => vtName($('#open-settings svg'), 'vt-gear'),
+    finish
+  );
+}
 async function openSettings(tab) {
   try {
     const s = await (await fetch('/api/settings')).json();
@@ -2812,8 +2857,7 @@ async function openSettings(tab) {
     $('#s-default').textContent = s.default;
     $('#s-error').textContent = '';
     selectSettingsTab(tab || lastSettingsTab);
-    $('#settings').showModal();
-    $('#tab-' + lastSettingsTab).focus();
+    showSettingsDialog();
   } catch { toast(t('set.read_failed'), true); }
 }
 async function saveSettings() {
@@ -2847,7 +2891,8 @@ $('#open-settings').onclick = () => openSettings();
 $('#open-keys').onclick = () => $('#keys').showModal();
 document.querySelector('.skip').addEventListener('click', e => { e.preventDefault(); $('#content').focus(); });
 $('#s-save').onclick = saveSettings;
-$('#s-cancel').onclick = () => $('#settings').close();
+$('#s-cancel').onclick = closeSettingsDialog;
+$('#settings').addEventListener('cancel', e => { e.preventDefault(); closeSettingsDialog(); }); // Esc de animasyonlu kapansın
 $('#s-reveal').onclick = () => api('/api/reveal', { path: '' }).catch(e => { $('#s-error').textContent = e.message; });
 $('#s-lang').onchange = e => setLang(e.target.value);
 $('#g-tray').onchange = async e => {
