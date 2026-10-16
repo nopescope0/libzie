@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> Belgeler `docs/` altında: `docs/PRODUCT.md`, `docs/DESIGN.md`, `docs/ROADMAP.md` (kökte yalnızca README, LICENSE, CLAUDE.md ve kod durur).
+
 ## Overview
 
 "libzie" (formerly "Ders Arşivi") — a local-only web app for organizing course materials (PDFs, slides). UI text and code comments are in Turkish; keep new user-facing strings in Turkish.
