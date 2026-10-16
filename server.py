@@ -10,6 +10,7 @@ import os
 import re
 import secrets
 import shutil
+import socket
 import subprocess
 import sys
 import urllib.request
@@ -51,26 +52,38 @@ else:
     DEFAULT_ROOT = BASE / "kaynaklar"
     SETTINGS_FILE = BASE / "ayarlar.json"
 # Oturum anahtarı: yalnızca bu Windows kullanıcısının okuyabildiği profil klasöründe durur. Uygulama/tarayıcı adresi
-# `/?k=<anahtar>` ile açar, sunucu bunu çerezle (HttpOnly, SameSite=Strict) saklar; anahtarsız hiçbir istek işlenmez.
-# Böylece aynı bilgisayardaki başka hesaplar ya da programlar API'yi kullanamaz. Anahtar kalıcıdır: açık libzie'ye
-# ikinci bir başlatma da bağlanabilir.
+# `/?k=<anahtar>` ile açar, sunucu bunu oturum çerezinde (HttpOnly, SameSite=Strict, porta özgü ad) saklar; anahtarsız hiçbir
+# istek işlenmez. Anahtar her sunucu başlangıcında yenilenir (start()); açık libzie'ye ikinci bir başlatma, çalışan örneğin
+# dosyaya yazdığı güncel anahtarı okuyup bağlanır ve bağlanmadan önce örneğin anahtarı bildiğini kanıtlamasını ister (is_libzie).
 SESSION_FILE = Path(os.environ.get("LIBZIE_OTURUM_DOSYASI") or Path(os.environ.get("APPDATA") or Path.home()) / "libzie" / "oturum.key")
 
 
-def load_token():
+def read_token():
     try:
         t = SESSION_FILE.read_text(encoding="utf-8").strip()
-        if len(t) >= 32:
-            return t
+        return t if len(t) >= 32 else ""
     except OSError:
-        pass
+        return ""
+
+
+def new_token():
     t = secrets.token_urlsafe(32)
     SESSION_FILE.parent.mkdir(parents=True, exist_ok=True)
     SESSION_FILE.write_text(t, encoding="utf-8")
     return t
 
 
-TOKEN = load_token()
+TOKEN = read_token()  # çalışan bir örneğe bağlanmak için; yeni sunucu açılırken yenilenir
+
+
+def same(a, b):
+    """Sabit zamanlı karşılaştırma; ASCII dışı girdide bile hata vermez."""
+    return hmac.compare_digest(str(a).encode("utf-8", "replace"), str(b).encode("utf-8", "replace"))
+
+
+def proof(nonce):
+    return hmac.new(TOKEN.encode(), nonce.encode("utf-8", "replace"), "sha256").hexdigest() if TOKEN and nonce else ""
+
 
 # Uygulamanın kendi sayfası için içerik politikası: eval yok (pdf.js CVE-2024-4367 gibi font/eval tabanlı saldırıları keser),
 # başka sitelerden betik/çerçeve yok, dışarıya yalnızca hava durumu servisi.
@@ -80,11 +93,43 @@ CSP_APP = ("default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'se
 # Kullanıcı dosyaları (PDF hariç) betik çalıştıramayan bir kum havuzunda sunulur: içine HTML/SVG düşse bile uygulamanın API'sine erişemez.
 CSP_USER_FILE = "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data:"
 # "Varsayılan uygulamada aç" yalnızca bu uzantılara izin verir; çalıştırılabilir/betik türleri hiçbir zaman doğrudan açılmaz
-OPEN_OK = {"pdf", "png", "jpg", "jpeg", "gif", "webp", "bmp", "tif", "tiff", "svg", "heic", "txt", "md", "rtf", "csv", "tsv",
+OPEN_OK = {"pdf", "png", "jpg", "jpeg", "gif", "webp", "bmp", "tif", "tiff", "heic", "txt", "md", "rtf", "csv", "tsv",
            "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp", "pages", "numbers", "key", "epub", "djvu",
            "mp4", "m4v", "mov", "mkv", "webm", "avi", "mp3", "wav", "m4a", "flac", "ogg", "zip", "7z", "rar"}
 RESERVED = {"con", "prn", "aux", "nul", *(f"com{i}" for i in range(1, 10)), *(f"lpt{i}" for i in range(1, 10))}
 MAX_JSON = 1 << 20
+# Arşive yüklenen/yeniden adlandırılan dosyalar çift tıkla çalışabilen türde olamaz (indirme-bırakma noktası olmasın)
+BLOCKED_EXT = {"exe", "com", "scr", "bat", "cmd", "msi", "msp", "ps1", "psm1", "vbs", "vbe", "wsf", "wsh", "hta", "lnk", "url",
+               "pif", "cpl", "reg", "scf", "inf", "dll", "sys", "msc", "gadget", "appref-ms"}
+
+
+def protected_dirs():
+    """Yazılamayan konumlar: sistem klasörleri, Başlangıç klasörleri, libzie'nin kendi kurulumu ve ayarları."""
+    env = os.environ.get
+    out = []
+    for var in ("WINDIR", "SystemRoot", "ProgramFiles", "ProgramFiles(x86)", "ProgramW6432", "ProgramData"):
+        if env(var):
+            out.append(Path(env(var)))
+    for base, tail in (("APPDATA", "Microsoft/Windows/Start Menu"), ("ProgramData", "Microsoft/Windows/Start Menu"),
+                       ("APPDATA", "libzie"), ("LOCALAPPDATA", "Programs"), ("USERPROFILE", ".ssh")):
+        if env(base):
+            out.append(Path(env(base)) / tail)
+    return [p.resolve() for p in out]
+
+
+PROTECTED = protected_dirs()
+
+
+def check_write(p):
+    p = Path(p).resolve()
+    for d in PROTECTED:
+        if p == d or d in p.parents:
+            raise ValueError("Bu klasöre yazılamaz (sistem, Başlangıç ya da uygulama klasörü)")
+
+
+def check_ext(name):
+    if Path(name).suffix.lower().lstrip(".") in BLOCKED_EXT:
+        raise ValueError("Bu dosya türü (çalıştırılabilir/betik) arşive eklenemez")
 
 ENV_ROOT = os.environ.get("KAYNAK_KLASORU", "")  # ayarlanmışsa arayüzden değiştirilemez
 
@@ -267,10 +312,14 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
+    def cookie_name(self):
+        return f"libzie_k_{self.server.server_address[1]}"  # çerezler port ayırmaz: örnekler birbirinin çerezini ezmesin
+
     def has_token(self):
+        name = self.cookie_name()
         for part in self.headers.get("Cookie", "").split(";"):
             k, _, v = part.strip().partition("=")
-            if k == "libzie_k" and hmac.compare_digest(v, TOKEN):
+            if k == name and TOKEN and same(v, TOKEN):
                 return True
         return False
 
@@ -293,9 +342,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def authorized(self, path, query):
         """Oturum anahtarı: `/?k=...` ile gelinirse çerez verilip temiz adrese yönlendirilir; çerezsiz istek 401 alır."""
-        if path == "/" and hmac.compare_digest((query.get("k") or [""])[0], TOKEN):
+        if path == "/" and TOKEN and same((query.get("k") or [""])[0], TOKEN):
             self.send_response(302)
-            self.send_header("Set-Cookie", f"libzie_k={TOKEN}; Path=/; HttpOnly; SameSite=Strict; Max-Age=31536000")
+            self.send_header("Set-Cookie", f"{self.cookie_name()}={TOKEN}; Path=/; HttpOnly; SameSite=Strict")
             self.send_header("Location", "/")
             self.send_header("Content-Length", "0")
             self.send_header("Cache-Control", "no-store")
@@ -382,8 +431,11 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if not self.guard(False):
                 return
-            if path == "/api/ping":  # başka bir libzie örneği çalışıyor mu diye bakmak için (anahtarsız, hiçbir veri içermez)
-                return self.send_json({"app": "libzie"})
+            if path == "/api/ping":
+                # Başka bir libzie örneği çalışıyor mu diye bakmak için (anahtarsız). Gelen rastgele sayıya anahtarla HMAC döner:
+                # istemci, anahtarı göndermeden önce karşıdakinin gerçekten bu kullanıcının libzie'si olduğunu doğrulayabilir.
+                nonce = (parse_qs(u.query).get("n") or [""])[0][:64]
+                return self.send_json({"app": "libzie", "proof": proof(nonce)})
             if not self.authorized(path, parse_qs(u.query)):
                 return
             if path in ("/", "/index.html"):
@@ -453,8 +505,11 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError("Geçersiz istek")
             if u.path == "/api/upload":
                 d = safe(q.get("dir", ""))
+                check_write(d)
+                name = clean_name(q.get("name", ""))
+                check_ext(name)
                 d.mkdir(parents=True, exist_ok=True)
-                target = unique(d / clean_name(q.get("name", "")))
+                target = unique(d / name)
                 remaining = length
                 with open(target, "wb") as f:
                     while remaining > 0:
@@ -473,6 +528,7 @@ class Handler(BaseHTTPRequestHandler):
 
             if u.path == "/api/mkdir":
                 parent = safe(body.get("dir", ""))
+                check_write(parent)
                 p = parent / clean_name(body.get("name", ""))
                 if p.exists():
                     raise ValueError("Bu adla bir öğe zaten var")
@@ -483,6 +539,9 @@ class Handler(BaseHTTPRequestHandler):
                 src = safe(body["from"])
                 dst_dir = safe(body.get("dir", ""))
                 dst = dst_dir / clean_name(body.get("name") or src.name)
+                check_write(dst_dir)
+                if dst.suffix.lower() != src.suffix.lower():
+                    check_ext(dst.name)  # yeniden adlandırarak yürütülebilir türe çevirmek de engellenir
                 if src == ROOT or not src.exists():
                     raise ValueError("Öğe bulunamadı")
                 if src.is_dir() and (dst_dir == src or src in dst_dir.parents):
@@ -578,6 +637,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not src.exists():
                     raise ValueError("Öğe bulunamadı")
                 dst = safe(body["to"])
+                check_write(dst.parent)
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 dst = unique(dst)
                 shutil.move(str(src), str(dst))
@@ -598,11 +658,28 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json({"error": str(e)}, 400)
 
 
+class Server(ThreadingHTTPServer):
+    """Windows'ta SO_REUSEADDR başka bir programın aynı porta ortak bağlanıp bağlantıları çalmasına izin verir;
+    SO_EXCLUSIVEADDRUSE bunu engeller (port doluysa bağlanma OSError verir ve sıradaki port denenir)."""
+    allow_reuse_address = False
+
+    def server_bind(self):
+        if sys.platform == "win32":
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
+
+
 def is_libzie(port):
+    """Bu portta bu kullanıcının libzie'si mi çalışıyor? Anahtarı bildiğini HMAC ile kanıtlamayan dinleyiciye güvenilmez
+    (aksi halde başka bir hesap portu işgal edip adresle birlikte oturum anahtarını alabilirdi)."""
+    if not TOKEN:
+        return False
+    nonce = secrets.token_hex(16)
     try:
-        with urllib.request.urlopen(f"http://{HOST}:{port}/api/ping", timeout=1) as r:
-            return json.loads(r.read()).get("app") == "libzie"
-    except (OSError, ValueError):
+        with urllib.request.urlopen(f"http://{HOST}:{port}/api/ping?n={nonce}", timeout=1) as r:
+            data = json.loads(r.read())
+        return data.get("app") == "libzie" and same(data.get("proof", ""), proof(nonce))
+    except (OSError, ValueError, AttributeError):
         return False
 
 
@@ -618,9 +695,12 @@ def start():
         if is_libzie(port):
             return f"http://{HOST}:{port}", None
         try:
-            return f"http://{HOST}:{port}", ThreadingHTTPServer((HOST, port), Handler)
+            srv = Server((HOST, port), Handler)
         except OSError:
             continue
+        global TOKEN
+        TOKEN = new_token()  # her başlangıçta yeni anahtar: ele geçirilmiş eski anahtar işe yaramaz
+        return f"http://{HOST}:{port}", srv
     raise SystemExit(f"{PORT} portundan başlayan portlar dolu; PORT ortam değişkeniyle başka bir port seçin.")
 
 

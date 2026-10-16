@@ -8,7 +8,9 @@ Lütfen herkese açık bir issue açma. Bunun yerine bu deponun **Security → R
 
 libzie tek kullanıcılı, yalnızca kendi bilgisayarında çalışan bir uygulamadır. Sunucu sadece `127.0.0.1` adresini dinler; ağdan erişilemez. Yine de tarayıcıda açık başka bir web sitesinin ya da aynı bilgisayardaki başka bir programın bu yerel sunucuyu kullanamaması için şu önlemler vardır:
 
-- **Oturum anahtarı:** Rastgele bir anahtar yalnızca senin Windows hesabının okuyabildiği `%APPDATA%\libzie\oturum.key` dosyasında durur. Uygulama adresi anahtarla açar, sunucu bunu `HttpOnly` + `SameSite=Strict` çerezde saklar. Anahtarsız hiçbir API isteği işlenmez.
+- **Oturum anahtarı:** Rastgele bir anahtar yalnızca senin Windows hesabının okuyabildiği `%APPDATA%\libzie\oturum.key` dosyasında durur ve her başlangıçta yenilenir. Uygulama adresi anahtarla açar, sunucu bunu oturum çerezinde (`HttpOnly`, `SameSite=Strict`, porta özgü ad) saklar. Anahtarsız hiçbir API isteği işlenmez.
+- **Sahte libzie'ye karşı koruma:** Açık bir libzie'ye bağlanmadan önce, karşıdaki sürecin anahtarı bildiğini HMAC ile kanıtlaması istenir; kanıtlamazsa anahtar hiçbir zaman gönderilmez. Sunucu portu `SO_EXCLUSIVEADDRUSE` ile alır, başka bir program aynı porta ortak bağlanıp bağlantıları çalamaz.
+- **Yazma kısıtları:** Sistem klasörlerine, Başlangıç klasörüne, libzie'nin kendi kurulum ve ayar klasörlerine yazılamaz; `.exe`, `.bat`, `.ps1`, `.lnk` gibi çalıştırılabilir türler arşive yüklenemez ya da bu uzantıya yeniden adlandırılamaz.
 - **Başka sitelerden gelen istekler reddedilir (CSRF / DNS rebinding):** `Host`, `Origin` ve `Sec-Fetch-Site` başlıkları denetlenir, durum değiştiren her istek özel bir başlık (`X-Libzie`) ister.
 - **Dosya açma izin listesiyle sınırlıdır:** "Varsayılan uygulamada aç" yalnızca belge, görsel, ses/video ve arşiv türleri için çalışır; `.exe`, `.bat`, `.lnk`, `.ps1`, `.py` vb. hiçbir zaman doğrudan açılmaz.
 - **Kullanıcı dosyaları kum havuzunda sunulur:** PDF dışındaki dosyalar `Content-Security-Policy: sandbox` ile gelir; klasörüne düşen zararlı bir SVG/HTML dosyası betik çalıştıramaz ve uygulamanın API'sine erişemez.
@@ -17,7 +19,7 @@ libzie tek kullanıcılı, yalnızca kendi bilgisayarında çalışan bir uygula
 
 ## Güncelleme güvenliği
 
-Uygulama içi güncelleme yalnızca bu deponun GitHub sürümlerinden, HTTPS üzerinden indirir; indirilen dosyanın boyutunu ve (GitHub verdiyse) SHA-256 özetini doğrular. Uygulama **kod imzalı değildir**, bu yüzden Windows SmartScreen uyarı verebilir. Her sürümle birlikte `SHA256SUMS.txt` yayınlanır; indirdiğin dosyayı elle doğrulamak için:
+Uygulama içi güncelleme yalnızca bu deponun GitHub sürümlerinden, HTTPS üzerinden indirir; indirilen dosyanın boyutunu ve SHA-256 özetini (GitHub'ın verdiği ya da sürümdeki `SHA256SUMS.txt`) doğrular. Özet yoksa güncelleme yapılmaz. Uygulama **kod imzalı değildir**, bu yüzden Windows SmartScreen uyarı verebilir. Her sürümle birlikte `SHA256SUMS.txt` yayınlanır; indirdiğin dosyayı elle doğrulamak için:
 
 ```
 certutil -hashfile libzie-kurulum.exe SHA256

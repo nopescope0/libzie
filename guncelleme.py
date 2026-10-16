@@ -131,8 +131,29 @@ def _download(url, dest, size, digest):
     with open(dest, "rb") as f:
         if f.read(2) != b"MZ":
             raise UpdateError("İndirilen dosya geçerli bir uygulama değil.")
-    if digest.startswith("sha256:") and sha.hexdigest() != digest[7:].lower():
+    if sha.hexdigest() != digest[7:].lower():
         raise UpdateError("İndirilen dosyanın doğrulaması tutmadı; tekrar dene.")
+
+
+def _expected_digest(rel, asset):
+    """İndirilecek dosyanın beklenen SHA-256 özeti: GitHub'ın asset `digest` alanı, yoksa sürümdeki SHA256SUMS.txt.
+    İkisi de yoksa güncelleme yapılmaz (boyut/başlık denetimi tek başına yetmez)."""
+    digest = str(asset.get("digest") or "")
+    if digest.startswith("sha256:") and re.fullmatch(r"[0-9a-fA-F]{64}", digest[7:]):
+        return digest.lower()
+    sums = next((a for a in rel.get("assets") or [] if a.get("name") == "SHA256SUMS.txt"), None)
+    url = str((sums or {}).get("browser_download_url") or "")
+    if url and (TEST_API or url.startswith(f"https://github.com/{REPO}/releases/download/")):
+        try:
+            with _opener.open(urllib.request.Request(url, headers={"User-Agent": f"libzie/{VERSION}"}), timeout=15) as r:
+                text = r.read(1 << 16).decode("utf-8", "replace")
+            for line in text.splitlines():
+                parts = line.split()
+                if len(parts) == 2 and parts[1].lstrip("*") == asset.get("name") and re.fullmatch(r"[0-9a-fA-F]{64}", parts[0]):
+                    return "sha256:" + parts[0].lower()
+        except (OSError, UpdateError):
+            pass
+    raise UpdateError("Bu sürümün doğrulama özeti yok; güvenlik nedeniyle güncelleme yapılmadı.")
 
 
 def _can_write(folder):
@@ -171,6 +192,7 @@ def _run():
         url = str(asset.get("browser_download_url") or "")
         if not TEST_API and not url.startswith(f"https://github.com/{REPO}/releases/download/"):
             raise UpdateError("Beklenmeyen indirme adresi; güncelleme iptal edildi.")
+        digest = _expected_digest(rel, asset)
         exe = Path(sys.executable)
         if k == "tasinabilir" and not _can_write(exe.parent):
             raise UpdateError(f"{exe.parent} klasörüne yazılamıyor; uygulamayı yazılabilir bir klasöre taşı ya da kurulum sürümünü kullan.")
@@ -178,7 +200,7 @@ def _run():
             shutil.rmtree(old, ignore_errors=True)
         work = Path(tempfile.mkdtemp(prefix="libzie-guncelleme-"))  # tahmin edilemez, yalnızca bu kullanıcıya açık klasör
         dest = work / ASSETS[k]
-        _download(url, dest, int(asset.get("size") or 0), str(asset.get("digest") or ""))
+        _download(url, dest, int(asset.get("size") or 0), digest)
 
         if k == "kurulum":
             # Sihirbaz çalışan libzie'yi kapatır, dosyaları yenileyip uygulamayı yeniden açar (libzie.iss: WizardSilent)
