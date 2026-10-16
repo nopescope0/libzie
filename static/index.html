@@ -811,12 +811,12 @@
   :root.vt-set-close::view-transition-group(vt-gear) { animation-duration: var(--duration-medium); } /* kapanış açılıştan hızlı: 350ms */
   :root.vt-set-open::view-transition-old(vt-gear), :root.vt-set-open::view-transition-new(vt-gear),
   :root.vt-set-close::view-transition-old(vt-gear), :root.vt-set-close::view-transition-new(vt-gear) { mix-blend-mode: normal; }
-  /* Açılış (vurgu anı, --duration-very-slow 500ms): dişli uçar+döner, pencere dişlinin içinden daire olarak açılır; yüzey önce hafif küçük ve bulanık */
+  /* Açılış (vurgu anı, --duration-very-slow 500ms): dişli uçar+döner, varınca sönerken pencere yerinde belirir; yüzey önce hafif küçük ve bulanık */
   :root.vt-set-open::view-transition-old(vt-gear) { animation: vt-fade-out var(--duration-quick) var(--ease-out) both; }
   :root.vt-set-open::view-transition-new(vt-gear) { animation: vt-gear-arrive var(--duration-very-slow) var(--ease-in-out) both; }
   :root.vt-set-open::view-transition-new(vt-dialog) { animation: vt-dialog-open var(--duration-very-slow) var(--ease-smooth-out) both; }
   :root.vt-set-open::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-up var(--duration-very-slow) linear both; }
-  /* Kapanış (350ms, daha hızlı ve sessiz: bulanıklık yok): pencere dişliye çekilir, dişli simgesine yavaşlayarak oturur */
+  /* Kapanış (350ms, daha hızlı ve sessiz: bulanıklık yok): pencere solarak küçülür, dişli belirip simgesine yavaşlayarak oturur */
   :root.vt-set-close::view-transition-old(vt-dialog) { animation: vt-dialog-close var(--duration-medium) var(--ease-smooth-out) both; }
   :root.vt-set-close::view-transition-old(vt-gear) { animation: vt-gear-depart var(--duration-medium) var(--ease-in-out) both; }
   :root.vt-set-close::view-transition-new(vt-gear) { animation: vt-fade-in-late var(--duration-medium) var(--ease-out) both; }
@@ -828,13 +828,13 @@
   }
   @keyframes vt-gear-spin-down { from { rotate: 0deg; } to { rotate: -720deg; } }
   @keyframes vt-fade-out { to { opacity: 0; } }
-  @keyframes vt-gear-arrive { 0% { opacity: 0; } 12% { opacity: 1; } 62% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes vt-gear-arrive { 0% { opacity: 0; } 12% { opacity: 1; } 50% { opacity: 1; } 75%, 100% { opacity: 0; } }
+  /* Pencere dairesel bir maskeyle değil, dişli sönerken ölçek+solma+bulanıklıkla açılır (maske dişlinin arkasında "çember" gibi görünüyordu) */
   @keyframes vt-dialog-open {
-    0%, 42% { clip-path: circle(0% at 50% 50%); opacity: 0; transform: scale(var(--scale-large)); filter: blur(var(--blur-small)); }
-    60% { opacity: 1; }
-    100% { clip-path: circle(100% at 50% 50%); opacity: 1; transform: none; filter: none; }
+    0%, 50% { opacity: 0; transform: scale(var(--scale-large)); filter: blur(var(--blur-small)); }
+    100% { opacity: 1; transform: none; filter: none; }
   }
-  @keyframes vt-dialog-close { 0% { clip-path: circle(100% at 50% 50%); opacity: 1; } 70% { clip-path: circle(0% at 50% 50%); opacity: 1; } 100% { clip-path: circle(0% at 50% 50%); opacity: 0; } }
+  @keyframes vt-dialog-close { 0% { opacity: 1; transform: none; } 60%, 100% { opacity: 0; transform: scale(var(--scale-large)); } }
   @keyframes vt-fade-in-late { 0%, 55% { opacity: 0; } 100% { opacity: 1; } }
   @keyframes vt-gear-depart { 0% { opacity: 0; } 20%, 70% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes vt-fade-in-late { 0%, 55% { opacity: 0; } 100% { opacity: 1; } }
