@@ -77,7 +77,7 @@ NIF_MESSAGE, NIF_ICON, NIF_TIP, NIF_INFO = 0x1, 0x2, 0x4, 0x10
 NIIF_INFO = 0x1
 MF_STRING, MF_SEPARATOR = 0x0, 0x800
 TPM_RIGHTBUTTON, TPM_RETURNCMD = 0x2, 0x100
-ID_OPEN, ID_QUIT = 1, 2
+ID_OPEN, ID_QUIT, ID_UPDATE = 1, 2, 3
 ICON_FILE = Path(__file__).resolve().parent / "assets" / "icon.ico"
 
 
@@ -104,10 +104,11 @@ def load_icon():
 
 
 class Tray:
-    """on_show(): pencereyi göster · on_quit(): uygulamayı kapat · lang(): 'tr'/'en' (menü her açılışta güncel dili okur)."""
+    """on_show(): pencereyi göster · on_quit(): uygulamayı kapat · lang(): 'tr'/'en' (menü her açılışta güncel dili okur) ·
+    on_update(): "Güncellemeleri denetle" (verilmezse menüde görünmez)."""
 
-    def __init__(self, on_show, on_quit, lang=system_lang):
-        self.on_show, self.on_quit, self.lang = on_show, on_quit, lang
+    def __init__(self, on_show, on_quit, lang=system_lang, on_update=None):
+        self.on_show, self.on_quit, self.lang, self.on_update = on_show, on_quit, lang, on_update
         self.hwnd = None
         self.ok = False
         self._ready = threading.Event()
@@ -173,13 +174,27 @@ class Tray:
             user32.TranslateMessage(ctypes.byref(msg))
             user32.DispatchMessageW(ctypes.byref(msg))
 
-    def _menu(self):
+    def _build_menu(self):
         lang = self.lang()
         menu = user32.CreatePopupMenu()
         user32.AppendMenuW(menu, MF_STRING, ID_OPEN, i18n.msg("tray.open", lang))
+        if self.on_update:
+            user32.AppendMenuW(menu, MF_STRING, ID_UPDATE, i18n.msg("upd.check", lang))
         user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
         user32.AppendMenuW(menu, MF_STRING, ID_QUIT, i18n.msg("tray.quit", lang))
         user32.SetMenuDefaultItem(menu, ID_OPEN, 0)
+        return menu
+
+    def _dispatch(self, cmd):
+        if cmd == ID_OPEN:
+            self._safe(self.on_show)
+        elif cmd == ID_UPDATE and self.on_update:
+            self._safe(self.on_update)
+        elif cmd == ID_QUIT:
+            self._safe(self.on_quit)
+
+    def _menu(self):
+        menu = self._build_menu()
         pt = POINT()
         user32.GetCursorPos(ctypes.byref(pt))
         user32.SetForegroundWindow(self.hwnd)  # menü dışına tıklanınca kapanması için gerekli
@@ -200,11 +215,7 @@ class Tray:
             if event in (WM_LBUTTONUP, WM_LBUTTONDBLCLK):
                 self._safe(self.on_show)
             elif event in (WM_RBUTTONUP, WM_CONTEXTMENU):
-                cmd = self._menu()
-                if cmd == ID_OPEN:
-                    self._safe(self.on_show)
-                elif cmd == ID_QUIT:
-                    self._safe(self.on_quit)
+                self._dispatch(self._menu())
             return 0
         if msg == self._taskbar_msg and self._taskbar_msg:
             self._add_icon()  # Gezgin yeniden başladı: simgeyi geri koy

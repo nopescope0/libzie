@@ -41,7 +41,15 @@ def main():
         except Exception:  # noqa: BLE001
             pass
 
-    tray = tepsi.Tray(show, quit_app, server.ui_lang)
+    def check_updates():
+        # Pencereyi aç ve Ayarlar → Hakkında'ya git: sekme açılınca sürüm denetimi kendiliğinden başlar
+        show()
+        try:
+            window.evaluate_js("openSettings('about')")
+        except Exception:  # noqa: BLE001 — sayfa henüz yüklenmediyse sessizce atla
+            pass
+
+    tray = tepsi.Tray(show, quit_app, server.ui_lang, check_updates)
     if tray.start():
         server.DESKTOP = True
         server.DESKTOP_HOOKS["show"] = show
