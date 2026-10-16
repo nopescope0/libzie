@@ -356,7 +356,7 @@
   .set-x svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
   .set-h { font-weight: 400; font-size: 30px; letter-spacing: -.4px; margin: 0 0 22px; padding-right: 34px; }
   .set-pane[hidden] { display: none; }
-  .set-pane { animation: set-in var(--duration-fast) var(--ease-smooth-out); }
+  .set-pane.enter { animation: set-in var(--duration-fast) var(--ease-smooth-out); }
   @keyframes set-in { from { opacity: 0; transform: translateY(var(--distance-micro)); } }
   .set-pane .field { margin-top: 2px; }
   .set-hint { margin: -10px 0 18px; }
@@ -803,30 +803,40 @@
   @keyframes vt-tile-in { from { transform: scale(1.6); opacity: 0; filter: blur(var(--blur-medium)); } }
   /* Ayarlar: kenar çubuğundaki dişli ekranın ortasına uçup büyür, pencere dişlinin içinden açılır (kapanırken tersi) */
   .set-gear { display: none; position: absolute; left: 50%; top: 50%; width: 150px; height: 150px; margin: -75px 0 0 -75px; z-index: 6; pointer-events: none; stroke: var(--accent); stroke-width: .5; }
-  #settings.vt-arriving, #settings.vt-closing { animation: none; }
+  /* vt-open: geçişle açılan pencere açık kaldığı sürece `dialog[open]`'ın kendi açılış animasyonu (pop) kapalı kalır; yoksa geçiş bitip
+     sınıf kalkınca pop yeniden başlar ve pencere ikinci kez açılırdı. */
+  #settings.vt-open, #settings.vt-arriving, #settings.vt-closing { animation: none; }
   #settings.vt-arriving .set-gear, #settings.vt-closing .set-gear { display: block; }
+  :root.vt-set-open::view-transition-group(vt-gear) { animation-duration: var(--duration-slow); }   /* uçuş 400ms, varış anı dönüşün tepe hızıyla çakışır */
+  :root.vt-set-close::view-transition-group(vt-gear) { animation-duration: var(--duration-medium); } /* kapanış açılıştan hızlı: 350ms */
   :root.vt-set-open::view-transition-old(vt-gear), :root.vt-set-open::view-transition-new(vt-gear),
   :root.vt-set-close::view-transition-old(vt-gear), :root.vt-set-close::view-transition-new(vt-gear) { mix-blend-mode: normal; }
-  :root.vt-set-open::view-transition-old(vt-gear) { animation: vt-fade-out calc(var(--duration-very-slow) * .45) var(--ease-out) both; }
-  :root.vt-set-open::view-transition-new(vt-gear) { animation: vt-gear-arrive calc(var(--duration-very-slow) * 1.5) var(--ease-in-out) both; }
-  :root.vt-set-open::view-transition-new(vt-dialog) { animation: vt-dialog-open calc(var(--duration-very-slow) * 1.5) var(--ease-smooth-out) both; }
-  :root.vt-set-close::view-transition-old(vt-dialog) { animation: vt-dialog-close var(--duration-very-slow) var(--ease-smooth-out) both; }
-  :root.vt-set-close::view-transition-old(vt-gear) { animation: vt-gear-depart var(--duration-very-slow) var(--ease-in-out) both; }
-  :root.vt-set-close::view-transition-new(vt-gear) { animation: vt-fade-in-late var(--duration-very-slow) var(--ease-out) both; }
-  /* Dişli uçarken dönmeye başlar ve ortaya vardığında çok hızlıdır (ivmelenme), sonra yavaşça durulur; kapanırken tersi: hızlı başlar, simgeye yavaşlayarak oturur */
-  :root.vt-set-open::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-up calc(var(--duration-very-slow) * 1.5) linear both; }
-  :root.vt-set-close::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-down var(--duration-very-slow) cubic-bezier(0, .4, .3, 1) both; }
+  /* Açılış (vurgu anı, --duration-very-slow 500ms): dişli uçar+döner, pencere dişlinin içinden daire olarak açılır; yüzey önce hafif küçük ve bulanık */
+  :root.vt-set-open::view-transition-old(vt-gear) { animation: vt-fade-out var(--duration-quick) var(--ease-out) both; }
+  :root.vt-set-open::view-transition-new(vt-gear) { animation: vt-gear-arrive var(--duration-very-slow) var(--ease-in-out) both; }
+  :root.vt-set-open::view-transition-new(vt-dialog) { animation: vt-dialog-open var(--duration-very-slow) var(--ease-smooth-out) both; }
+  :root.vt-set-open::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-up var(--duration-very-slow) linear both; }
+  /* Kapanış (350ms, daha hızlı ve sessiz: bulanıklık yok): pencere dişliye çekilir, dişli simgesine yavaşlayarak oturur */
+  :root.vt-set-close::view-transition-old(vt-dialog) { animation: vt-dialog-close var(--duration-medium) var(--ease-smooth-out) both; }
+  :root.vt-set-close::view-transition-old(vt-gear) { animation: vt-gear-depart var(--duration-medium) var(--ease-in-out) both; }
+  :root.vt-set-close::view-transition-new(vt-gear) { animation: vt-fade-in-late var(--duration-medium) var(--ease-out) both; }
+  :root.vt-set-close::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-down var(--duration-medium) var(--ease-smooth-out) both; }
   @keyframes vt-gear-spin-up {
     0% { rotate: 0deg; animation-timing-function: cubic-bezier(.6, 0, 1, .5); }
-    67% { rotate: 1080deg; animation-timing-function: cubic-bezier(0, .4, .3, 1); }
-    100% { rotate: 1260deg; }
+    80% { rotate: 1080deg; animation-timing-function: var(--ease-smooth-out); }
+    100% { rotate: 1200deg; }
   }
-  @keyframes vt-gear-spin-down { from { rotate: 0deg; } to { rotate: -1080deg; } }
+  @keyframes vt-gear-spin-down { from { rotate: 0deg; } to { rotate: -720deg; } }
   @keyframes vt-fade-out { to { opacity: 0; } }
-  @keyframes vt-gear-arrive { 0% { opacity: 0; } 22% { opacity: 1; } 58% { opacity: 1; } 100% { opacity: 0; } }
-  @keyframes vt-dialog-open { 0%, 30% { clip-path: circle(0% at 50% 50%); opacity: 0; } 45% { opacity: 1; } 100% { clip-path: circle(100% at 50% 50%); opacity: 1; } }
-  @keyframes vt-dialog-close { 0% { clip-path: circle(100% at 50% 50%); opacity: 1; } 65% { clip-path: circle(0% at 50% 50%); opacity: 1; } 100% { clip-path: circle(0% at 50% 50%); opacity: 0; } }
-  @keyframes vt-gear-depart { 0% { opacity: 0; } 25%, 70% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes vt-gear-arrive { 0% { opacity: 0; } 20% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes vt-dialog-open {
+    0%, 35% { clip-path: circle(0% at 50% 50%); opacity: 0; transform: scale(var(--scale-large)); filter: blur(var(--blur-small)); }
+    55% { opacity: 1; }
+    100% { clip-path: circle(100% at 50% 50%); opacity: 1; transform: none; filter: none; }
+  }
+  @keyframes vt-dialog-close { 0% { clip-path: circle(100% at 50% 50%); opacity: 1; } 70% { clip-path: circle(0% at 50% 50%); opacity: 1; } 100% { clip-path: circle(0% at 50% 50%); opacity: 0; } }
+  @keyframes vt-fade-in-late { 0%, 55% { opacity: 0; } 100% { opacity: 1; } }
+  @keyframes vt-gear-depart { 0% { opacity: 0; } 20%, 70% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes vt-fade-in-late { 0%, 55% { opacity: 0; } 100% { opacity: 1; } }
   .tile.vt-leaving svg.shape { opacity: .72 !important; transform: none !important; filter: none !important; transition: none !important; }
   .tile.vt-leaving .tile-desc, .tile.vt-leaving .tile-arrow, .tile.vt-leaving .more { opacity: 0 !important; transition: none !important; }
@@ -2795,7 +2805,12 @@ function selectSettingsTab(name, focus = false) {
     b.setAttribute('aria-selected', String(on));
     b.tabIndex = on ? 0 : -1;
   });
-  document.querySelectorAll('#settings .set-pane').forEach(p => { p.hidden = p.dataset.pane !== name; });
+  const animate = $('#settings').open; // pencere açılırken panel ayrıca animasyon oynatmaz; yalnızca açıkken sekme değişince
+  document.querySelectorAll('#settings .set-pane').forEach(p => {
+    p.hidden = p.dataset.pane !== name;
+    p.classList.remove('enter');
+    if (!p.hidden && animate) { void p.offsetWidth; p.classList.add('enter'); }
+  });
   lastSettingsTab = name;
   if (focus) $('#tab-' + name).focus();
   if (name === 'about') {
@@ -2829,6 +2844,7 @@ function showSettingsDialog() {
   if (dlg.open) return;
   const finish = () => { dlg.classList.remove('vt-arriving'); root.classList.remove('vt-set-open'); };
   root.classList.add('vt-set-open');
+  dlg.classList.toggle('vt-open', canVT()); // pencere kapanana dek kalır (pop'un ikinci kez oynamasını engeller)
   transition(
     () => { if (canVT()) dlg.classList.add('vt-arriving'); dlg.showModal(); $('#tab-' + lastSettingsTab).focus(); },
     () => vtName($('#open-settings svg'), 'vt-gear'),
@@ -2839,7 +2855,7 @@ function showSettingsDialog() {
 function closeSettingsDialog() {
   const dlg = $('#settings'), root = document.documentElement;
   if (!dlg.open) return;
-  const finish = () => { dlg.classList.remove('vt-closing'); root.classList.remove('vt-set-close'); };
+  const finish = () => { dlg.classList.remove('vt-closing', 'vt-open'); root.classList.remove('vt-set-close'); };
   root.classList.add('vt-set-close');
   transition(
     () => { dlg.close(); },
@@ -2849,10 +2865,14 @@ function closeSettingsDialog() {
   );
 }
 async function openSettings(tab) {
+  // Animasyon tıklamayla aynı anda başlar; ayarlar sunucudan gelirken alanlar doldurulur (bekleme, gecikme eklemez)
+  settingsData = null;
+  aboutLoaded = false;
+  selectSettingsTab(tab || lastSettingsTab);
+  showSettingsDialog();
   try {
     const s = await (await fetch('/api/settings')).json();
     settingsData = s;
-    aboutLoaded = false;
     $('#s-path').value = s.configured;
     updatePreview();
     $('#s-path').disabled = s.locked;
@@ -2865,9 +2885,11 @@ async function openSettings(tab) {
     $('#s-current').textContent = s.root;
     $('#s-default').textContent = s.default;
     $('#s-error').textContent = '';
-    selectSettingsTab(tab || lastSettingsTab);
-    showSettingsDialog();
-  } catch { toast(t('set.read_failed'), true); }
+    if (lastSettingsTab === 'about' && !aboutLoaded) { aboutLoaded = true; initUpdate(s); } // Hakkında açık açıldıysa denetim şimdi başlar
+  } catch {
+    toast(t('set.read_failed'), true);
+    closeSettingsDialog();
+  }
 }
 async function saveSettings() {
   try {
@@ -2876,6 +2898,7 @@ async function saveSettings() {
     $('#s-error').textContent = e.message;
     return;
   }
+  $('#settings').classList.remove('vt-open');
   $('#settings').close();
   expanded.clear();
   store.set('expanded', []);
@@ -2902,6 +2925,7 @@ document.querySelector('.skip').addEventListener('click', e => { e.preventDefaul
 $('#s-save').onclick = saveSettings;
 $('#s-cancel').onclick = closeSettingsDialog;
 $('#settings').addEventListener('cancel', e => { e.preventDefault(); closeSettingsDialog(); }); // Esc de animasyonlu kapansın
+$('#settings').addEventListener('close', () => $('#settings').classList.remove('vt-open')); // hangi yolla kapanırsa kapansın sonraki açılış temiz başlasın
 $('#s-reveal').onclick = () => api('/api/reveal', { path: '' }).catch(e => { $('#s-error').textContent = e.message; });
 $('#s-lang').onchange = e => setLang(e.target.value);
 $('#g-tray').onchange = async e => {
