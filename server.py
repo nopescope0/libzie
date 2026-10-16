@@ -3,10 +3,12 @@
 Yalnızca Python standart kütüphanesini kullanır. Dosyalar `kaynaklar/` klasöründe tutulur;
 klasör yapısı doğrudan diskteki klasör yapısıdır (Gezgin'den de eklenebilir).
 """
+import hmac
 import json
 import mimetypes
 import os
 import re
+import secrets
 import shutil
 import subprocess
 import sys
@@ -48,6 +50,42 @@ if FROZEN:
 else:
     DEFAULT_ROOT = BASE / "kaynaklar"
     SETTINGS_FILE = BASE / "ayarlar.json"
+# Oturum anahtarı: yalnızca bu Windows kullanıcısının okuyabildiği profil klasöründe durur. Uygulama/tarayıcı adresi
+# `/?k=<anahtar>` ile açar, sunucu bunu çerezle (HttpOnly, SameSite=Strict) saklar; anahtarsız hiçbir istek işlenmez.
+# Böylece aynı bilgisayardaki başka hesaplar ya da programlar API'yi kullanamaz. Anahtar kalıcıdır: açık libzie'ye
+# ikinci bir başlatma da bağlanabilir.
+SESSION_FILE = Path(os.environ.get("LIBZIE_OTURUM_DOSYASI") or Path(os.environ.get("APPDATA") or Path.home()) / "libzie" / "oturum.key")
+
+
+def load_token():
+    try:
+        t = SESSION_FILE.read_text(encoding="utf-8").strip()
+        if len(t) >= 32:
+            return t
+    except OSError:
+        pass
+    t = secrets.token_urlsafe(32)
+    SESSION_FILE.parent.mkdir(parents=True, exist_ok=True)
+    SESSION_FILE.write_text(t, encoding="utf-8")
+    return t
+
+
+TOKEN = load_token()
+
+# Uygulamanın kendi sayfası için içerik politikası: eval yok (pdf.js CVE-2024-4367 gibi font/eval tabanlı saldırıları keser),
+# başka sitelerden betik/çerçeve yok, dışarıya yalnızca hava durumu servisi.
+CSP_APP = ("default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
+           "font-src 'self' data:; media-src 'self'; connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com; "
+           "frame-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+# Kullanıcı dosyaları (PDF hariç) betik çalıştıramayan bir kum havuzunda sunulur: içine HTML/SVG düşse bile uygulamanın API'sine erişemez.
+CSP_USER_FILE = "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data:"
+# "Varsayılan uygulamada aç" yalnızca bu uzantılara izin verir; çalıştırılabilir/betik türleri hiçbir zaman doğrudan açılmaz
+OPEN_OK = {"pdf", "png", "jpg", "jpeg", "gif", "webp", "bmp", "tif", "tiff", "svg", "heic", "txt", "md", "rtf", "csv", "tsv",
+           "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp", "pages", "numbers", "key", "epub", "djvu",
+           "mp4", "m4v", "mov", "mkv", "webm", "avi", "mp3", "wav", "m4a", "flac", "ogg", "zip", "7z", "rar"}
+RESERVED = {"con", "prn", "aux", "nul", *(f"com{i}" for i in range(1, 10)), *(f"lpt{i}" for i in range(1, 10))}
+MAX_JSON = 1 << 20
+
 ENV_ROOT = os.environ.get("KAYNAK_KLASORU", "")  # ayarlanmışsa arayüzden değiştirilemez
 
 
@@ -121,7 +159,8 @@ def unique(p):
 
 def clean_name(name):
     name = Path(str(name).replace("\\", "/")).name.strip()
-    if not name or name.startswith(".") or any(c in name for c in '<>:"|?*'):
+    if (not name or name.startswith(".") or name.endswith(".") or any(c in name for c in '<>:"|?*')
+            or any(ord(c) < 32 for c in name) or name.split(".")[0].strip().lower() in RESERVED):
         raise ValueError("Geçersiz ad")
     return name
 
@@ -187,6 +226,8 @@ def tree(d):
 
 
 def open_with_system(p):
+    if p.is_file() and p.suffix.lower().lstrip(".") not in OPEN_OK:
+        raise ValueError("Bu dosya türü güvenlik nedeniyle doğrudan açılmaz (çalıştırılabilir olabilir). “Klasörde göster”i kullan.")
     if sys.platform == "win32":
         os.startfile(p)
     elif sys.platform == "darwin":
@@ -199,6 +240,8 @@ def reveal(p):
     if sys.platform == "win32":
         if p.is_dir():
             os.startfile(p)
+        elif '"' in str(p):
+            raise ValueError("Geçersiz yol")
         else:
             subprocess.Popen(f'explorer /select,"{p}"')
     elif sys.platform == "darwin":
@@ -211,16 +254,69 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args):
         pass
 
+    def hosts(self):
+        port = self.server.server_address[1]
+        return {f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}"}
+
+    def deny(self, code, text):
+        data = f"<!doctype html><meta charset=utf-8><title>libzie</title><p>{text}</p>".encode("utf-8")
+        self.send_response(code)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(data)
+
+    def has_token(self):
+        for part in self.headers.get("Cookie", "").split(";"):
+            k, _, v = part.strip().partition("=")
+            if k == "libzie_k" and hmac.compare_digest(v, TOKEN):
+                return True
+        return False
+
+    def guard(self, post):
+        """İstek bu uygulamanın kendi sayfasından mı geliyor? Değilse yanıtı verir ve False döner.
+        Host denetimi DNS rebinding'i, Sec-Fetch-Site/Origin ve özel başlık başka sitelerden gelen istekleri (CSRF) keser."""
+        if self.headers.get("Host", "") not in self.hosts():
+            self.deny(403, "Geçersiz istek.")
+            return False
+        site = self.headers.get("Sec-Fetch-Site")
+        if site and site not in ("same-origin", "none"):
+            self.deny(403, "Başka bir siteden gelen istek reddedildi.")
+            return False
+        if post:
+            origin = self.headers.get("Origin")
+            if (origin and origin not in {f"http://{h}" for h in self.hosts()}) or self.headers.get("X-Libzie") != "1":
+                self.deny(403, "Başka bir siteden gelen istek reddedildi.")
+                return False
+        return True
+
+    def authorized(self, path, query):
+        """Oturum anahtarı: `/?k=...` ile gelinirse çerez verilip temiz adrese yönlendirilir; çerezsiz istek 401 alır."""
+        if path == "/" and hmac.compare_digest((query.get("k") or [""])[0], TOKEN):
+            self.send_response(302)
+            self.send_header("Set-Cookie", f"libzie_k={TOKEN}; Path=/; HttpOnly; SameSite=Strict; Max-Age=31536000")
+            self.send_header("Location", "/")
+            self.send_header("Content-Length", "0")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            return False
+        if not self.has_token():
+            self.deny(401, "libzie'ye erişim izni yok. Uygulamayı libzie.exe (ya da baslat.bat) ile aç.")
+            return False
+        return True
+
     def send_json(self, obj, code=200):
         data = json.dumps(obj, ensure_ascii=False).encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
         self.wfile.write(data)
 
-    def send_file(self, p, cache="no-cache"):
+    def send_file(self, p, cache="no-cache", user=False):
         if not p.is_file():
             return self.send_error(404)
         if p.suffix == ".js":  # Windows kayıt defteri .js'i bazen text/plain verir; worker için gerekli
@@ -258,6 +354,17 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Content-Range", f"bytes {start}-{end}/{size}")
         self.send_header("Content-Disposition", f"inline; filename*=UTF-8''{quote(p.name)}")
         self.send_header("Cache-Control", cache)
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Cross-Origin-Resource-Policy", "same-origin")
+        self.send_header("Referrer-Policy", "no-referrer")
+        if user:
+            if p.suffix.lower() != ".pdf":  # Chrome'un PDF görüntüleyicisi kum havuzu ilkesiyle çalışmaz; PDF'te betik sayfaya erişemez
+                self.send_header("Content-Security-Policy", CSP_USER_FILE)
+        elif p == STATIC / "index.html":
+            self.send_header("Content-Security-Policy", CSP_APP)
+            self.send_header("X-Frame-Options", "DENY")
+        elif p.suffix == ".js":
+            self.send_header("Content-Security-Policy", "script-src 'self'")  # pdf.js çalışanında da eval yok
         self.end_headers()
         with open(p, "rb") as f:
             f.seek(start)
@@ -270,12 +377,17 @@ class Handler(BaseHTTPRequestHandler):
                 remaining -= len(chunk)
 
     def do_GET(self):
-        path = unquote(urlparse(self.path).path)
+        u = urlparse(self.path)
+        path = unquote(u.path)
         try:
+            if not self.guard(False):
+                return
+            if path == "/api/ping":  # başka bir libzie örneği çalışıyor mu diye bakmak için (anahtarsız, hiçbir veri içermez)
+                return self.send_json({"app": "libzie"})
+            if not self.authorized(path, parse_qs(u.query)):
+                return
             if path in ("/", "/index.html"):
                 return self.send_file(STATIC / "index.html")
-            if path == "/api/ping":  # başka bir libzie örneği çalışıyor mu diye bakmak için
-                return self.send_json({"app": "libzie"})
             if path == "/api/tree":
                 data = tree(ROOT)
                 data["colors"] = load_colors()
@@ -297,7 +409,7 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/update/status":
                 return self.send_json(guncelleme.status())
             if path.startswith("/files/"):
-                return self.send_file(safe(path[len("/files/"):]))
+                return self.send_file(safe(path[len("/files/"):]), user=True)
             if path.startswith("/vendor/"):
                 name = path[len("/vendor/"):]
                 if not name or "/" in name or "\\" in name or name.startswith("."):
@@ -330,8 +442,15 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         u = urlparse(self.path)
         q = {k: v[0] for k, v in parse_qs(u.query).items()}
-        length = int(self.headers.get("Content-Length", 0))
         try:
+            if not self.guard(True) or not self.authorized(u.path, {}):
+                return
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+            except ValueError:
+                length = -1
+            if length < 0:
+                raise ValueError("Geçersiz istek")
             if u.path == "/api/upload":
                 d = safe(q.get("dir", ""))
                 d.mkdir(parents=True, exist_ok=True)
@@ -346,7 +465,11 @@ class Handler(BaseHTTPRequestHandler):
                         remaining -= len(chunk)
                 return self.send_json({"path": rel(target)})
 
+            if length > MAX_JSON:
+                raise ValueError("İstek çok büyük")
             body = json.loads(self.rfile.read(length) or b"{}")
+            if not isinstance(body, dict):
+                raise ValueError("Geçersiz istek")
 
             if u.path == "/api/mkdir":
                 parent = safe(body.get("dir", ""))
@@ -415,7 +538,9 @@ class Handler(BaseHTTPRequestHandler):
                     raise ValueError("Renk yalnızca derslere verilebilir")
                 colors = load_colors()
                 if body.get("color"):
-                    colors[course.name] = str(body["color"])[:16]
+                    if not re.fullmatch(r"#[0-9a-fA-F]{3,8}", str(body["color"])):
+                        raise ValueError("Geçersiz renk")
+                    colors[course.name] = str(body["color"])
                 else:
                     colors.pop(course.name, None)
                 save_colors(colors)
@@ -481,6 +606,11 @@ def is_libzie(port):
         return False
 
 
+def launch_url(url):
+    """Uygulama penceresinin/tarayıcının açacağı adres: oturum anahtarını bir kez taşır, sunucu çerez verip adresi temizler."""
+    return f"{url}/?k={TOKEN}"
+
+
 def start():
     """Çalışan libzie varsa ona bağlanır, yoksa boş ilk portta sunucu açar. (url, sunucu|None) döner;
     sunucu yalnızca bu süreç açtıysa vardır (çağıran serve_forever'dan ve kapatmaktan sorumlu)."""
@@ -499,15 +629,16 @@ def main():
     if server is None:
         print(f"libzie zaten çalışıyor: {url}")
         if "--no-browser" not in sys.argv:
-            webbrowser.open(url)
+            webbrowser.open(launch_url(url))
         return
     print(f"libzie çalışıyor: {url}")
     print(f"Dosyalar: {ROOT}")
     if ROOT_WARNING:
         print(f"UYARI: {ROOT_WARNING}")
     print("Kapatmak için bu pencereyi kapatın veya Ctrl+C'ye basın.")
+    print(f"Tarayıcıda açmak için (bu adres sana özel, paylaşma): {launch_url(url)}")
     if "--no-browser" not in sys.argv:
-        webbrowser.open(url)
+        webbrowser.open(launch_url(url))
     try:
         server.serve_forever()
     except KeyboardInterrupt:

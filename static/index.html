@@ -1056,7 +1056,8 @@ let tree = { name: '', path: '', folders: [], files: [], colors: {}, icons: {} }
 const colorOf = path => {
   const c = (tree.colors || {})[path.split('/')[0]] || '';
   const i = LEGACY_PALETTE.indexOf(c);
-  return i >= 0 ? PALETTE[i] : c;
+  if (i >= 0) return PALETTE[i];
+  return /^#[0-9a-f]{3,8}$/i.test(c) ? c : ''; // renkler HTML/CSS içine yazılır: yalnızca hex kabul edilir
 };
 // Dosyanın bağlı olduğu dersi, dersin rengiyle gösteren etiket (kök dizindeki dosyalarda ders yoktur)
 // withShape: küçük resim kartlarında, üzerine gelince adın yerine dersin ana sayfa karosundaki şekil belirir
@@ -1137,7 +1138,7 @@ function toast(msg, err = false, stay = false, progress = null, action = null) {
 }
 
 async function api(url, body) {
-  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Libzie': '1' }, body: JSON.stringify(body || {}) });
   const j = await r.json().catch(() => ({ error: 'Sunucu yanıt vermedi' }));
   if (j.error) throw new Error(j.error);
   return j;
@@ -1730,7 +1731,7 @@ function loadPdfjs() {
 
 async function renderPdfThumb(f) {
   const lib = await loadPdfjs();
-  const pdf = await lib.getDocument({ url: fileUrl(f.path) + '?v=' + f.mtime, disableAutoFetch: true }).promise;
+  const pdf = await lib.getDocument({ url: fileUrl(f.path) + '?v=' + f.mtime, disableAutoFetch: true, isEvalSupported: false }).promise;
   try {
     const page = await pdf.getPage(1);
     const scale = Math.min(2, 320 / page.getViewport({ scale: 1 }).width);
@@ -2424,7 +2425,7 @@ async function uploadItems(items, dir) {
     for (const { file, rel } of items) {
       toast(`Yükleniyor ${done + 1}/${items.length} — ${file.name}`, false, true, done / items.length);
       const target = join(dir, rel);
-      const r = await fetch(`/api/upload?dir=${encodeURIComponent(target)}&name=${encodeURIComponent(file.name)}`, { method: 'POST', body: file });
+      const r = await fetch(`/api/upload?dir=${encodeURIComponent(target)}&name=${encodeURIComponent(file.name)}`, { method: 'POST', headers: { 'X-Libzie': '1' }, body: file });
       const j = await r.json().catch(() => ({ error: 'Yükleme başarısız' }));
       if (j.error) throw new Error(`${file.name}: ${j.error}`);
       arrivals.add(j.path);

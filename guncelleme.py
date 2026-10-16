@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -17,10 +18,12 @@ from pathlib import Path
 
 VERSION = "0.1.2"  # GitHub Actions, sürüm etiketinden (v0.1.3 → 0.1.3) derleme sırasında bu satırı yeniden yazar
 REPO = "nopescope0/libzie"
-# Yalnızca deneme içindir: sahte bir sürüm sunucusuna yönlendirir (indirme adresi denetimi de kapanır)
-API = os.environ.get("LIBZIE_GUNCELLEME_URL") or f"https://api.github.com/repos/{REPO}/releases/latest"
-ASSETS = {"kurulum": "libzie-kurulum.exe", "tasinabilir": "libzie-tasinabilir.exe"}
 FROZEN = getattr(sys, "frozen", False)
+# Yalnızca geliştirirken (paketlenmemiş çalışmada) deneme içindir: sahte bir sürüm sunucusuna yönlendirir, indirme adresi denetimi kapanır.
+# Paketlenen uygulamada bu ortam değişkeni yok sayılır.
+TEST_API = "" if FROZEN else os.environ.get("LIBZIE_GUNCELLEME_URL", "")
+API = TEST_API or f"https://api.github.com/repos/{REPO}/releases/latest"
+ASSETS = {"kurulum": "libzie-kurulum.exe", "tasinabilir": "libzie-tasinabilir.exe"}
 
 _lock = threading.Lock()
 _state = {"phase": "idle", "done": 0, "total": 0, "error": ""}  # idle | downloading | restarting | error
@@ -28,6 +31,18 @@ _state = {"phase": "idle", "done": 0, "total": 0, "error": ""}  # idle | downloa
 
 class UpdateError(Exception):
     pass
+
+
+class _HttpsOnly(urllib.request.HTTPRedirectHandler):
+    """İndirme yönlendirmeleri (GitHub → CDN) yalnızca https'e gidebilir; düz http'ye düşürülemez."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if not TEST_API and not newurl.lower().startswith("https://"):
+            raise UpdateError("Güvenli olmayan bir yönlendirme reddedildi.")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+_opener = urllib.request.build_opener(_HttpsOnly)
 
 
 def kind():
@@ -44,7 +59,7 @@ def parse_version(text):
 def fetch_release():
     req = urllib.request.Request(API, headers={"Accept": "application/vnd.github+json", "User-Agent": f"libzie/{VERSION}"})
     try:
-        with urllib.request.urlopen(req, timeout=8) as r:
+        with _opener.open(req, timeout=8) as r:
             return json.loads(r.read())
     except urllib.error.HTTPError as e:
         if e.code == 404:
@@ -101,7 +116,7 @@ def _detached(console):
 def _download(url, dest, size, digest):
     req = urllib.request.Request(url, headers={"User-Agent": f"libzie/{VERSION}"})
     sha = hashlib.sha256()
-    with urllib.request.urlopen(req, timeout=30) as r, open(dest, "wb") as f:
+    with _opener.open(req, timeout=30) as r, open(dest, "wb") as f:
         _set(total=int(r.headers.get("Content-Length") or size or 0), done=0)
         while True:
             chunk = r.read(1 << 18)
@@ -154,13 +169,14 @@ def _run():
         if not asset:
             raise UpdateError("Bu sürümün indirme dosyası henüz hazır değil; birkaç dakika sonra tekrar dene.")
         url = str(asset.get("browser_download_url") or "")
-        if not os.environ.get("LIBZIE_GUNCELLEME_URL") and not url.startswith(f"https://github.com/{REPO}/releases/download/"):
+        if not TEST_API and not url.startswith(f"https://github.com/{REPO}/releases/download/"):
             raise UpdateError("Beklenmeyen indirme adresi; güncelleme iptal edildi.")
         exe = Path(sys.executable)
         if k == "tasinabilir" and not _can_write(exe.parent):
             raise UpdateError(f"{exe.parent} klasörüne yazılamıyor; uygulamayı yazılabilir bir klasöre taşı ya da kurulum sürümünü kullan.")
-        work = Path(tempfile.gettempdir()) / "libzie-guncelleme"
-        work.mkdir(parents=True, exist_ok=True)
+        for old in Path(tempfile.gettempdir()).glob("libzie-guncelleme-*"):  # önceki denemelerin artıkları
+            shutil.rmtree(old, ignore_errors=True)
+        work = Path(tempfile.mkdtemp(prefix="libzie-guncelleme-"))  # tahmin edilemez, yalnızca bu kullanıcıya açık klasör
         dest = work / ASSETS[k]
         _download(url, dest, int(asset.get("size") or 0), str(asset.get("digest") or ""))
 

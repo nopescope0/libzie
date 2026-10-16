@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # Tam commit'e sabitlenmiş action'ları güncel tutar
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

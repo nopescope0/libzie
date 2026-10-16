@@ -22,6 +22,7 @@ Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarınd
 - [Kurulum (Windows uygulaması)](#kurulum-windows-uygulaması)
 - [Kaynak koddan çalıştırma](#kaynak-koddan-çalıştırma-geliştiriciler-için)
 - [Ders klasörün](#ders-klasörün)
+- [Güvenlik](#güvenlik)
 - [Gizlilik](#gizlilik)
 - [Geliştirme](#geliştirme)
 - [Yol haritası](#yol-haritası)
@@ -72,6 +73,10 @@ Seçenekler:
 ## Ders klasörün
 
 Kaynak koddan çalıştırırken dosyalar varsayılan olarak `kaynaklar/` klasöründe tutulur (git'e girmez); uygulamada `Belgeler\libzie\kaynaklar`. Başka bir klasör kullanmak istersen uygulamada **Ayarlar**'dan seç, örneğin not aldığın uygulamanın Google Drive yedek klasörü. Bu, `ayarlar.json` dosyasına yazılır (örnek: `ayarlar.ornek.json`). `KAYNAK_KLASORU` ortam değişkeni de aynı işi yapar ve Ayarlar penceresini kilitler.
+
+## Güvenlik
+
+Sunucu yalnızca `127.0.0.1`'e bağlıdır ve her istek, yalnızca senin hesabının okuyabildiği bir oturum anahtarıyla doğrulanır; başka web siteleri ya da başka programlar libzie'yi kullanamaz. "Varsayılan uygulamada aç" `.exe`/`.bat` gibi çalıştırılabilir dosyaları açmaz, klasörüne düşen zararlı bir SVG/HTML dosyası betik çalıştıramaz. Uygulama **kod imzalı değildir**; yalnızca bu deponun [Releases](https://github.com/nopescope0/libzie/releases) sayfasından indir ve istersen `SHA256SUMS.txt` ile doğrula. Ayrıntılar ve açık bildirimi için [SECURITY.md](SECURITY.md).
 
 ## Gizlilik
 

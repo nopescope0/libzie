@@ -14,7 +14,7 @@ def main():
     url, srv = server.start()
     if srv:
         threading.Thread(target=srv.serve_forever, daemon=True).start()
-    webview.create_window("libzie", url, width=1280, height=820, min_size=(900, 600), background_color="#0e1a2b")
+    webview.create_window("libzie", server.launch_url(url), width=1280, height=820, min_size=(900, 600), background_color="#0e1a2b")
     webview.start()
     if srv:
         srv.shutdown()
