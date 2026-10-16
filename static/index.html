@@ -194,6 +194,11 @@
   @media (prefers-reduced-motion: reduce) { .w-icon * { animation: none !important; opacity: 1 !important; } }
   .weather .w-top { width: 100%; }
   .weather .w-range { margin-left: auto; display: flex; flex-direction: column; gap: 3px; align-items: flex-end; font-size: 12px; line-height: 1; color: var(--muted); font-variant-numeric: lining-nums tabular-nums; }
+  .weather .w-extra { width: 100%; margin-top: 4px; display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11.5px; line-height: 1.2; color: var(--faint); font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
+  .weather .w-extra[hidden] { display: none; }
+  .weather .w-extra b { font-weight: 400; }
+  .weather .w-pop { display: flex; align-items: center; gap: 2px; }
+  .weather .w-pop svg { width: 10px; height: 10px; stroke: var(--faint); stroke-width: 2; fill: none; }
   .weather .w-range[hidden] { display: none; }
   .weather .w-range span { display: flex; align-items: center; gap: 2px; }
   .weather .w-range b { font-weight: 400; }
@@ -990,6 +995,10 @@
         </span>
       </span>
       <span class="w-cond" id="w-cond">Hava durumu ekle</span>
+      <span class="w-extra" id="w-extra" hidden>
+        <span id="w-feel"></span>
+        <span class="w-pop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5c3 3.6 5.5 6.4 5.5 9.7a5.5 5.5 0 0 1-11 0c0-3.3 2.5-6.1 5.5-9.7Z"/></svg><b id="w-pop"></b></span>
+      </span>
     </button>
   </div>
   <div class="node" id="home-node" style="margin: 0 8px">
@@ -3165,6 +3174,8 @@ function showWeather(w) {
   $('#w-temp').textContent = `${w.temp}°`;
   $('#w-cond').textContent = t(WMO[w.code] || '—');
   $('#w-icon').innerHTML = weatherIcon(w.nowCode ?? w.code, w.day === 0); // ikon şu anki durum, yazı günün beklentisi
+  $('#w-extra').hidden = w.feel == null; // eski önbellekte yok
+  if (w.feel != null) { $('#w-feel').textContent = t('weather.feel', { n: w.feel }); $('#w-pop').textContent = `%${w.pop ?? 0}`; }
   $('#w-max').textContent = `${w.max}°`;
   $('#w-min').textContent = `${w.min}°`;
   $('#w-range').hidden = w.min == null || w.max == null; // günün en yüksek / en düşük sıcaklığı (aynı istekten, ek ağ çağrısı yok)
@@ -3191,6 +3202,7 @@ async function loadWeather(force = false) {
     $('#w-icon').innerHTML = '<path d="M12 5v14M5 12h14"/>'; // bozuk görünen "—" yerine sakin bir "ekle" eylemi
     $('#w-temp').textContent = '';
     $('#w-range').hidden = true;
+    $('#w-extra').hidden = true;
     $('#w-cond').textContent = t('weather.add');
     box.title = t('weather.choose_city');
     return;
@@ -3224,6 +3236,7 @@ async function loadWeather(force = false) {
       $('#w-icon').innerHTML = '';
       $('#w-temp').textContent = '—';
       $('#w-range').hidden = true;
+      $('#w-extra').hidden = true;
       $('#w-cond').textContent = t('weather.offline');
     }
     box.title = t('weather.unavailable');
