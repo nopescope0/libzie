@@ -19,7 +19,7 @@ from pathlib import Path
 import i18n
 from i18n import AppError
 
-VERSION = "0.1.2"  # GitHub Actions, sürüm etiketinden (v0.1.3 → 0.1.3) derleme sırasında bu satırı yeniden yazar
+VERSION = "0.1.3"  # GitHub Actions, sürüm etiketinden (v0.1.3 → 0.1.3) derleme sırasında bu satırı yeniden yazar
 REPO = "nopescope0/libzie"
 FROZEN = getattr(sys, "frozen", False)
 # Yalnızca geliştirirken (paketlenmemiş çalışmada) deneme içindir: sahte bir sürüm sunucusuna yönlendirir, indirme adresi denetimi kapanır.

@@ -36,7 +36,7 @@ Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarınd
 - PDF'ler sayfa içinde sekmelerde açılır; PDF'lerin ilk sayfası küçük resim olur.
 - Türkçe karakterden bağımsız arama (`isletim` → "İşletim"), `Ctrl+K` ile tüm derslerde hızlı arama.
 - Tam klavye kullanımı (`?` kısayolları gösterir), `F` ile tam ekran, `Ctrl+B` ile kenar çubuğu.
-- Tamamen çevrimdışı çalışır. İnternete çıkan tek şeyler isteğe bağlı hava durumu (Open-Meteo, şehri sen yazarsın) ve Ayarlar'ı açınca ya da otomatik güncelleme açıkken başlangıçta yapılan sürüm denetimi (GitHub).
+- Tamamen çevrimdışı çalışır. İnternete çıkan tek şeyler isteğe bağlı hava durumu (Open-Meteo, şehri sen yazarsın) ve Ayarlar'da Hakkında sekmesini açınca ya da otomatik güncelleme açıkken başlangıçta yapılan sürüm denetimi (GitHub).
 
 ## Kurulum (Windows uygulaması)
 
@@ -49,7 +49,7 @@ Kurulum istemiyorsan **libzie-tasinabilir.exe** tek dosya olarak da var: istedi�
 
 ### Güncelleme
 
-Yeni sürüm yayınlandığında **Ayarlar → Güncelleme** bölümünde mevcut ve yeni sürüm numarası görünür; **Şimdi güncelle**'ye basınca libzie yeni sürümü indirir, kendini yenileyip yeniden açılır (kurulum sürümü sihirbazı sessizce çalıştırır, taşınabilir sürüm kendi exe'sinin yerine geçer). **Yeni sürümü açılışta otomatik yükle** kutusunu işaretlersen libzie her açılışta bakar ve yeni sürüm varsa kendiliğinden günceller. Dersleriniz ve ayarlarınız güncellemeden etkilenmez. Kaynak koddan çalışırken uygulama içi güncelleme yoktur; `git pull` kullan.
+Yeni sürüm yayınlandığında **Ayarlar → Hakkında** sekmesinde mevcut ve yeni sürüm numarası görünür; **Şimdi güncelle**'ye basınca libzie yeni sürümü indirir, kendini yenileyip yeniden açılır (kurulum sürümü sihirbazı sessizce çalıştırır, taşınabilir sürüm kendi exe'sinin yerine geçer). **Yeni sürümü açılışta otomatik yükle** kutusunu işaretlersen libzie her açılışta bakar ve yeni sürüm varsa kendiliğinden günceller. Dersleriniz ve ayarlarınız güncellemeden etkilenmez. Kaynak koddan çalışırken uygulama içi güncelleme yoktur; `git pull` kullan.
 
 Dersler `Belgeler\libzie\kaynaklar` klasöründe, ayarlar `%APPDATA%\libzie` içinde tutulur; uygulama klasörünü silsen ya da güncellesen de verilerin kalır. Başka bir klasör kullanmak istersen uygulamada **Ayarlar**'dan seç. Uygulama Windows'taki Edge WebView2 bileşenini kullanır (Windows 10/11'de genellikle hazır gelir).
 

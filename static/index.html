@@ -94,7 +94,7 @@
   }
   button, input { font: inherit; color: inherit; }
   /* Başlık yazı tipi (serif) yalnızca başlıklarda; geri kalan her şey yumuşak gövde fontunda */
-  h2, .brand, .greet .hi, .clock, .weather .w-temp, .dlg-head { font-family: var(--font-head); }
+  h2, .brand, .greet .hi, .clock, .weather .w-temp, .dlg-head, .set-title, .set-h, .about-name { font-family: var(--font-head); }
   button { background: none; border: 0; cursor: pointer; }
   /* Kaydırma çubukları: vurgu renginde (teal), uçlarda minimal oklar */
   ::-webkit-scrollbar { width: 12px; height: 12px; }
@@ -315,7 +315,6 @@
   }
   .banner[hidden] { display: none; }
   .banner span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-  #settings { width: min(520px, calc(100vw - 32px)); }
   .dlg-head { font-weight: 400; font-size: 20px; letter-spacing: -.3px; }
   .field { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
   .hint { color: var(--muted); font-size: 12.5px; margin: -6px 0 12px; overflow-wrap: anywhere; }
@@ -339,6 +338,53 @@
   .upd .chk input:disabled { cursor: default; }
   .upd .row-btns { display: flex; gap: 8px; margin-top: 12px; }
   .upd .row-btns .btn[hidden] { display: none; }
+
+  /* Ayarlar: solda dikey sekmeler, sağda seçili sekmenin içeriği */
+  #settings { padding: 0; width: min(880px, calc(100vw - 32px)); height: min(640px, calc(100vh - 48px)); overflow: hidden; }
+  .set { display: grid; grid-template-columns: 220px minmax(0, 1fr); width: 100%; height: 100%; margin: 0; }
+  .set-nav { display: flex; flex-direction: column; gap: 2px; padding: 24px 12px; background: var(--side); border-right: 1px solid var(--line); overflow-y: auto; }
+  .set-title { font-weight: 400; font-size: 24px; letter-spacing: -.3px; margin: 0 8px 20px; }
+  .set-tab {
+    display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: var(--r); text-align: left;
+    color: var(--muted); box-shadow: inset 2px 0 0 transparent;
+    transition: background var(--duration-fast) var(--ease-smooth-out), color var(--duration-fast) var(--ease-smooth-out), box-shadow var(--duration-fast) var(--ease-smooth-out);
+  }
+  .set-tab svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .set-tab:hover { background: var(--hover); color: var(--text); }
+  .set-tab[aria-selected="true"] { background: var(--hover); color: var(--text); box-shadow: inset 2px 0 0 var(--accent); }
+  .set-tab[aria-selected="true"] svg { color: var(--accent); }
+  .set-main { position: relative; min-width: 0; padding: 30px 36px 28px; overflow-y: auto; }
+  .set-x { position: absolute; top: 14px; right: 14px; }
+  .set-x svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+  .set-h { font-weight: 400; font-size: 30px; letter-spacing: -.4px; margin: 0 0 22px; padding-right: 34px; }
+  .set-pane[hidden] { display: none; }
+  .set-pane { animation: set-in var(--duration-fast) var(--ease-smooth-out); }
+  @keyframes set-in { from { opacity: 0; transform: translateY(var(--distance-micro)); } }
+  .set-pane .field { margin-top: 2px; }
+  .set-empty { color: var(--faint); border: 1px dashed var(--line-strong); border-radius: var(--r); padding: 34px 20px; text-align: center; margin: 0; }
+  .set-actions { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .set-actions .grow { flex: 1; }
+  .about-brand { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .about-logo { width: 52px; height: 52px; stroke: var(--text); stroke-width: 1.3; stroke-linejoin: miter; stroke-linecap: square; fill: none; }
+  .about-brand .logo-dot { fill: var(--accent); stroke: none; }
+  .about-brand .logo-l { transform-origin: 4.5px 21px; transform: rotate(8deg); }
+  .about-brand .logo-b { transform-origin: 15.5px 21px; transform: rotate(-8deg); }
+  .about-name { font-size: 30px; line-height: 1.1; letter-spacing: -.3px; }
+  .about-ver { color: var(--muted); font-size: 13px; margin-top: 3px; }
+  .about-ver b { color: var(--text); font-weight: 400; font-variant-numeric: tabular-nums lining-nums; }
+  .about-desc { margin: 0 0 4px; }
+  .about-lic { margin: 22px 0 0; color: var(--faint); }
+  .set-pane .upd { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 18px; }
+  @media (max-width: 700px) {
+    #settings { height: min(680px, calc(100vh - 24px)); }
+    .set { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+    .set-nav { flex-direction: row; gap: 4px; padding: 10px; border-right: 0; border-bottom: 1px solid var(--line); overflow-x: auto; overflow-y: hidden; }
+    .set-title { display: none; }
+    .set-tab { width: auto; white-space: nowrap; padding: 9px 12px; box-shadow: inset 0 -2px 0 transparent; }
+    .set-tab[aria-selected="true"] { box-shadow: inset 0 -2px 0 var(--accent); }
+    .set-main { padding: 22px 18px; }
+    .set-h { font-size: 24px; margin-bottom: 16px; }
+  }
 
   .empty { color: var(--faint); text-align: center; padding: 80px 20px; }
   .empty p { margin: 6px 0; }
@@ -972,38 +1018,89 @@
   </form>
 </dialog>
 
-<dialog id="settings">
-  <form method="dialog" onsubmit="return false">
-    <p class="dlg-head" data-i="nav.settings">Ayarlar</p>
-    <label class="field" for="s-path" data-i="set.root_label">Kaynak klasörü</label>
-    <input id="s-path" autocomplete="off" spellcheck="false" placeholder="Boş bırakırsanız varsayılan klasör kullanılır" data-i-ph="set.root_placeholder">
-    <p class="hint" id="s-preview" aria-live="polite"></p>
-    <p class="hint" data-i-html="set.root_help"></p>
-    <p class="hint" id="s-lock" data-i-html="set.root_locked" hidden></p>
-    <p class="hint"><span data-i="set.current">Şu an:</span> <code id="s-current"></code><br><span data-i="set.default">Varsayılan:</span> <code id="s-default"></code></p>
-    <label class="field" for="s-lang">Dil / Language</label>
-    <select id="s-lang"></select>
-    <section class="upd" aria-labelledby="u-head">
-      <p class="field" id="u-head" data-i="upd.heading">Güncelleme</p>
-      <dl class="ver">
-        <dt data-i="upd.current_version">Mevcut sürüm</dt><dd id="u-cur">—</dd>
-        <dt data-i="upd.new_version">Yeni sürüm</dt><dd id="u-new">—</dd>
-      </dl>
-      <p class="hint" id="u-msg" aria-live="polite"></p>
-      <div class="bar" id="u-bar" hidden><i></i></div>
-      <label class="chk"><input type="checkbox" id="u-auto"><span data-i="upd.auto_label">Yeni sürümü açılışta otomatik yükle</span></label>
-      <p class="hint" data-i="upd.auto_help">İşaretliyken libzie her açılışta yeni sürüm olup olmadığına bakar, varsa indirir ve yeniden başlar. Bu seçenek hemen kaydedilir.</p>
-      <div class="row-btns">
-        <button type="button" class="btn" id="u-check" data-i="upd.check">Güncellemeleri denetle</button>
-        <button type="button" class="btn primary" id="u-apply" data-i="upd.apply" hidden>Şimdi güncelle</button>
-      </div>
-    </section>
-    <p class="error" id="s-error"></p>
-    <div class="actions">
-      <button type="button" class="btn" id="s-reveal" data-i="set.open_explorer">Gezgin'de aç</button>
-      <span class="grow"></span>
-      <button type="button" class="btn" id="s-cancel" data-i="dlg.cancel">Vazgeç</button>
-      <button type="button" class="btn primary" id="s-save" data-i="dlg.save">Kaydet</button>
+<dialog id="settings" aria-labelledby="set-title">
+  <form method="dialog" onsubmit="return false" class="set">
+    <nav class="set-nav" role="tablist" aria-orientation="vertical" aria-labelledby="set-title">
+      <p class="set-title" id="set-title" data-i="nav.settings">Ayarlar</p>
+      <button type="button" role="tab" class="set-tab" id="tab-general" data-tab="general" aria-controls="pane-general">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+        <span data-i="set.tab.general">Genel</span>
+      </button>
+      <button type="button" role="tab" class="set-tab" id="tab-theme" data-tab="theme" aria-controls="pane-theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 0 0 16c1.2 0 1.8-.8 1.8-1.7 0-1.3-1-1.5-1-2.5s.8-1.6 1.8-1.6H17a3 3 0 0 0 3-3C20 6.7 16.4 4 12 4Z"/><circle cx="8.3" cy="11" r="1"/><circle cx="11.7" cy="7.8" r="1"/><circle cx="15.5" cy="9.3" r="1"/></svg>
+        <span data-i="set.tab.theme">Tema</span>
+      </button>
+      <button type="button" role="tab" class="set-tab" id="tab-folder" data-tab="folder" aria-controls="pane-folder">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h6l2 2h10v11H3Z"/></svg>
+        <span data-i="set.tab.folder">Kaynak yolu</span>
+      </button>
+      <button type="button" role="tab" class="set-tab" id="tab-about" data-tab="about" aria-controls="pane-about">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.2M12 7.8h.01"/></svg>
+        <span data-i="set.tab.about">Hakkında</span>
+      </button>
+    </nav>
+    <div class="set-main">
+      <button type="button" class="icon-btn set-x" id="s-cancel" aria-label="Kapat" title="Kapat" data-i-aria="dlg.close" data-i-title="dlg.close">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+
+      <section class="set-pane" role="tabpanel" id="pane-general" data-pane="general" aria-labelledby="tab-general" hidden>
+        <h3 class="set-h" data-i="set.tab.general">Genel</h3>
+        <label class="field" for="s-lang">Dil / Language</label>
+        <select id="s-lang"></select>
+        <p class="hint" data-i="set.lang_hint">Arayüz dili. “Otomatik” sistem dilini izler.</p>
+      </section>
+
+      <section class="set-pane" role="tabpanel" id="pane-theme" data-pane="theme" aria-labelledby="tab-theme" hidden>
+        <h3 class="set-h" data-i="set.tab.theme">Tema</h3>
+        <p class="set-empty" data-i="set.theme_soon">Tema seçenekleri yakında burada olacak.</p>
+      </section>
+
+      <section class="set-pane" role="tabpanel" id="pane-folder" data-pane="folder" aria-labelledby="tab-folder" hidden>
+        <h3 class="set-h" data-i="set.tab.folder">Kaynak yolu</h3>
+        <label class="field" for="s-path" data-i="set.root_label">Kaynak klasörü</label>
+        <input id="s-path" autocomplete="off" spellcheck="false" placeholder="Boş bırakırsanız varsayılan klasör kullanılır" data-i-ph="set.root_placeholder">
+        <p class="hint" id="s-preview" aria-live="polite"></p>
+        <p class="hint" data-i-html="set.root_help"></p>
+        <p class="hint" id="s-lock" data-i-html="set.root_locked" hidden></p>
+        <p class="hint"><span data-i="set.current">Şu an:</span> <code id="s-current"></code><br><span data-i="set.default">Varsayılan:</span> <code id="s-default"></code></p>
+        <p class="error" id="s-error"></p>
+        <div class="set-actions">
+          <button type="button" class="btn" id="s-reveal" data-i="set.open_explorer">Gezgin'de aç</button>
+          <span class="grow"></span>
+          <button type="button" class="btn primary" id="s-save" data-i="dlg.save">Kaydet</button>
+        </div>
+      </section>
+
+      <section class="set-pane" role="tabpanel" id="pane-about" data-pane="about" aria-labelledby="tab-about" hidden>
+        <h3 class="set-h" data-i="set.tab.about">Hakkında</h3>
+        <div class="about-brand">
+          <svg class="about-logo" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M1.5 21.25h21"/>
+            <rect class="logo-l" x="3" y="3" width="3" height="18"/>
+            <rect x="9" y="9" width="3.5" height="12"/>
+            <circle class="logo-dot" cx="10.75" cy="6.1" r="1.45"/>
+            <path class="logo-b" d="M15.5 3V21H21.5V14.5Q21.5 11.5 18.5 11.5H15.5"/>
+          </svg>
+          <div><div class="about-name">libzie</div><div class="about-ver"><span data-i="upd.current_version">Mevcut sürüm</span> <b id="u-cur">—</b></div></div>
+        </div>
+        <p class="hint about-desc" data-i="about.description">Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarında yerel çalışan küçük bir arşiv.</p>
+        <section class="upd" aria-labelledby="u-head">
+          <p class="field" id="u-head" data-i="upd.heading">Güncelleme</p>
+          <dl class="ver">
+            <dt data-i="upd.new_version">Yeni sürüm</dt><dd id="u-new">—</dd>
+          </dl>
+          <p class="hint" id="u-msg" aria-live="polite"></p>
+          <div class="bar" id="u-bar" hidden><i></i></div>
+          <label class="chk"><input type="checkbox" id="u-auto"><span data-i="upd.auto_label">Yeni sürümü açılışta otomatik yükle</span></label>
+          <p class="hint" data-i="upd.auto_help">İşaretliyken libzie her açılışta yeni sürüm olup olmadığına bakar, varsa indirir ve yeniden başlar. Bu seçenek hemen kaydedilir.</p>
+          <div class="row-btns">
+            <button type="button" class="btn" id="u-check" data-i="upd.check">Güncellemeleri denetle</button>
+            <button type="button" class="btn primary" id="u-apply" data-i="upd.apply" hidden>Şimdi güncelle</button>
+          </div>
+        </section>
+        <p class="hint about-lic" data-i="about.license">Lisans: MIT</p>
+      </section>
     </div>
   </form>
 </dialog>
@@ -1272,7 +1369,7 @@ function renderBanner() {
   if (!tree.warning) return;
   b.append(h(`<span>${esc(errText({ error: tree.warning, code: tree.warning_code, vars: tree.warning_vars }))}</span>`));
   const btn = h(`<button class="btn">${t('nav.settings')}</button>`);
-  btn.onclick = openSettings;
+  btn.onclick = () => openSettings('folder');
   b.append(btn);
 }
 
@@ -2636,9 +2733,40 @@ window.addEventListener('focus', () => {
 });
 
 /* ---------- ayarlar ---------- */
-async function openSettings() {
+// Sekmeler: genel, tema, kaynak yolu, hakkında. Seçili sekme oturum boyunca hatırlanır. Sürüm denetimi (internete çıkar)
+// yalnızca "Hakkında" sekmesi açılınca yapılır.
+let settingsData = null, lastSettingsTab = 'general', aboutLoaded = false;
+function selectSettingsTab(name, focus = false) {
+  if (!$('#pane-' + name)) name = 'general';
+  document.querySelectorAll('#settings .set-tab').forEach(b => {
+    const on = b.dataset.tab === name;
+    b.setAttribute('aria-selected', String(on));
+    b.tabIndex = on ? 0 : -1;
+  });
+  document.querySelectorAll('#settings .set-pane').forEach(p => { p.hidden = p.dataset.pane !== name; });
+  lastSettingsTab = name;
+  if (focus) $('#tab-' + name).focus();
+  if (name === 'about' && !aboutLoaded && settingsData) { aboutLoaded = true; initUpdate(settingsData); }
+}
+$('#settings .set-nav').addEventListener('click', e => { const b = e.target.closest('.set-tab'); if (b) selectSettingsTab(b.dataset.tab); });
+// Klavye: ↑/↓ (← / → dar pencerede), Home, End sekmeler arasında gezer ve sekmeyi açar
+$('#settings .set-nav').addEventListener('keydown', e => {
+  const tabs = [...document.querySelectorAll('#settings .set-tab')];
+  const i = tabs.findIndex(b => b.dataset.tab === lastSettingsTab);
+  let j = -1;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') j = (i + 1) % tabs.length;
+  else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length;
+  else if (e.key === 'Home') j = 0;
+  else if (e.key === 'End') j = tabs.length - 1;
+  if (j < 0) return;
+  e.preventDefault();
+  selectSettingsTab(tabs[j].dataset.tab, true);
+});
+async function openSettings(tab) {
   try {
     const s = await (await fetch('/api/settings')).json();
+    settingsData = s;
+    aboutLoaded = false;
     $('#s-path').value = s.configured;
     updatePreview();
     $('#s-path').disabled = s.locked;
@@ -2648,9 +2776,9 @@ async function openSettings() {
     $('#s-current').textContent = s.root;
     $('#s-default').textContent = s.default;
     $('#s-error').textContent = '';
+    selectSettingsTab(tab || lastSettingsTab);
     $('#settings').showModal();
-    if (!s.locked) $('#s-path').focus();
-    initUpdate(s);
+    $('#tab-' + lastSettingsTab).focus();
   } catch { toast(t('set.read_failed'), true); }
 }
 async function saveSettings() {
@@ -2680,7 +2808,7 @@ async function updatePreview() {
   } catch { el.textContent = ''; }
 }
 $('#s-path').addEventListener('input', () => { clearTimeout(previewTimer); previewTimer = setTimeout(updatePreview, 350); });
-$('#open-settings').onclick = openSettings;
+$('#open-settings').onclick = () => openSettings();
 $('#open-keys').onclick = () => $('#keys').showModal();
 document.querySelector('.skip').addEventListener('click', e => { e.preventDefault(); $('#content').focus(); });
 $('#s-save').onclick = saveSettings;
