@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-"libzie" (formerly "Ders Arşivi") — a local-only web app for organizing course materials (PDFs, slides). Code comments and the source language of UI text are Turkish; the UI is also available in English (see "Diller (i18n)" below). Every new user-facing string must be wrapped in `t('Türkçe metin')` (or carry a `data-i*` attribute in HTML) and get an English entry in the `EN` dictionary.
+"libzie" (formerly "Ders Arşivi") — a local-only web app for organizing course materials (PDFs, slides). Code comments are in Turkish; the UI is available in Turkish and English (see "Diller (i18n)" below). Every user-facing string goes through an ID in `static/lang/<dil>.json` — never hard-code UI text in `index.html`/`server.py`.
 
 No dependencies, no build step, no tests, no linter: Python standard library on the backend, a single vanilla HTML/CSS/JS file on the frontend.
 
@@ -57,11 +57,12 @@ The content folder defaults to `./kaynaklar`. It can be changed from the in-app 
 
 ## Diller (i18n, 2026-10)
 
-- Metinlerin kaynağı Türkçedir ve anahtar olarak da Türkçe metin kullanılır: `t('Henüz ders yok')` Türkçede aynen döner, İngilizcede `EN` sözlüğünden (`static/index.html`, "diller (i18n)" bloğu) çevrilir; karşılığı yoksa Türkçe gösterilir. Değişkenler `{ad}` ile (`t('Taşındı → {name}', { name })`), çoğul için EN değeri `[tekil, çoğul]` dizisidir ve `vars.n === 1` tekil seçer. HTML içeren sabit metinler `html:...` anahtarıyla `TRX`/`EN` içinde durur (`data-i-html`).
-- Statik HTML: `data-i` (metin), `data-i-title`, `data-i-ph` (placeholder), `data-i-aria`, `data-i-html`; `applyI18n()` hepsini çevirir (açılışta ve dil değişince). Dinamik içerik `render()` ile yeniden çizilir; hava durumu ve güncelleme mesajı (`lastUpd`) da `setLang()` içinde yenilenir. JS'te bir döngü/yerel değişkeni `t` diye adlandırma: çeviri işlevini gölgeler (sekmeler için `tb` kullanıldı).
-- Dil: `localStorage` `lang` = `auto` (varsayılan: `navigator.language` `tr` ise Türkçe, değilse İngilizce) | `tr` | `en`; Ayarlar'da `#s-lang` seçicisi. Tarih/sayı biçimleri `locale()`/`lang`'e göre (`tr-TR`/`en-GB`, ondalık ayracı).
-- Sunucu hata ve uyarıları Türkçe kalır ve istemcide `tErr()` ile çevrilir: tam eşleşmeler `EN`'de, değişkenli olanlar `ERR_PATTERNS` regex listesinde. Sunucuya yeni bir `ValueError("...")`/`UpdateError("...")` mesajı eklerken `EN`'e (f-string ise `ERR_PATTERNS`'e) karşılığını ekle. Tarayıcıda doğrudan görünen 401/403 sayfaları iki dillidir ("Türkçe / English").
-- Kurulum sihirbazı (`libzie.iss`) Türkçe + İngilizce; yerleşik `{cm:...}` metinleri kullanır.
+- **Dosyalar:** `static/lang/<dil>.json` (`tr.json` varsayılan/yedek, `en.json`). Düz `{kimlik: metin}`; `"_name"` dilin kendi adı (dil seçicide görünür). Kimlikler noktalı ve anlamlıdır (`menu`/`file.open_default`, `err.exists`, `upd.err.offline`, `wmo.95`, `icon.atom`). Çoğul değer `{ "one": ..., "other": ... }` nesnesidir (istemci `Intl.PluralRules` ile seçer, `vars.n`); yer tutucular `{ad}`. Yeni dil = `static/lang/` altına yeni dosya (dil seçici ve algılama sözlükteki dillerden otomatik kurulur).
+- **Yükleme:** `i18n.py` dosyaları okur; `Handler.send_index()` ana sayfadaki `/*I18N*/` yerine tüm sözlükleri `<script type="application/json" id="i18n-data">` içine gömer (ek istek/gecikme yok, `<` kaçırılır). Kaynak koddan çalışırken sözlük her istekte yeniden okunur; paketlenmişte bir kez.
+- **İstemci (`static/index.html`, "diller (i18n)" bloğu):** `t('kimlik', { değişken })` etkin dil → `FALLBACK` (`tr`) → kimliğin kendisi. Statik HTML'de `data-i` (metin), `data-i-title`, `data-i-ph`, `data-i-aria`, `data-i-html` (değeri HTML içerebilen güvenilir metinler); `applyI18n()` hepsini çevirir. HTML'deki Türkçe metin yalnızca JS çalışmadan önceki yedektir. Dil: `localStorage` `lang` = `auto` (varsayılan: `navigator.language` bir sözlük diliyse o, değilse `en`) | dil kodu; Ayarlar'da `#s-lang`. `setLang()` statik metni ve dinamik içeriği (`render()`, hava durumu, güncelleme mesajı `showUpd()`) yeniler. Tarih/sayı biçimi `locale()`/`lang`'e göre. JS'te yerel değişkeni `t` diye adlandırma: çeviri işlevini gölgeler (sekmeler için `tb`).
+- **Sunucu hataları:** metin yerine kimlik taşır: `raise AppError("err.exists")`, `AppError("err.folder_missing", path=str(p))`, güncelleme için `UpdateError("upd.err.offline")` (ikisi de `i18n.AppError`; `UpdateError` `guncelleme.py`'de). Yanıt `{"error": Türkçe varsayılan, "code": kimlik, "vars": {...}}`; istemci `errText(j)` ile etkin dilde gösterir (kimlik sözlükte yoksa `error`). Güncelleme durumu `error_code`/`error_vars`, kök klasör uyarısı `warning_code`/`warning_vars` taşır. 401/403 sayfaları (`deny("http.no_access")`) "Türkçe / English" iki dillidir. GET hataları da JSON döner (`AppError` → 400; yalnızca `err.bad_path` 403).
+- **Yeni metin eklerken:** önce `tr.json`'a kimlik + Türkçe metin, sonra `en.json`'a karşılığı (yer tutucular aynı olmalı), kodda yalnızca kimliği kullan. **`python tools/i18n_kontrol.py` çalıştır**: kodda kullanılıp sözlükte olmayan, bir dilde eksik, yer tutucusu uyuşmayan kimlikleri ve kullanılmayanları bildirir (hata varsa çıkış kodu 1).
+- Kurulum sihirbazı (`libzie.iss`) Türkçe + İngilizce; yerleşik `{cm:...}` metinlerini kullanır.
 
 ## Masaüstü uygulaması (paketleme)
 

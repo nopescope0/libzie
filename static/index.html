@@ -836,7 +836,7 @@
 </style>
 </head>
 <body>
-<a class="skip" href="#" data-i="İçeriğe geç">İçeriğe geç</a>
+<a class="skip" href="#" data-i="nav.skip">İçeriğe geç</a>
 
 <aside>
   <svg id="side-pcb" aria-hidden="true"></svg>
@@ -853,7 +853,7 @@
     <span>libzie</span>
   </div>
   <div class="widgets">
-    <div class="clock" id="clock" aria-label="Saat" data-i-aria="Saat">
+    <div class="clock" id="clock" aria-label="Saat" data-i-aria="nav.clock">
       <span id="clock-h">00</span><span class="clock-sep">:</span><span id="clock-m">00</span>
     </div>
     <button class="weather" id="weather" title="Hava durumu için şehir seçin">
@@ -866,26 +866,26 @@
   </div>
   <div class="node" id="home-node" style="margin: 0 8px">
     <svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg>
-    <span class="label" data-i="Ana sayfa">Ana sayfa</span>
+    <span class="label" data-i="nav.home">Ana sayfa</span>
   </div>
   <div class="side-head">
     <span class="side-title">
       <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><path d="M17 13.2 20.8 17 17 20.8 13.2 17Z"/></svg>
-      <span data-i="Dersler">Dersler</span>
+      <span data-i="nav.courses">Dersler</span>
     </span>
-    <button class="icon-btn" id="new-course" title="Yeni ders" data-i-title="Yeni ders">
+    <button class="icon-btn" id="new-course" title="Yeni ders" data-i-title="course.new">
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
     </button>
   </div>
-  <div id="tree" role="navigation" aria-label="Dersler" data-i-aria="Dersler"></div>
+  <div id="tree" role="navigation" aria-label="Dersler" data-i-aria="nav.courses"></div>
   <div class="side-foot">
-    <button class="node" id="open-keys" title="Klavye kısayolları (?)" data-i-title="Klavye kısayolları (?)">
+    <button class="node" id="open-keys" title="Klavye kısayolları (?)" data-i-title="nav.shortcuts_title">
       <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12"/><path class="kd" d="M7 10h.01"/><path class="kd" d="M11 10h.01"/><path class="kd" d="M15 10h.01"/><path class="kspace" d="M7 14h10"/></svg>
-      <span class="label" data-i="Kısayollar">Kısayollar</span>
+      <span class="label" data-i="nav.shortcuts">Kısayollar</span>
     </button>
-    <button class="node" id="open-settings" title="Ayarlar" data-i-title="Ayarlar">
+    <button class="node" id="open-settings" title="Ayarlar" data-i-title="nav.settings">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-      <span class="label" data-i="Ayarlar">Ayarlar</span>
+      <span class="label" data-i="nav.settings">Ayarlar</span>
     </button>
   </div>
 </aside>
@@ -893,39 +893,39 @@
 <main id="main">
   <h1 class="sr-only" id="page-title">libzie</h1>
   <div id="tabbar" class="tabbar" hidden>
-    <button class="icon-btn side-toggle" title="Kenar çubuğunu gizle/göster (Ctrl+B)" data-i-title="Kenar çubuğunu gizle/göster (Ctrl+B)">
+    <button class="icon-btn side-toggle" title="Kenar çubuğunu gizle/göster (Ctrl+B)" data-i-title="nav.toggle_sidebar">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
     </button>
-    <div id="tabs" class="tabs" role="tablist" aria-label="Açık dosyalar" data-i-aria="Açık dosyalar"></div>
+    <div id="tabs" class="tabs" role="tablist" aria-label="Açık dosyalar" data-i-aria="tabs.open_files"></div>
     <div class="tabtools">
-      <button class="icon-btn" id="v-full" title="Tam ekran (F)" aria-label="Tam ekran" data-i-title="Tam ekran (F)" data-i-aria="Tam ekran" hidden>
+      <button class="icon-btn" id="v-full" title="Tam ekran (F)" aria-label="Tam ekran" data-i-title="viewer.fullscreen_f" data-i-aria="viewer.fullscreen" hidden>
         <svg class="fs-ic out" viewBox="0 0 24 24"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg>
       </button>
-      <button class="icon-btn" id="v-app" title="Varsayılan programda aç (Windows'un bu dosya türü için seçtiği program)" data-i-title="Varsayılan programda aç (Windows'un bu dosya türü için seçtiği program)" hidden>
+      <button class="icon-btn" id="v-app" title="Varsayılan programda aç (Windows'un bu dosya türü için seçtiği program)" data-i-title="viewer.open_default_hint" hidden>
         <svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
       </button>
     </div>
   </div>
   <div class="topbar">
-    <button class="icon-btn side-toggle" title="Kenar çubuğunu gizle/göster (Ctrl+B)" data-i-title="Kenar çubuğunu gizle/göster (Ctrl+B)">
+    <button class="icon-btn side-toggle" title="Kenar çubuğunu gizle/göster (Ctrl+B)" data-i-title="nav.toggle_sidebar">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
     </button>
     <div class="crumbs" id="crumbs"></div>
     <label class="search">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input id="q" type="search" aria-label="Ara" placeholder="Dosya ara…" title="Ara ( / ) · Tüm derslerde ara ( Ctrl+K ) · Enter ilk sonucu açar" data-i-aria="Ara" data-i-ph="Dosya ara…" data-i-title="Ara ( / ) · Tüm derslerde ara ( Ctrl+K ) · Enter ilk sonucu açar" autocomplete="off">
+      <input id="q" type="search" aria-label="Ara" placeholder="Dosya ara…" title="Ara ( / ) · Tüm derslerde ara ( Ctrl+K ) · Enter ilk sonucu açar" data-i-aria="search.label" data-i-ph="search.placeholder" data-i-title="search.hint" autocomplete="off">
     </label>
-    <button class="btn" id="new-folder" title="Yeni klasör" data-i-title="Yeni klasör">
+    <button class="btn" id="new-folder" title="Yeni klasör" data-i-title="folder.new">
       <svg viewBox="0 0 24 24">
         <g class="doc"><path d="M8 4.5h6l2.5 2.5v8H8z"/><path d="M10.5 9h3.5M10.5 11.5h3.5"/></g>
         <path class="folder" d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
         <path class="plus" d="M12 11.5v5M9.5 14h5"/>
       </svg>
-      <span data-i="Yeni klasör">Yeni klasör</span>
+      <span data-i="folder.new">Yeni klasör</span>
     </button>
-    <button class="btn primary" id="upload-btn" title="Dosya yükle" data-i-title="Dosya yükle">
+    <button class="btn primary" id="upload-btn" title="Dosya yükle" data-i-title="upload.files">
       <svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
-      <span data-i="Yükle">Yükle</span>
+      <span data-i="upload.button">Yükle</span>
     </button>
     <input type="file" id="file-input" multiple hidden>
   </div>
@@ -954,7 +954,7 @@
   <div id="content" tabindex="-1"></div>
   <div id="viewer" hidden>
     <div id="frames"></div>
-    <button class="icon-btn" id="fs-exit" title="Tam ekrandan çık (F)" aria-label="Tam ekrandan çık" data-i-title="Tam ekrandan çık (F)" data-i-aria="Tam ekrandan çık">
+    <button class="icon-btn" id="fs-exit" title="Tam ekrandan çık (F)" aria-label="Tam ekrandan çık" data-i-title="viewer.exit_fullscreen_f" data-i-aria="viewer.exit_fullscreen">
       <span class="t-icon-swap"><span class="t-icon" data-icon="a"><svg class="fs-ic out" viewBox="0 0 24 24"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg></span><span class="t-icon" data-icon="b"><svg class="fs-ic in" viewBox="0 0 24 24"><path d="M9 4v5H4"/><path d="M15 4v5h5"/><path d="M9 20v-5H4"/><path d="M15 20v-5h5"/></svg></span></span>
     </button>
   </div>
@@ -966,74 +966,71 @@
     <p class="hint" id="dlg-hint" hidden></p>
     <input id="dlg-input" autocomplete="off" spellcheck="false">
     <div class="actions">
-      <button class="btn" id="dlg-cancel" value="cancel" formnovalidate data-i="Vazgeç">Vazgeç</button>
-      <button class="btn primary" id="dlg-ok" value="ok" data-i="Tamam">Tamam</button>
+      <button class="btn" id="dlg-cancel" value="cancel" formnovalidate data-i="dlg.cancel">Vazgeç</button>
+      <button class="btn primary" id="dlg-ok" value="ok" data-i="dlg.ok">Tamam</button>
     </div>
   </form>
 </dialog>
 
 <dialog id="settings">
   <form method="dialog" onsubmit="return false">
-    <p class="dlg-head" data-i="Ayarlar">Ayarlar</p>
-    <label class="field" for="s-path" data-i="Kaynak klasörü">Kaynak klasörü</label>
-    <input id="s-path" autocomplete="off" spellcheck="false" placeholder="Boş bırakırsanız varsayılan klasör kullanılır" data-i-ph="Boş bırakırsanız varsayılan klasör kullanılır">
+    <p class="dlg-head" data-i="nav.settings">Ayarlar</p>
+    <label class="field" for="s-path" data-i="set.root_label">Kaynak klasörü</label>
+    <input id="s-path" autocomplete="off" spellcheck="false" placeholder="Boş bırakırsanız varsayılan klasör kullanılır" data-i-ph="set.root_placeholder">
     <p class="hint" id="s-preview" aria-live="polite"></p>
-    <p class="hint" data-i-html="html:set-hint"></p>
-    <p class="hint" id="s-lock" data-i-html="html:set-lock" hidden></p>
-    <p class="hint"><span data-i="Şu an:">Şu an:</span> <code id="s-current"></code><br><span data-i="Varsayılan:">Varsayılan:</span> <code id="s-default"></code></p>
+    <p class="hint" data-i-html="set.root_help"></p>
+    <p class="hint" id="s-lock" data-i-html="set.root_locked" hidden></p>
+    <p class="hint"><span data-i="set.current">Şu an:</span> <code id="s-current"></code><br><span data-i="set.default">Varsayılan:</span> <code id="s-default"></code></p>
     <label class="field" for="s-lang">Dil / Language</label>
-    <select id="s-lang">
-      <option value="auto">Otomatik / Automatic</option>
-      <option value="tr">Türkçe</option>
-      <option value="en">English</option>
-    </select>
+    <select id="s-lang"></select>
     <section class="upd" aria-labelledby="u-head">
-      <p class="field" id="u-head" data-i="Güncelleme">Güncelleme</p>
+      <p class="field" id="u-head" data-i="upd.heading">Güncelleme</p>
       <dl class="ver">
-        <dt data-i="Mevcut sürüm">Mevcut sürüm</dt><dd id="u-cur">—</dd>
-        <dt data-i="Yeni sürüm">Yeni sürüm</dt><dd id="u-new">—</dd>
+        <dt data-i="upd.current_version">Mevcut sürüm</dt><dd id="u-cur">—</dd>
+        <dt data-i="upd.new_version">Yeni sürüm</dt><dd id="u-new">—</dd>
       </dl>
       <p class="hint" id="u-msg" aria-live="polite"></p>
       <div class="bar" id="u-bar" hidden><i></i></div>
-      <label class="chk"><input type="checkbox" id="u-auto"><span data-i="Yeni sürümü açılışta otomatik yükle">Yeni sürümü açılışta otomatik yükle</span></label>
-      <p class="hint" data-i="İşaretliyken libzie her açılışta yeni sürüm olup olmadığına bakar, varsa indirir ve yeniden başlar. Bu seçenek hemen kaydedilir.">İşaretliyken libzie her açılışta yeni sürüm olup olmadığına bakar, varsa indirir ve yeniden başlar. Bu seçenek hemen kaydedilir.</p>
+      <label class="chk"><input type="checkbox" id="u-auto"><span data-i="upd.auto_label">Yeni sürümü açılışta otomatik yükle</span></label>
+      <p class="hint" data-i="upd.auto_help">İşaretliyken libzie her açılışta yeni sürüm olup olmadığına bakar, varsa indirir ve yeniden başlar. Bu seçenek hemen kaydedilir.</p>
       <div class="row-btns">
-        <button type="button" class="btn" id="u-check" data-i="Güncellemeleri denetle">Güncellemeleri denetle</button>
-        <button type="button" class="btn primary" id="u-apply" data-i="Şimdi güncelle" hidden>Şimdi güncelle</button>
+        <button type="button" class="btn" id="u-check" data-i="upd.check">Güncellemeleri denetle</button>
+        <button type="button" class="btn primary" id="u-apply" data-i="upd.apply" hidden>Şimdi güncelle</button>
       </div>
     </section>
     <p class="error" id="s-error"></p>
     <div class="actions">
-      <button type="button" class="btn" id="s-reveal" data-i="Gezgin'de aç">Gezgin'de aç</button>
+      <button type="button" class="btn" id="s-reveal" data-i="set.open_explorer">Gezgin'de aç</button>
       <span class="grow"></span>
-      <button type="button" class="btn" id="s-cancel" data-i="Vazgeç">Vazgeç</button>
-      <button type="button" class="btn primary" id="s-save" data-i="Kaydet">Kaydet</button>
+      <button type="button" class="btn" id="s-cancel" data-i="dlg.cancel">Vazgeç</button>
+      <button type="button" class="btn primary" id="s-save" data-i="dlg.save">Kaydet</button>
     </div>
   </form>
 </dialog>
 
 <dialog id="keys">
   <form method="dialog">
-    <p class="dlg-head" data-i="Kısayollar">Kısayollar</p>
+    <p class="dlg-head" data-i="nav.shortcuts">Kısayollar</p>
     <dl class="keys">
-      <dt><kbd>/</kbd></dt><dd data-i="Ara; bulunduğun dersin içinde arar">Ara; bulunduğun dersin içinde arar</dd>
-      <dt><kbd>Ctrl</kbd> <kbd>K</kbd></dt><dd data-i-html="html:keys-ctrlk">Tüm derslerde ara; <kbd>Enter</kbd> ilk sonucu açar</dd>
-      <dt><kbd>Ctrl</kbd> <kbd>B</kbd></dt><dd data-i="Kenar çubuğunu gizle / göster">Kenar çubuğunu gizle / göster</dd>
-      <dt><kbd>F</kbd></dt><dd data-i="Açık dosyayı tam ekran yap / tam ekrandan çık">Açık dosyayı tam ekran yap / tam ekrandan çık</dd>
-      <dt><kbd>Esc</kbd></dt><dd data-i="Menüyü kapat, dosya gezginine dön">Menüyü kapat, dosya gezginine dön</dd>
-      <dt><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd></dt><dd data-i="Karolar, kartlar ve satırlar arasında gez">Karolar, kartlar ve satırlar arasında gez</dd>
-      <dt><kbd>Enter</kbd></dt><dd data-i="Odaktaki öğeyi aç">Odaktaki öğeyi aç</dd>
-      <dt><kbd>F2</kbd></dt><dd data-i="Yeniden adlandır">Yeniden adlandır</dd>
-      <dt><kbd>Delete</kbd></dt><dd data-i="Sil (onay sorulur, “Geri al” ile döner)">Sil (onay sorulur, “Geri al” ile döner)</dd>
-      <dt><kbd>?</kbd></dt><dd data-i="Bu listeyi aç">Bu listeyi aç</dd>
+      <dt><kbd>/</kbd></dt><dd data-i="keys.search">Ara; bulunduğun dersin içinde arar</dd>
+      <dt><kbd>Ctrl</kbd> <kbd>K</kbd></dt><dd data-i-html="keys.search_all">Tüm derslerde ara; <kbd>Enter</kbd> ilk sonucu açar</dd>
+      <dt><kbd>Ctrl</kbd> <kbd>B</kbd></dt><dd data-i="keys.sidebar">Kenar çubuğunu gizle / göster</dd>
+      <dt><kbd>F</kbd></dt><dd data-i="keys.fullscreen">Açık dosyayı tam ekran yap / tam ekrandan çık</dd>
+      <dt><kbd>Esc</kbd></dt><dd data-i="keys.escape">Menüyü kapat, dosya gezginine dön</dd>
+      <dt><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd></dt><dd data-i="keys.arrows">Karolar, kartlar ve satırlar arasında gez</dd>
+      <dt><kbd>Enter</kbd></dt><dd data-i="keys.enter">Odaktaki öğeyi aç</dd>
+      <dt><kbd>F2</kbd></dt><dd data-i="action.rename">Yeniden adlandır</dd>
+      <dt><kbd>Delete</kbd></dt><dd data-i="keys.delete">Sil (onay sorulur, “Geri al” ile döner)</dd>
+      <dt><kbd>?</kbd></dt><dd data-i="keys.help">Bu listeyi aç</dd>
     </dl>
-    <p class="note" data-i="PDF açıkken sayfa, yakınlaştırma ve yazdırma düğmeleri tarayıcının kendi PDF çubuğundadır. PDF’e tıklayınca Esc ve kısayollar ona gider; gezgine dönmek için “Dosyalar” sekmesine tıkla.">PDF açıkken sayfa, yakınlaştırma ve yazdırma düğmeleri tarayıcının kendi PDF çubuğundadır. PDF’e tıklayınca Esc ve kısayollar ona gider; gezgine dönmek için “Dosyalar” sekmesine tıkla.</p>
-    <div class="actions"><button class="btn primary" value="ok" data-i="Tamam">Tamam</button></div>
+    <p class="note" data-i="keys.pdf_note">PDF açıkken sayfa, yakınlaştırma ve yazdırma düğmeleri tarayıcının kendi PDF çubuğundadır. PDF’e tıklayınca Esc ve kısayollar ona gider; gezgine dönmek için “Dosyalar” sekmesine tıkla.</p>
+    <div class="actions"><button class="btn primary" value="ok" data-i="dlg.ok">Tamam</button></div>
   </form>
 </dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
 
+<script type="application/json" id="i18n-data">/*I18N*/</script>
 <script>
 const $ = s => document.querySelector(s);
 const ICON = {
@@ -1058,146 +1055,29 @@ const store = {
 };
 
 /* ---------- diller (i18n) ---------- */
-// Metinlerin kaynağı Türkçedir: t('Türkçe metin') İngilizce seçiliyse EN sözlüğünden çevirir, karşılığı yoksa Türkçeyi gösterir.
-// {ad} yer tutucuları vars ile doldurulur; EN değeri [tekil, çoğul] dizisiyse vars.n === 1 tekil seçer.
-// HTML içeren uzun metinler 'html:...' anahtarıyla TRX/EN içinde durur (yalnızca sabit, güvenilir metinler).
-// Statik HTML'de data-i (metin), data-i-html, data-i-title, data-i-ph (placeholder), data-i-aria öznitelikleri applyI18n() ile çevrilir.
-const TRX = {
-  'html:set-hint': 'Dersleriniz bu klasörde tutulur. Notability yedeğinizin Google Drive klasörünü buraya yapıştırabilirsiniz; örneğin <code>G:\\Drive\'ım\\Notability</code>. Gezgin\'de klasörü seçip Shift+sağ tık → “Yol olarak kopyala” ile yolu alabilirsiniz.',
-  'html:set-lock': 'Bu klasör <code>KAYNAK_KLASORU</code> ortam değişkeniyle sabitlenmiş, buradan değiştirilemez.',
-  'html:keys-ctrlk': 'Tüm derslerde ara; <kbd>Enter</kbd> ilk sonucu açar',
+// Sözlükler static/lang/<dil>.json dosyalarındadır; sunucu hepsini sayfaya gömer (#i18n-data) ve her dosya bir dildir
+// ("_name" dilin kendi adı). Anahtarlar kimliktir ('menu.rename'): t('kimlik', { değişken }) etkin dilden çevirir, eksikse
+// Türkçeye (FALLBACK), o da yoksa kimliğin kendisine düşer. Değer { one, other, ... } nesnesiyse çoğuldur (Intl.PluralRules, vars.n).
+// Yeni dil eklemek için static/lang/ altına dosya koymak yeter; tools/i18n_kontrol.py eksik anahtarları listeler.
+const DICT = (() => { try { return JSON.parse($('#i18n-data').textContent) || {}; } catch { return {}; } })();
+const LANGS = Object.keys(DICT);
+const FALLBACK = 'tr';
+let langPref = (() => { const v = store.get('lang', 'auto'); return v !== 'auto' && LANGS.includes(v) ? v : 'auto'; })();
+const detectLang = () => {
+  const n = (navigator.language || '').toLowerCase().split('-')[0];
+  return LANGS.includes(n) ? n : LANGS.includes('en') ? 'en' : FALLBACK;
 };
-const EN = {
-  // --- sabit arayüz
-  'İçeriğe geç': 'Skip to content', 'Saat': 'Clock', 'Hava durumu için şehir seçin': 'Choose a city for the weather',
-  'Hava durumu ekle': 'Add weather', 'Ana sayfa': 'Home', 'Dersler': 'Courses', 'Yeni ders': 'New course',
-  'Klavye kısayolları (?)': 'Keyboard shortcuts (?)', 'Kısayollar': 'Shortcuts', 'Ayarlar': 'Settings',
-  'Kenar çubuğunu gizle/göster (Ctrl+B)': 'Hide/show sidebar (Ctrl+B)', 'Açık dosyalar': 'Open files',
-  'Tam ekran (F)': 'Full screen (F)', 'Tam ekran': 'Full screen', 'Tam ekrandan çık (F)': 'Exit full screen (F)', 'Tam ekrandan çık': 'Exit full screen',
-  "Varsayılan programda aç (Windows'un bu dosya türü için seçtiği program)": 'Open in default program (the one Windows uses for this file type)',
-  'Ara': 'Search', 'Dosya ara…': 'Search files…',
-  'Ara ( / ) · Tüm derslerde ara ( Ctrl+K ) · Enter ilk sonucu açar': 'Search ( / ) · Search all courses ( Ctrl+K ) · Enter opens the first result',
-  'Yeni klasör': 'New folder', 'Dosya yükle': 'Upload files', 'Yükle': 'Upload', 'Vazgeç': 'Cancel', 'Tamam': 'OK',
-  'libzie, ders arşivi': 'libzie, course archive',
-  'libzie: ders notlarını ve PDF\'leri derse göre düzenleyen yerel arşiv': 'libzie: a local archive that organizes your lecture notes and PDFs by course',
-  // --- ayarlar
-  'Kaynak klasörü': 'Content folder', 'Boş bırakırsanız varsayılan klasör kullanılır': 'Leave empty to use the default folder',
-  'html:set-hint': 'Your courses are stored in this folder. You can paste the Google Drive folder of your Notability backup here, for example <code>G:\\My Drive\\Notability</code>. In File Explorer, select the folder and Shift+right-click → “Copy as path” to get its path.',
-  'html:set-lock': 'This folder is pinned by the <code>KAYNAK_KLASORU</code> environment variable and can\'t be changed here.',
-  'Şu an:': 'Currently:', 'Varsayılan:': 'Default:', 'Güncelleme': 'Updates', 'Mevcut sürüm': 'Current version', 'Yeni sürüm': 'New version',
-  'Yeni sürümü açılışta otomatik yükle': 'Install new versions automatically on startup',
-  'İşaretliyken libzie her açılışta yeni sürüm olup olmadığına bakar, varsa indirir ve yeniden başlar. Bu seçenek hemen kaydedilir.':
-    'When checked, libzie looks for a new version every time it starts, downloads it if there is one and restarts. This setting is saved immediately.',
-  'Güncellemeleri denetle': 'Check for updates', 'Şimdi güncelle': 'Update now', "Gezgin'de aç": 'Open in File Explorer', 'Kaydet': 'Save',
-  'Boş bırakırsan varsayılan klasör kullanılır.': 'Leave empty to use the default folder.',
-  'Bu klasörde {c} ders klasörü, {f} dosya var.': 'This folder contains {c} course folder(s) and {f} file(s).',
-  'Bu klasör bulunamadı.': 'This folder was not found.', 'Ayarlar okunamadı': 'Could not read settings', 'Kaynak klasörü güncellendi': 'Content folder updated',
-  // --- kısayollar
-  'Ara; bulunduğun dersin içinde arar': 'Search; searches inside the current course',
-  'html:keys-ctrlk': 'Search all courses; <kbd>Enter</kbd> opens the first result',
-  'Kenar çubuğunu gizle / göster': 'Hide / show the sidebar', 'Açık dosyayı tam ekran yap / tam ekrandan çık': 'Make the open file full screen / exit full screen',
-  'Menüyü kapat, dosya gezginine dön': 'Close the menu, return to the file browser', 'Karolar, kartlar ve satırlar arasında gez': 'Move between tiles, cards and rows',
-  'Odaktaki öğeyi aç': 'Open the focused item', 'Yeniden adlandır': 'Rename', 'Sil (onay sorulur, “Geri al” ile döner)': 'Delete (asks for confirmation, can be undone with “Undo”)',
-  'Bu listeyi aç': 'Open this list',
-  'PDF açıkken sayfa, yakınlaştırma ve yazdırma düğmeleri tarayıcının kendi PDF çubuğundadır. PDF’e tıklayınca Esc ve kısayollar ona gider; gezgine dönmek için “Dosyalar” sekmesine tıkla.':
-    'While a PDF is open, the page, zoom and print buttons are in the browser\'s own PDF toolbar. After you click the PDF, Esc and the shortcuts go to it; click the “Files” tab to return to the browser.',
-  // --- gezinme, bölümler
-  'Sunucu yanıt vermedi': 'The server did not respond', 'Sunucuya ulaşılamıyor — baslat.bat çalışıyor mu?': 'Cannot reach the server. Is libzie running?',
-  'Henüz ders yok': 'No courses yet', 'Arama: “{q}”': 'Search: “{q}”', 'Sadece {name}': 'Only {name}', 'Tüm derslerde ara': 'Search all courses',
-  '{name} içinde arama': 'Search in {name}', 'Arama sonuçları': 'Search results', 'Eşleşen dosya bulunamadı.': 'No matching files found.',
-  'Devam et': 'Continue', 'Klasörler': 'Folders', '{name} dosyaları': '{name} files', 'Dosyalar': 'Files',
-  'Bu klasör boş.': 'This folder is empty.', 'Dosyaları buraya sürükleyin ya da yükleyin.': 'Drag files here or upload them.',
-  'Seçenekler': 'Options', '{n} dosya': ['{n} file', '{n} files'], '{n} klasör': ['{n} folder', '{n} folders'], '{n} ders': ['{n} course', '{n} courses'],
-  'Henüz boş.': 'Nothing here yet.', 'Dosyaları bu karonun üstüne sürükleyin.': 'Drag files onto this tile.', 'Son değişiklik {date}': 'Last modified {date}',
-  'İyi geceler': 'Good night', 'Günaydın': 'Good morning', 'İyi günler': 'Good afternoon', 'İyi akşamlar': 'Good evening',
-  // --- menüler
-  'Sitede aç': 'Open here', 'Tarayıcıda yeni sekmede aç': 'Open in a new browser tab', 'Varsayılan programda aç': 'Open in default program',
-  'Klasörde göster': 'Show in folder', 'Bulunduğu klasöre git': 'Go to containing folder', 'Sil': 'Delete',
-  'Dosya gezgini (Esc)': 'File browser (Esc)', 'Kapat': 'Close', 'Diğerlerini kapat': 'Close others', 'Sağdakileri kapat': 'Close tabs to the right', 'Hepsini kapat': 'Close all',
-  'Yeni alt klasör': 'New subfolder', 'Renk seç…': 'Choose color…', 'İkon seç…': 'Choose icon…', 'Rengi kaldır': 'Remove color', 'İkon seç': 'Choose icon', 'Varsayılana dön': 'Reset to default',
-  'Küçük resimler': 'Thumbnails', 'Liste': 'List', 'pdf.js yüklenemedi': 'Could not load pdf.js',
-  'Varsayılan uygulamada açılıyor…': 'Opening in the default app…', 'Tam ekran desteklenmiyor': 'Full screen is not supported', 'Tam ekran açılamadı': 'Could not enter full screen',
-  // --- ikonlar
-  'Genel': 'General', 'Mühendislik': 'Engineering',
-  'Atom (fizik)': 'Atom (physics)', 'Deney şişesi (kimya)': 'Flask (chemistry)', 'DNA (biyoloji)': 'DNA (biology)', 'Toplam (matematik)': 'Sum (mathematics)',
-  'Açık kitap (edebiyat, tarih)': 'Open book (literature, history)', 'Dünya (coğrafya, diller)': 'Globe (geography, languages)', 'Kod (bilgisayar)': 'Code (computer science)',
-  'Ampul (fikir, proje)': 'Light bulb (ideas, projects)', 'Fonksiyon grafiği (analiz)': 'Function graph (calculus)', 'Sütun grafiği (istatistik, ekonomi)': 'Bar chart (statistics, economics)',
-  'Anıt (hukuk, tarih, siyaset)': 'Monument (law, history, politics)', 'Kalp (sağlık, tıp)': 'Heart (health, medicine)', 'Palet (sanat, tasarım)': 'Palette (art, design)',
-  'Nota (müzik)': 'Music note (music)', 'Dik üçgen (geometri)': 'Right triangle (geometry)', 'Konuşma balonu (iletişim, dil)': 'Speech bubble (communication, language)',
-  'Yaprak (çevre, botanik)': 'Leaf (environment, botany)', 'Dişli (makine)': 'Gear (machines)', 'Entegre (elektronik)': 'Chip (electronics)', 'Direnç': 'Resistor',
-  'Kondansatör': 'Capacitor', 'Bobin': 'Inductor', 'Transistör': 'Transistor', 'Diyot': 'Diode', 'İşlemsel yükselteç': 'Op-amp', 'Sinüs dalgası (sinyaller)': 'Sine wave (signals)',
-  // --- işlemler
-  'Oluştur': 'Create', '“{name}” içinde yeni klasör': 'New folder in “{name}”', 'Yeni ad': 'New name',
-  '“{name}” klasörü ve içindekiler silinsin mi?': 'Delete the folder “{name}” and everything in it?', '“{name}” silinsin mi?': 'Delete “{name}”?',
-  "Dosyalar silinmez, .silinenler klasörüne taşınır; bildirimdeki “Geri al” ya da Gezgin'den geri alabilirsin.":
-    "Files aren't permanently deleted; they're moved to the .silinenler folder. You can restore them with “Undo” in the notification or from File Explorer.",
-  'Silindi': 'Deleted', 'Geri al': 'Undo', 'Geri yüklendi': 'Restored', 'Taşındı → {name}': 'Moved → {name}',
-  'Yükleniyor {i}/{n} — {name}': 'Uploading {i}/{n} — {name}', 'Yükleme başarısız': 'Upload failed',
-  '{n} dosya yüklendi': ['{n} file uploaded', '{n} files uploaded'],
-  // --- hava durumu
-  'Açık': 'Clear', 'Az bulutlu': 'Mostly clear', 'Parçalı bulutlu': 'Partly cloudy', 'Kapalı': 'Overcast', 'Sisli': 'Foggy', 'Kırağılı sis': 'Rime fog',
-  'Hafif çisenti': 'Light drizzle', 'Çisenti': 'Drizzle', 'Yoğun çisenti': 'Heavy drizzle', 'Dondurucu çisenti': 'Freezing drizzle',
-  'Hafif yağmur': 'Light rain', 'Yağmurlu': 'Rainy', 'Şiddetli yağmur': 'Heavy rain', 'Dondurucu yağmur': 'Freezing rain',
-  'Hafif kar': 'Light snow', 'Karlı': 'Snowy', 'Yoğun kar': 'Heavy snow', 'Kar taneleri': 'Snow grains',
-  'Hafif sağanak': 'Light showers', 'Sağanak': 'Showers', 'Şiddetli sağanak': 'Heavy showers', 'Kar sağanağı': 'Snow showers', 'Yoğun kar sağanağı': 'Heavy snow showers',
-  'Gök gürültülü': 'Thunderstorm', 'Dolu ihtimali': 'Possible hail', 'Dolu ve fırtına': 'Hail and storm',
-  '{place} · Şu an: {now}, {temp}° · Bugün en düşük {min}°, en yüksek {max}° · Şehri değiştirmek için tıklayın': '{place} · Now: {now}, {temp}° · Today\'s low {min}°, high {max}° · Click to change the city',
-  'Hava durumu alınamadı (internet bağlantısı gerekir) · Şehri değiştirmek için tıklayın': 'Could not load the weather (internet connection required) · Click to change the city',
-  'Bağlantı yok': 'No connection', 'Hava durumu için şehir': 'City for the weather', 'Şehir bulunamadı': 'City not found',
-  'Hava durumu servisine ulaşılamadı': 'Could not reach the weather service',
-  // --- güncelleme (arayüz)
-  'İndiriliyor… %{p}': 'Downloading… {p}%', 'Yeni sürüm kuruluyor, libzie birazdan yeniden açılacak…': 'Installing the new version; libzie will reopen shortly…',
-  'libzie güncel.': 'libzie is up to date.', 'Yeni sürüm var. Kaynak koddan çalıştığın için depoyu git pull ile güncelle.': 'A new version is available. Since you are running from source, update the repository with git pull.',
-  'Yeni sürüm var ama indirme dosyası henüz hazır değil; birkaç dakika sonra tekrar denetle.': 'A new version exists, but its download isn\'t ready yet; check again in a few minutes.',
-  'Yeni sürüm hazır.': 'A new version is ready.', 'Denetleniyor…': 'Checking…', 'Denetlenemedi.': 'Could not check.',
-  'Kaynak koddan çalışırken otomatik güncelleme yoktur': 'There is no automatic update when running from source',
-  'libzie {v} indiriliyor…': 'Downloading libzie {v}…', 'libzie {v} indiriliyor… %{p}': 'Downloading libzie {v}… {p}%', 'Güncelleniyor, libzie yeniden açılacak…': 'Updating; libzie will reopen…',
-  // --- sunucu hataları (sunucu Türkçe yollar; istemci çevirir)
-  'Bu klasöre yazılamaz (sistem, Başlangıç ya da uygulama klasörü)': "Can't write to this folder (system, Startup or application folder)",
-  'Bu dosya türü (çalıştırılabilir/betik) arşive eklenemez': "This file type (executable/script) can't be added to the archive",
-  'Geçersiz yol': 'Invalid path', 'Geçersiz ad': 'Invalid name', 'Geçersiz istek': 'Invalid request', 'İstek çok büyük': 'Request too large',
-  'Bu dosya türü güvenlik nedeniyle doğrudan açılmaz (çalıştırılabilir olabilir). “Klasörde göster”i kullan.': 'This file type isn\'t opened directly for security reasons (it may be executable). Use “Show in folder”.',
-  'Bu adla bir öğe zaten var': 'An item with this name already exists', 'Öğe bulunamadı': 'Item not found', 'Klasör kendi içine taşınamaz': "A folder can't be moved into itself",
-  'Hedefte aynı adla bir öğe var': 'An item with the same name already exists at the destination',
-  "Bu sürüm otomatik olarak zaten denendi; Ayarlar'dan elle güncelle.": 'This version was already tried automatically; update manually from Settings.',
-  'Klasör KAYNAK_KLASORU ortam değişkeniyle sabitlenmiş': 'The folder is pinned by the KAYNAK_KLASORU environment variable',
-  'Renk yalnızca derslere verilebilir': 'Colors can only be given to courses', 'Geçersiz renk': 'Invalid color',
-  'İkon yalnızca derslere verilebilir': 'Icons can only be given to courses', 'Geçersiz ikon': 'Invalid icon',
-  'Güvenli olmayan bir yönlendirme reddedildi.': 'An insecure redirect was refused.', 'Yayınlanmış bir sürüm bulunamadı.': 'No published release was found.',
-  'GitHub şu an istek kabul etmiyor; biraz sonra tekrar dene.': 'GitHub is not accepting requests right now; try again shortly.',
-  'Sürüm bilgisi alınamadı; internet bağlantını kontrol et.': 'Could not get version information; check your internet connection.', 'Sürüm bilgisi okunamadı.': 'Could not read the version information.',
-  'İndirilen dosya eksik; tekrar dene.': 'The downloaded file is incomplete; try again.', 'İndirilen dosya geçerli bir uygulama değil.': 'The downloaded file is not a valid application.',
-  'İndirilen dosyanın doğrulaması tutmadı; tekrar dene.': 'The downloaded file failed verification; try again.',
-  'Bu sürümün doğrulama özeti yok; güvenlik nedeniyle güncelleme yapılmadı.': 'This release has no verification checksum; the update was not applied for security reasons.',
-  'libzie zaten güncel.': 'libzie is already up to date.', 'Bu sürümün indirme dosyası henüz hazır değil; birkaç dakika sonra tekrar dene.': 'The download for this release isn\'t ready yet; try again in a few minutes.',
-  'Beklenmeyen indirme adresi; güncelleme iptal edildi.': 'Unexpected download address; the update was cancelled.',
-  'Kaynak koddan çalışırken uygulama içinden güncellenemez; depoyu git pull ile güncelle.': 'You can\'t update from inside the app when running from source; update the repository with git pull.',
-  'Güncelleme zaten sürüyor.': 'An update is already in progress.',
-};
-// Değişken içeren sunucu hataları: [Türkçe desen, İngilizce şablon ($1 = ilk yakalanan)]
-const ERR_PATTERNS = [
-  [/^Klasör bulunamadı: (.+)$/s, 'Folder not found: $1'],
-  [/^Ayarlanan kaynak klasörü bulunamadı: (.+) — varsayılan klasör gösteriliyor\.$/s, 'The configured content folder was not found: $1 — showing the default folder.'],
-  [/^Sürüm bilgisi alınamadı \(GitHub (\d+)\)\.$/, 'Could not get version information (GitHub $1).'],
-  [/^(.+) klasörüne yazılamıyor; uygulamayı yazılabilir bir klasöre taşı ya da kurulum sürümünü kullan\.$/s, "Can't write to $1; move the app to a writable folder or use the installer version."],
-  [/^Güncelleme başarısız: (.+)$/s, 'Update failed: $1'],
-];
-let langPref = (() => { const v = store.get('lang', 'auto'); return v === 'tr' || v === 'en' ? v : 'auto'; })();
-const detectLang = () => (navigator.language || '').toLowerCase().startsWith('tr') ? 'tr' : 'en';
 let lang = langPref === 'auto' ? detectLang() : langPref;
-const locale = () => lang === 'tr' ? 'tr-TR' : 'en-GB';
-function t(s, vars) {
-  let out = lang === 'tr' ? (TRX[s] ?? s) : EN[s];
-  if (Array.isArray(out)) out = vars && vars.n === 1 ? out[0] : out[1];
-  if (out === undefined) out = TRX[s] ?? s;
-  return vars ? out.replace(/\{(\w+)\}/g, (m, k) => k in vars ? vars[k] : m) : out;
+const locale = () => ({ tr: 'tr-TR', en: 'en-GB' }[lang] || lang);
+const has = id => id in (DICT[lang] || {}) || id in (DICT[FALLBACK] || {});
+function t(id, vars) {
+  let v = (DICT[lang] || {})[id] ?? (DICT[FALLBACK] || {})[id];
+  if (v === undefined) return id;
+  if (typeof v === 'object') v = v[new Intl.PluralRules(lang).select(vars && vars.n !== undefined ? vars.n : 0)] ?? v.other;
+  return vars ? v.replace(/\{(\w+)\}/g, (m, k) => k in vars ? vars[k] : m) : v;
 }
-// Sunucudan gelen (Türkçe) hata/uyarı metinlerini çevirir: önce tam eşleşme, sonra değişkenli desenler
-function tErr(s, vars) {
-  s = String(s);
-  if (lang === 'en') for (const [re, tpl] of ERR_PATTERNS) { const m = s.match(re); if (m) return tpl.replace('$1', m[1]); }
-  return t(s, vars);
-}
+// Sunucudan gelen hata/uyarı: { error: varsayılan Türkçe metin, code: kimlik, vars } → etkin dilde metin
+const errText = j => j && j.code && has(j.code) ? t(j.code, j.vars) : (j && j.error) || t('err.no_response');
 function applyI18n() {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i]').forEach(el => { el.textContent = t(el.dataset.i); });
@@ -1206,7 +1086,15 @@ function applyI18n() {
     document.querySelectorAll('[data-' + key.replace(/[A-Z]/g, c => '-' + c.toLowerCase()) + ']').forEach(el => el.setAttribute(attr, t(el.dataset[key])));
   }
   const meta = document.querySelector('meta[name="description"]');
-  if (meta) meta.content = t("libzie: ders notlarını ve PDF'leri derse göre düzenleyen yerel arşiv");
+  if (meta) meta.content = t('app.description');
+}
+// Dil seçici: "Otomatik" + sözlük dosyalarındaki her dil (kendi adıyla)
+function buildLangSelect() {
+  const sel = $('#s-lang');
+  sel.innerHTML = '';
+  sel.append(new Option('Otomatik / Automatic', 'auto'));
+  for (const l of LANGS) sel.append(new Option((DICT[l] || {})._name || l, l));
+  sel.value = langPref;
 }
 
 const PALETTE = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#2dd4bf', '#38bdf8', '#a78bfa', '#f472b6'];
@@ -1284,7 +1172,7 @@ let toastTimer;
 function toast(msg, err = false, stay = false, progress = null, action = null) {
   const t = $('#toast');
   t.textContent = msg;
-  // action: { label, fn } → bildirimin içinde "Geri al" gibi bir düğme (daha uzun süre kalır)
+  // action: { label, fn } → bildirimin içinde 'toast.undo' gibi bir düğme (daha uzun süre kalır)
   if (action) {
     const btn = document.createElement('button');
     btn.className = 'toast-act';
@@ -1300,18 +1188,18 @@ function toast(msg, err = false, stay = false, progress = null, action = null) {
 
 async function api(url, body) {
   const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Libzie': '1' }, body: JSON.stringify(body || {}) });
-  const j = await r.json().catch(() => ({ error: 'Sunucu yanıt vermedi' }));
-  if (j.error) throw new Error(tErr(j.error));
+  const j = await r.json().catch(() => ({ error: 'x', code: 'err.no_response' }));
+  if (j.error) throw new Error(errText(j));
   return j;
 }
-const fail = e => toast(tErr(e.message || String(e)), true);
+const fail = e => toast(e.message || String(e), true);
 
 /* ---------- veri ve gezinme ---------- */
 async function load() {
   try {
     tree = await (await fetch('/api/tree')).json();
   } catch {
-    toast(t('Sunucuya ulaşılamıyor — baslat.bat çalışıyor mu?'), true, true);
+    toast(t('err.unreachable'), true, true);
     return;
   }
   syncTabs();
@@ -1363,7 +1251,7 @@ function render() {
   renderCrumbs();
   renderContent();
   renderBanner();
-  $('#page-title').textContent = cur ? baseOf(cur) : t('libzie, ders arşivi');
+  $('#page-title').textContent = cur ? baseOf(cur) : t('app.title_home');
   // Dosya görünümünden gezgine dönüş de bir gezinti sayılır
   if (lastViewing && !active) animateNav = true;
   const box = $('#content');
@@ -1382,8 +1270,8 @@ function renderBanner() {
   b.hidden = !tree.warning;
   b.innerHTML = '';
   if (!tree.warning) return;
-  b.append(h(`<span>${esc(tErr(tree.warning))}</span>`));
-  const btn = h(`<button class="btn">${t('Ayarlar')}</button>`);
+  b.append(h(`<span>${esc(errText({ error: tree.warning, code: tree.warning_code, vars: tree.warning_vars }))}</span>`));
+  const btn = h(`<button class="btn">${t('nav.settings')}</button>`);
   btn.onclick = openSettings;
   b.append(btn);
 }
@@ -1420,7 +1308,7 @@ function renderTree() {
     }
   };
   add(tree, 0);
-  if (!tree.folders.length) box.append(h(`<div class="node" style="cursor:default;color:var(--faint)">${t('Henüz ders yok')}</div>`));
+  if (!tree.folders.length) box.append(h(`<div class="node" style="cursor:default;color:var(--faint)">${t('course.none')}</div>`));
   box.querySelectorAll('.node[data-path]').forEach(n => n.setAttribute('aria-current', n.dataset.path === cur ? 'page' : 'false'));
   if (treeActive !== cur) {
     void box.offsetWidth; // eski durum çizilsin ki geçiş başlasın
@@ -1442,7 +1330,7 @@ function renderCrumbs() {
   const box = $('#crumbs');
   box.innerHTML = '';
   const parts = cur ? cur.split('/') : [];
-  const home = h(`<button class="crumb-home">${CRUMB_HOME}${t('Ana sayfa')}</button>`);
+  const home = h(`<button class="crumb-home">${CRUMB_HOME}${t('nav.home')}</button>`);
   home.onclick = () => go('');
   dropTarget(home, '');
   box.append(home);
@@ -1456,7 +1344,7 @@ function renderCrumbs() {
   });
   if (query) {
     box.append(h('<span class="sep">/</span>'));
-    box.append(h(`<button><svg viewBox="0 0 24 24" aria-hidden="true">${SEC_ICON.search}</svg>${esc(t('Arama: “{q}”', { q: query }))}</button>`));
+    box.append(h(`<button><svg viewBox="0 0 24 24" aria-hidden="true">${SEC_ICON.search}</svg>${esc(t('search.crumb', { q: query }))}</button>`));
   }
 }
 
@@ -1481,11 +1369,11 @@ function renderContent() {
     let scopeBtn = null;
     if (cur) {
       scopeBtn = h('<button class="btn"></button>');
-      scopeBtn.textContent = searchAll ? t('Sadece {name}', { name: baseOf(cur) }) : t('Tüm derslerde ara');
+      scopeBtn.textContent = searchAll ? t('search.only', { name: baseOf(cur) }) : t('search.all_courses');
       scopeBtn.onclick = () => { searchAll = !searchAll; renderContent(); };
     }
-    box.append(sectionHead(scoped ? t('{name} içinde arama', { name: baseOf(cur) }) : t('Arama sonuçları'), 'search', results.length, scopeBtn));
-    if (!results.length) { box.append(h(`<div class="empty"><p>${t('Eşleşen dosya bulunamadı.')}</p></div>`)); return; }
+    box.append(sectionHead(scoped ? t('search.in_course', { name: baseOf(cur) }) : t('search.results'), 'search', results.length, scopeBtn));
+    if (!results.length) { box.append(h(`<div class="empty"><p>${t('search.no_match')}</p></div>`)); return; }
     const list = h('<div class="list"></div>');
     results.forEach(f => list.append(fileRow(f, true)));
     box.append(list);
@@ -1498,13 +1386,13 @@ function renderContent() {
     const all = new Map(allFiles(tree).map(f => [f.path, f]));
     const recent = store.get('recent', []).map(p => all.get(p)).filter(Boolean).slice(0, 3);
     if (recent.length) {
-      box.append(sectionHead(t('Devam et'), 'recent', recent.length));
+      box.append(sectionHead(t('home.continue'), 'recent', recent.length));
       const wrap = h('<div class="resume"></div>');
       recent.forEach(f => wrap.append(resumeCard(f)));
       box.append(wrap);
     }
     // Dersler: rafta duran kitaplar
-    box.append(sectionHead(t('Dersler'), 'courses', tree.folders.length));
+    box.append(sectionHead(t('nav.courses'), 'courses', tree.folders.length));
     const shelf = h('<div class="shelf"></div>');
     tree.folders.forEach((f, i) => shelf.append(bookTile(f, i)));
     shelf.append(newBook());
@@ -1514,7 +1402,7 @@ function renderContent() {
   if (cur) box.append(courseHeader(node));
 
   if (cur && node.folders.length) {
-    box.append(sectionHead(t('Klasörler'), 'folders', node.folders.length));
+    box.append(sectionHead(t('folder.plural_title'), 'folders', node.folders.length));
     // Alt klasörler: dersin renginde küçük karolar
     const tiles = h('<div class="tiles small"></div>');
     node.folders.forEach((f, i) => tiles.append(courseTile(f, i)));
@@ -1522,7 +1410,7 @@ function renderContent() {
   }
 
   if (node.files.length) {
-    box.append(viewHead(cur ? t('{name} dosyaları', { name: baseOf(cur) }) : t('Dosyalar'), 'files', node.files.length));
+    box.append(viewHead(cur ? t('files.of_course', { name: baseOf(cur) }) : t('files.title'), 'files', node.files.length));
     if (fileView === 'grid') {
       const grid = h('<div class="thumbs"></div>');
       [...node.files].sort(byName).forEach(f => grid.append(fileCard(f)));
@@ -1534,10 +1422,10 @@ function renderContent() {
     }
   }
 
-  // Ana sayfada boş durumu "Yeni ders" karosu karşılıyor
+  // Ana sayfada boş durumu 'course.new' karosu karşılıyor
   if (cur && !node.folders.length && !node.files.length) {
-    const empty = h(`<div class="empty"><p>${t('Bu klasör boş.')}</p><p>${t('Dosyaları buraya sürükleyin ya da yükleyin.')}</p>
-           <button class="btn primary">${t('Dosya yükle')}</button></div>`);
+    const empty = h(`<div class="empty"><p>${t('empty.title')}</p><p>${t('empty.hint')}</p>
+           <button class="btn primary">${t('upload.files')}</button></div>`);
     empty.querySelector('button').onclick = () => $('#file-input').click();
     box.append(empty);
   }
@@ -1557,60 +1445,60 @@ function gearD(cx, cy, ro, ri, n, off = 0) {
 }
 // Ders ikonları (100x100, yalnızca çizgi). Seçilmemiş derslerde alfabetik sıraya göre dizinin başından verilir
 // (ilk 8 ders hep farklı bir ikon alır); yeni ders açılırken en az kullanılan ikon kalıcı olarak atanır.
-// Kullanıcı ders menüsünden "İkon seç…" ile değiştirir (sunucuda .ikonlar.json). "Genel" grubu her bölüm için,
-// "Mühendislik" grubu devre/makine dersleri içindir.
+// Kullanıcı ders menüsünden 'folder.pick_icon' ile değiştirir (sunucuda .ikonlar.json). 'icon.group.general' grubu her bölüm için,
+// 'icon.group.engineering' grubu devre/makine dersleri içindir.
 const ICONS = [
-  { id: 'atom', label: 'Atom (fizik)', group: 'Genel',
+  { id: 'atom', label: 'icon.atom', group: 'icon.group.general',
     svg: '<circle cx="50" cy="50" r="5"/><ellipse cx="50" cy="50" rx="44" ry="16"/><ellipse cx="50" cy="50" rx="44" ry="16" transform="rotate(60 50 50)"/><ellipse cx="50" cy="50" rx="44" ry="16" transform="rotate(120 50 50)"/>' },
-  { id: 'flask', label: 'Deney şişesi (kimya)', group: 'Genel',
+  { id: 'flask', label: 'icon.flask', group: 'icon.group.general',
     svg: '<path d="M36 10h28M42 10v28L16 80a7 7 0 0 0 6 10h56a7 7 0 0 0 6-10L58 38V10M27 64h46"/><circle cx="46" cy="76" r="3"/><circle cx="58" cy="71" r="2"/>' },
-  { id: 'dna', label: 'DNA (biyoloji)', group: 'Genel',
+  { id: 'dna', label: 'icon.dna', group: 'icon.group.general',
     svg: '<path d="M30 6c0 20 40 24 40 44s-40 24-40 44M70 6c0 20-40 24-40 44s40 24 40 44M36 18h28M30 50h40M36 82h28"/>' },
-  { id: 'sigma', label: 'Toplam (matematik)', group: 'Genel',
+  { id: 'sigma', label: 'icon.sigma', group: 'icon.group.general',
     svg: '<path d="M72 16H30l26 34-26 34h42"/>' },
-  { id: 'book', label: 'Açık kitap (edebiyat, tarih)', group: 'Genel',
+  { id: 'book', label: 'icon.book', group: 'icon.group.general',
     svg: '<path d="M50 24C40 16 24 14 8 16v60c16-2 32 0 42 8 10-8 26-10 42-8V16C76 14 60 16 50 24ZM50 24v60"/>' },
-  { id: 'globe', label: 'Dünya (coğrafya, diller)', group: 'Genel',
+  { id: 'globe', label: 'icon.globe', group: 'icon.group.general',
     svg: '<circle cx="50" cy="50" r="40"/><ellipse cx="50" cy="50" rx="16" ry="40"/><path d="M10 50h80M16 30h68M16 70h68"/>' },
-  { id: 'code', label: 'Kod (bilgisayar)', group: 'Genel',
+  { id: 'code', label: 'icon.code', group: 'icon.group.general',
     svg: '<path d="M32 28 10 50l22 22M68 28l22 22-22 22M57 20 43 80"/>' },
-  { id: 'bulb', label: 'Ampul (fikir, proje)', group: 'Genel',
+  { id: 'bulb', label: 'icon.bulb', group: 'icon.group.general',
     svg: '<path d="M50 8a28 28 0 0 0-16 51c3 3 4 6 4 10v4h24v-4c0-4 1-7 4-10A28 28 0 0 0 50 8ZM38 80h24M42 90h16"/>' },
-  { id: 'graph', label: 'Fonksiyon grafiği (analiz)', group: 'Genel',
+  { id: 'graph', label: 'icon.graph', group: 'icon.group.general',
     svg: '<path d="M10 90V10M10 90h82M10 70C30 70 30 20 52 20s22 50 40 50"/>' },
-  { id: 'bars', label: 'Sütun grafiği (istatistik, ekonomi)', group: 'Genel',
+  { id: 'bars', label: 'icon.bars', group: 'icon.group.general',
     svg: '<path d="M10 90h80M20 90V56h14v34M43 90V30h14v60M66 90V44h14v46"/>' },
-  { id: 'temple', label: 'Anıt (hukuk, tarih, siyaset)', group: 'Genel',
+  { id: 'temple', label: 'icon.temple', group: 'icon.group.general',
     svg: '<path d="M8 36 50 12l42 24zM18 44v32M38 44v32M62 44v32M82 44v32M10 82h80M6 90h88"/>' },
-  { id: 'heart', label: 'Kalp (sağlık, tıp)', group: 'Genel',
+  { id: 'heart', label: 'icon.heart', group: 'icon.group.general',
     svg: '<path d="M50 86C20 62 10 46 10 32a20 20 0 0 1 40-6 20 20 0 0 1 40 6c0 14-10 30-40 54ZM20 50h16l6-12 10 24 6-12h22"/>' },
-  { id: 'palette', label: 'Palet (sanat, tasarım)', group: 'Genel',
+  { id: 'palette', label: 'icon.palette', group: 'icon.group.general',
     svg: '<path d="M50 10C26 10 8 28 8 50s18 40 38 40c8 0 10-6 6-12-4-6 0-12 8-12h16c10 0 20-8 20-20C96 24 76 10 50 10Z"/><circle cx="28" cy="46" r="4"/><circle cx="40" cy="28" r="4"/><circle cx="62" cy="28" r="4"/><circle cx="76" cy="44" r="4"/>' },
-  { id: 'note', label: 'Nota (müzik)', group: 'Genel',
+  { id: 'note', label: 'icon.note', group: 'icon.group.general',
     svg: '<path d="M36 76V20l46-10v56M36 76a12 10 0 1 1-12-10 12 10 0 0 1 12 10ZM82 66a12 10 0 1 1-12-10 12 10 0 0 1 12 10Z"/>' },
-  { id: 'triangle', label: 'Dik üçgen (geometri)', group: 'Genel',
+  { id: 'triangle', label: 'icon.triangle', group: 'icon.group.general',
     svg: '<path d="M10 16v68h74ZM10 68h16v16"/>' },
-  { id: 'bubble', label: 'Konuşma balonu (iletişim, dil)', group: 'Genel',
+  { id: 'bubble', label: 'icon.bubble', group: 'icon.group.general',
     svg: '<path d="M12 16h76v50H46L26 86V66H12ZM26 34h48M26 48h30"/>' },
-  { id: 'leaf', label: 'Yaprak (çevre, botanik)', group: 'Genel',
+  { id: 'leaf', label: 'icon.leaf', group: 'icon.group.general',
     svg: '<path d="M16 84C16 40 40 14 86 14c0 46-24 70-62 70ZM16 84 56 44"/>' },
-  { id: 'gear', label: 'Dişli (makine)', group: 'Mühendislik',
+  { id: 'gear', label: 'icon.gear', group: 'icon.group.engineering',
     svg: `<path d="${gearD(50, 50, 45, 36, 10)}"/><circle cx="50" cy="50" r="13"/>` },
-  { id: 'chip', label: 'Entegre (elektronik)', group: 'Mühendislik',
+  { id: 'chip', label: 'icon.chip', group: 'icon.group.engineering',
     svg: '<rect x="24" y="22" width="52" height="56"/><path d="M12 32h12M12 44h12M12 56h12M12 68h12M76 32h12M76 44h12M76 56h12M76 68h12M44 22a6 6 0 0 0 12 0"/>' },
-  { id: 'resistor', label: 'Direnç', group: 'Mühendislik',
+  { id: 'resistor', label: 'icon.resistor', group: 'icon.group.engineering',
     svg: '<path d="M4 50h18l6-18 12 36 12-36 12 36 6-18h26"/>' },
-  { id: 'capacitor', label: 'Kondansatör', group: 'Mühendislik',
+  { id: 'capacitor', label: 'icon.capacitor', group: 'icon.group.engineering',
     svg: '<path d="M4 50h38M42 24v52M58 24v52M58 50h38"/>' },
-  { id: 'inductor', label: 'Bobin', group: 'Mühendislik',
+  { id: 'inductor', label: 'icon.inductor', group: 'icon.group.engineering',
     svg: '<path d="M4 60h12a10 10 0 0 1 20 0 10 10 0 0 1 20 0 10 10 0 0 1 20 0h20"/>' },
-  { id: 'transistor', label: 'Transistör', group: 'Mühendislik',
+  { id: 'transistor', label: 'icon.transistor', group: 'icon.group.engineering',
     svg: '<circle cx="54" cy="50" r="34"/><path d="M4 50h30M34 30v40M34 42l26-20v-14M34 58l26 20v14"/>' },
-  { id: 'diode', label: 'Diyot', group: 'Mühendislik',
+  { id: 'diode', label: 'icon.diode', group: 'icon.group.engineering',
     svg: '<path d="M4 50h26M30 28v44l34-22zM64 28v44M64 50h32"/>' },
-  { id: 'opamp', label: 'İşlemsel yükselteç', group: 'Mühendislik',
+  { id: 'opamp', label: 'icon.opamp', group: 'icon.group.engineering',
     svg: '<path d="M24 14v72l60-36zM4 36h20M4 64h20M84 50h12M32 36h10M37 31v10M32 64h10"/>' },
-  { id: 'sine', label: 'Sinüs dalgası (sinyaller)', group: 'Mühendislik',
+  { id: 'sine', label: 'icon.sine', group: 'icon.group.engineering',
     svg: '<path d="M4 50h92M4 22v56M4 50c12-46 24-46 36 0s24 46 36 0"/>' },
 ];
 const ICON_BY_ID = Object.fromEntries(ICONS.map(i => [i.id, i]));
@@ -1708,10 +1596,10 @@ function bookTile(f, index) {
   const sink = contrastOf(rgb, INK_DARK) >= contrastOf(rgb, INK_LIGHT) ? '#0e1a2b' : '#eeeeee';
   const n = allFiles(f).length;
   const height = Math.max(190, Math.min(300, 150 + n * 6));
-  const book = h(`<div class="book${arriveClass(f.path)}" draggable="true" data-path="${esc(f.path)}" tabindex="0" role="button" aria-label="${esc(f.name)}, ${t('{n} dosya', { n })}" title="${esc(f.name)}" style="height:${height}px;--c:${raw};--sink:${sink};--tile:${bg};--ink:${ink}">
+  const book = h(`<div class="book${arriveClass(f.path)}" draggable="true" data-path="${esc(f.path)}" tabindex="0" role="button" aria-label="${esc(f.name)}, ${t('count.files', { n })}" title="${esc(f.name)}" style="height:${height}px;--c:${raw};--sink:${sink};--tile:${bg};--ink:${ink}">
     <div class="spine"><span>${esc(f.name)}</span></div>
-    <div class="cover"><div class="bcount">${t('{n} dosya', { n })}</div><svg class="shape" viewBox="0 0 100 100" aria-hidden="true">${shapeOf(f.name, index)}</svg></div>
-    <button class="icon-btn more" aria-label="${t('Seçenekler')}" title="${t('Seçenekler')}">${ICON.more}</button></div>`);
+    <div class="cover"><div class="bcount">${t('count.files', { n })}</div><svg class="shape" viewBox="0 0 100 100" aria-hidden="true">${shapeOf(f.name, index)}</svg></div>
+    <button class="icon-btn more" aria-label="${t('ui.options')}" title="${t('ui.options')}">${ICON.more}</button></div>`);
   book.onclick = e => { if (!e.target.closest('.more')) go(f.path); };
   book.querySelector('.more').onclick = e => { e.stopPropagation(); folderMenu(f.path, e.currentTarget); };
   onRightClick(book, (el, pos) => folderMenu(f.path, el, pos));
@@ -1721,7 +1609,7 @@ function bookTile(f, index) {
 }
 
 function newBook() {
-  const book = h(`<div class="book book-new" tabindex="0" role="button" aria-label="${t('Yeni ders')}" title="${t('Yeni ders')}">+&nbsp; ${t('Yeni ders')}</div>`);
+  const book = h(`<div class="book book-new" tabindex="0" role="button" aria-label="${t('course.new')}" title="${t('course.new')}">+&nbsp; ${t('course.new')}</div>`);
   book.onclick = () => newFolder('');
   return book;
 }
@@ -1733,7 +1621,7 @@ function resumeCard(f) {
   const card = h(`<div class="rcard${arriveClass(f.path)}" draggable="true" data-path="${esc(f.path)}" tabindex="0" role="button" aria-label="${esc(f.name)}" title="${esc(f.name)}" style="${tileVars(f.path)}">
     <div class="rtab">${esc(tag)}</div>
     <div class="rbody"><span class="rn">${esc(f.name)}</span><small>${course ? esc(course) + ' · ' : ''}${fmtSize(f.size)}</small></div>
-    <button class="icon-btn more" aria-label="${t('Seçenekler')}" title="${t('Seçenekler')}">${ICON.more}</button></div>`);
+    <button class="icon-btn more" aria-label="${t('ui.options')}" title="${t('ui.options')}">${ICON.more}</button></div>`);
   card.onclick = e => { if (!e.target.closest('.more')) openFile(f, card); };
   card.querySelector('.more').onclick = e => { e.stopPropagation(); fileMenu(f, true, e.currentTarget); };
   onRightClick(card, (a, pos) => fileMenu(f, true, a, pos));
@@ -1745,7 +1633,7 @@ function resumeCard(f) {
 function courseHeader(node) {
   const files = allFiles(node).length, folders = node.folders.length;
   const c = colorOf(cur);
-  return h(`<div class="chead" style="--c:${/^#[0-9a-f]{6}$/i.test(c) ? c : ''}"><span class="cspine"></span><div><div class="ctitle">${esc(baseOf(cur))}</div><div class="csub">${t('{n} dosya', { n: files })}${folders ? ` · ${t('{n} klasör', { n: folders })}` : ''}</div></div>${schemSvg()}${gearsSvg()}</div>`);
+  return h(`<div class="chead" style="--c:${/^#[0-9a-f]{6}$/i.test(c) ? c : ''}"><span class="cspine"></span><div><div class="ctitle">${esc(baseOf(cur))}</div><div class="csub">${t('count.files', { n: files })}${folders ? ` · ${t('count.folders', { n: folders })}` : ''}</div></div>${schemSvg()}${gearsSvg()}</div>`);
 }
 
 function courseTile(f, index) {
@@ -1753,14 +1641,14 @@ function courseTile(f, index) {
   const files = allFiles(f);
   const last = files.reduce((m, x) => Math.max(m, x.mtime), 0);
   const desc = files.length
-    ? `${t('{n} dosya', { n: files.length })}${f.folders.length ? `, ${t('{n} klasör', { n: f.folders.length })}` : ''}.<br>${t('Son değişiklik {date}', { date: fmtDate(last) })}`
-    : `${t('Henüz boş.')}<br>${t('Dosyaları bu karonun üstüne sürükleyin.')}`;
+    ? `${t('count.files', { n: files.length })}${f.folders.length ? `, ${t('count.folders', { n: f.folders.length })}` : ''}.<br>${t('tile.last_modified', { date: fmtDate(last) })}`
+    : `${t('tile.empty')}<br>${t('tile.drop_hint')}`;
   const tile = h(`<div class="tile${arriveClass(f.path)}" draggable="true" data-path="${esc(f.path)}" tabindex="0" role="button" aria-label="${esc(f.name)}" style="--tile:${bg};--ink:${ink}" title="${esc(f.name)}">
     <div class="tile-name">${esc(f.name)}</div>
     <svg class="shape" viewBox="0 0 100 100" aria-hidden="true">${shapeOf(f.name, index)}</svg>
     <div class="tile-desc">${desc}</div>
     <span class="tile-arrow"><svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></span>
-    <button class="icon-btn more" aria-label="${t('Seçenekler')}" title="${t('Seçenekler')}">${ICON.more}</button></div>`);
+    <button class="icon-btn more" aria-label="${t('ui.options')}" title="${t('ui.options')}">${ICON.more}</button></div>`);
   tile.onclick = e => { if (!e.target.closest('.more')) go(f.path); };
   tile.querySelector('.more').onclick = e => { e.stopPropagation(); folderMenu(f.path, e.currentTarget); };
   onRightClick(tile, (el, pos) => folderMenu(f.path, el, pos));
@@ -1770,8 +1658,8 @@ function courseTile(f, index) {
 }
 
 function newCourseTile() {
-  const tile = h(`<div class="tile tile-new" tabindex="0" role="button" aria-label="${t('Yeni ders')}" title="${t('Yeni ders')}">
-    <div class="tile-name">${t('Yeni ders')}</div>
+  const tile = h(`<div class="tile tile-new" tabindex="0" role="button" aria-label="${t('course.new')}" title="${t('course.new')}">
+    <div class="tile-name">${t('course.new')}</div>
     <svg class="shape" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 22v56M22 50h56"/></svg></div>`);
   tile.onclick = () => newFolder('');
   return tile;
@@ -1782,10 +1670,10 @@ let greetPlayed = false; // selam animasyonu yalnızca site açılışında kend
 function greeting() {
   const now = new Date();
   const hour = now.getHours();
-  const hello = t(hour < 5 ? 'İyi geceler' : hour < 12 ? 'Günaydın' : hour < 18 ? 'İyi günler' : hour < 22 ? 'İyi akşamlar' : 'İyi geceler');
+  const hello = t(hour < 5 ? 'greet.night' : hour < 12 ? 'greet.morning' : hour < 18 ? 'greet.afternoon' : hour < 22 ? 'greet.evening' : 'greet.night');
   const date = now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' });
   const courses = tree.folders.length, files = allFiles(tree).length;
-  const stats = courses || files ? ` · ${t('{n} ders', { n: courses })} · ${t('{n} dosya', { n: files })}` : '';
+  const stats = courses || files ? ` · ${t('count.courses', { n: courses })} · ${t('count.files', { n: files })}` : '';
   // Selam harf harf yazılır (üzerine gelince dalga animasyonu için). "i"/"İ" noktasız gövde + ayrı nokta olarak
   // çizilir ki nokta harfin üstünde tek başına zıplayabilsin. Ekran okuyucular için düz metin aria-label'da.
   const letters = [...hello].map((ch, i) => {
@@ -1811,11 +1699,11 @@ function fileRow(f, showPath) {
   const where = dirOf(f.path);
   const row = h(`<div class="row${arriveClass(f.path)}" draggable="true" data-path="${esc(f.path)}" tabindex="0" role="button" aria-label="${esc(f.name)}" title="${esc(f.name)}">
     <span class="badge t-${type}">${esc((f.ext || '—').slice(0, 4))}</span>
-    <span class="fname">${esc(f.name)}${showPath ? `<small class="where">${dotOf(f.path)}${esc(where.replaceAll('/', ' / ') || t('Ana sayfa'))}</small>` : ''}</span>
+    <span class="fname">${esc(f.name)}${showPath ? `<small class="where">${dotOf(f.path)}${esc(where.replaceAll('/', ' / ') || t('nav.home'))}</small>` : ''}</span>
     ${courseBadge(f.path)}
     <span class="meta">${fmtSize(f.size)}</span>
     <span class="meta date">${fmtDate(f.mtime)}</span>
-    <button class="icon-btn more" aria-label="${t('Seçenekler')}" title="${t('Seçenekler')}">${ICON.more}</button></div>`);
+    <button class="icon-btn more" aria-label="${t('ui.options')}" title="${t('ui.options')}">${ICON.more}</button></div>`);
   row.onclick = e => { if (!e.target.closest('.more')) openFile(f, row); };
   const showMenu = (anchor, pos) => fileMenu(f, showPath, anchor, pos);
   row.querySelector('.more').onclick = e => {
@@ -1833,16 +1721,16 @@ function fileMenu(f, showPath, anchor, pos) {
   const items = [];
   if (VIEWABLE.has(f.ext)) {
     items.push(
-      [t('Sitede aç'), () => openFile(f)],
-      [t('Tarayıcıda yeni sekmede aç'), () => { addRecent(f.path); window.open(fileUrl(f.path), '_blank'); }],
+      [t('file.open_here'), () => openFile(f)],
+      [t('file.open_tab'), () => { addRecent(f.path); window.open(fileUrl(f.path), '_blank'); }],
     );
   }
   items.push(
-    [t('Varsayılan programda aç'), () => openInApp(f.path)],
-    [t('Klasörde göster'), () => api('/api/reveal', { path: f.path }).catch(fail)],
+    [t('file.open_default'), () => openInApp(f.path)],
+    [t('file.reveal'), () => api('/api/reveal', { path: f.path }).catch(fail)],
   );
-  if (showPath && where !== cur) items.push([t('Bulunduğu klasöre git'), () => go(where)]);
-  items.push([t('Yeniden adlandır'), () => rename(f.path, false)], [t('Sil'), () => remove(f.path, false), true]);
+  if (showPath && where !== cur) items.push([t('file.go_folder'), () => go(where)]);
+  items.push([t('action.rename'), () => rename(f.path, false)], [t('action.delete'), () => remove(f.path, false), true]);
   menu(anchor, items, pos);
 }
 
@@ -1883,7 +1771,7 @@ function loadPdfjs() {
       const s = document.createElement('script');
       s.src = '/vendor/pdf.min.js';
       s.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = '/vendor/pdf.worker.min.js'; res(window.pdfjsLib); };
-      s.onerror = () => { pdfjsPromise = null; rej(new Error(t('pdf.js yüklenemedi'))); };
+      s.onerror = () => { pdfjsPromise = null; rej(new Error(t('err.pdfjs'))); };
       document.head.append(s);
     });
   }
@@ -1993,8 +1881,8 @@ function sectionHead(title, icon, count = null, tools = null) {
 // Dosya bölümü başlığı + liste/ızgara geçişi (tercih tüm dosya bölümleri için ortaktır)
 function viewHead(title, icon, count) {
   const seg = h(`<div class="seg">
-    <button data-v="grid" title="${t('Küçük resimler')}">${ICON.grid}</button>
-    <button data-v="list" title="${t('Liste')}">${ICON.list}</button></div>`);
+    <button data-v="grid" title="${t('view.thumbnails')}">${ICON.grid}</button>
+    <button data-v="list" title="${t('view.list')}">${ICON.list}</button></div>`);
   const head = sectionHead(title, icon, count, seg);
   head.querySelectorAll('.seg button').forEach(b => {
     b.classList.toggle('on', b.dataset.v === fileView);
@@ -2016,7 +1904,7 @@ function fileCard(f, showPath = false) {
     <div class="ptab${tag ? '' : ' empty'}">${tag ? esc(tag) : ''}</div>
     <div class="tbody"><div class="thumb"><span class="badge t-${type}">${esc((f.ext || '—').slice(0, 4))}</span>${courseBadge(f.path, true)}</div>
     <div class="tinfo"><span class="tn">${esc(f.name)}</span><small>${fmtSize(f.size)} · ${fmtDate(f.mtime)}</small></div></div>
-    <button class="icon-btn more" aria-label="${t('Seçenekler')}" title="${t('Seçenekler')}">${ICON.more}</button></div>`);
+    <button class="icon-btn more" aria-label="${t('ui.options')}" title="${t('ui.options')}">${ICON.more}</button></div>`);
   card.onclick = e => { if (!e.target.closest('.more')) openFile(f, card.querySelector('.thumb')); };
   card.querySelector('.more').onclick = e => { e.stopPropagation(); fileMenu(f, showPath, e.currentTarget); };
   onRightClick(card, (a, pos) => fileMenu(f, showPath, a, pos));
@@ -2033,7 +1921,7 @@ function addRecent(path) {
 }
 function openInApp(path) {
   addRecent(path);
-  api('/api/open', { path }).then(() => toast(t('Varsayılan uygulamada açılıyor…'))).catch(fail);
+  api('/api/open', { path }).then(() => toast(t('toast.opening_default'))).catch(fail);
 }
 // srcEl: tıklanan küçük resim/satır; görüntüleyiciye dönüşerek büyür (süreklilik)
 function openFile(f, srcEl = null) {
@@ -2235,13 +2123,13 @@ function renderTabs() {
     bar.innerHTML = '';
     for (const p of [...seenTabs]) if (!tabs.some(t => t.path === p)) seenTabs.delete(p);
     if (!tabs.length) return;
-    const home = h(`<div class="tab home" role="tab" tabindex="0" title="${t('Dosya gezgini (Esc)')}">${ICON.folder}<span class="tname">${t('Dosyalar')}</span></div>`);
+    const home = h(`<div class="tab home" role="tab" tabindex="0" title="${t('tabs.browser')}">${ICON.folder}<span class="tname">${t('files.title')}</span></div>`);
     home.onclick = () => activate(null);
     bar.append(home);
     for (const tb of tabs) {
       const el = h(`<div class="tab${seenTabs.has(tb.path) ? '' : ' new'}" role="tab" tabindex="0" draggable="true" data-path="${esc(tb.path)}" style="--c:${colorOf(tb.path)};${tileVars(tb.path)}" title="${esc(tb.path)}">
         ${dotOf(tb.path)}<span class="tname">${esc(baseOf(tb.path))}</span>
-        <button class="tclose" aria-label="${t('Kapat')}" title="${t('Kapat')}">${ICON.x}</button></div>`);
+        <button class="tclose" aria-label="${t('tabs.close')}" title="${t('tabs.close')}">${ICON.x}</button></div>`);
       seenTabs.add(tb.path);
       el.onclick = e => { if (e.target.closest('.tclose')) closeTab(tb.path); else activate(tb.path); };
       el.addEventListener('mousedown', e => { if (e.button === 1) e.preventDefault(); });
@@ -2260,14 +2148,14 @@ function renderTabs() {
 
 function tabMenu(tb, anchor, pos) {
   const i = tabs.indexOf(tb);
-  const items = [[t('Kapat'), () => closeTab(tb.path)]];
-  if (tabs.length > 1) items.push([t('Diğerlerini kapat'), () => closeWhere(x => x !== tb, tb.path)]);
-  if (i < tabs.length - 1) items.push([t('Sağdakileri kapat'), () => closeWhere(x => tabs.indexOf(x) > i, tb.path)]);
+  const items = [[t('tabs.close'), () => closeTab(tb.path)]];
+  if (tabs.length > 1) items.push([t('tabs.close_others'), () => closeWhere(x => x !== tb, tb.path)]);
+  if (i < tabs.length - 1) items.push([t('tabs.close_right'), () => closeWhere(x => tabs.indexOf(x) > i, tb.path)]);
   items.push(
-    [t('Hepsini kapat'), () => closeWhere(() => true)],
-    [t('Tarayıcıda yeni sekmede aç'), () => window.open(fileUrl(tb.path), '_blank')],
-    [t('Varsayılan programda aç'), () => openInApp(tb.path)],
-    [t('Bulunduğu klasöre git'), () => { setActive(null); go(dirOf(tb.path)); }],
+    [t('tabs.close_all'), () => closeWhere(() => true)],
+    [t('file.open_tab'), () => window.open(fileUrl(tb.path), '_blank')],
+    [t('file.open_default'), () => openInApp(tb.path)],
+    [t('file.go_folder'), () => { setActive(null); go(dirOf(tb.path)); }],
   );
   menu(anchor, items, pos);
 }
@@ -2304,14 +2192,14 @@ $('#v-app').onclick = () => active && openInApp(active);
 function toggleFullscreen() {
   if (document.fullscreenElement) return document.exitFullscreen();
   const el = $('#viewer');
-  if (!active || !el.requestFullscreen) return toast(t('Tam ekran desteklenmiyor'), true);
-  el.requestFullscreen().catch(() => toast(t('Tam ekran açılamadı'), true));
+  if (!active || !el.requestFullscreen) return toast(t('err.fullscreen_unsupported'), true);
+  el.requestFullscreen().catch(() => toast(t('err.fullscreen_failed'), true));
 }
 $('#v-full').onclick = toggleFullscreen;
 $('#fs-exit').onclick = toggleFullscreen;
 document.addEventListener('fullscreenchange', () => {
   const on = !!document.fullscreenElement;
-  $('#v-full').title = t(on ? 'Tam ekrandan çık (F)' : 'Tam ekran (F)');
+  $('#v-full').title = t(on ? 'viewer.exit_fullscreen_f' : 'viewer.fullscreen_f');
 });
 
 // Kenar çubuğunu gizle/göster: PDF'e daha çok yer kalır (durum hatırlanır)
@@ -2380,12 +2268,12 @@ function onRightClick(el, show) {
 
 // Klasör/ders menüsü (kenar çubuğu, kart ve sağ tık için ortak)
 function folderMenu(path, anchor, pos) {
-  const items = [[t('Yeni alt klasör'), () => newFolder(path)]];
-  if (!path.includes('/')) items.push([t('Renk seç…'), () => colorMenu(anchor, path, pos)], [t('İkon seç…'), () => iconMenu(anchor, path, pos)]);
+  const items = [[t('folder.new_sub'), () => newFolder(path)]];
+  if (!path.includes('/')) items.push([t('folder.pick_color'), () => colorMenu(anchor, path, pos)], [t('folder.pick_icon'), () => iconMenu(anchor, path, pos)]);
   items.push(
-    [t('Yeniden adlandır'), () => rename(path, true)],
-    [t('Klasörde göster'), () => api('/api/reveal', { path }).catch(fail)],
-    [t('Sil'), () => remove(path, true), true],
+    [t('action.rename'), () => rename(path, true)],
+    [t('file.reveal'), () => api('/api/reveal', { path }).catch(fail)],
+    [t('action.delete'), () => remove(path, true), true],
   );
   menu(anchor, items, pos);
 }
@@ -2400,7 +2288,7 @@ function colorMenu(anchor, path, pos) {
     b.onclick = () => { closeMenu(); setColor(path, c); };
     el.firstChild.append(b);
   }
-  const clear = h(`<button class="clear">${t('Rengi kaldır')}</button>`);
+  const clear = h(`<button class="clear">${t('folder.clear_color')}</button>`);
   clear.onclick = () => { closeMenu(); setColor(path, ''); };
   el.append(clear);
   placeMenu(el, anchor, pos);
@@ -2409,8 +2297,8 @@ function colorMenu(anchor, path, pos) {
 function iconMenu(anchor, path, pos) {
   closeMenu();
   const current = iconIdOf(path, tree.folders.findIndex(f => f.name === path));
-  const el = h('<div class="menu iconpick" role="group" aria-label="' + t('İkon seç') + '"></div>');
-  for (const group of ['Genel', 'Mühendislik']) {
+  const el = h('<div class="menu iconpick" role="group" aria-label="' + t('folder.pick_icon_aria') + '"></div>');
+  for (const group of ['icon.group.general', 'icon.group.engineering']) {
     el.append(h(`<div class="ip-head">${esc(t(group))}</div>`));
     const grid = h('<div class="ip-grid"></div>');
     for (const ic of ICONS.filter(i => i.group === group)) {
@@ -2420,7 +2308,7 @@ function iconMenu(anchor, path, pos) {
     }
     el.append(grid);
   }
-  const clear = h(`<button class="clear">${t('Varsayılana dön')}</button>`);
+  const clear = h(`<button class="clear">${t('folder.reset_icon')}</button>`);
   clear.onclick = () => { closeMenu(); setIcon(path, ''); };
   el.append(clear);
   placeMenu(el, anchor, pos);
@@ -2438,7 +2326,7 @@ async function setColor(path, color) {
   } catch (e) { fail(e); }
 }
 
-function ask({ title, hint = '', value = null, ok = t('Tamam'), danger = false, selectStem = false }) {
+function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false, selectStem = false }) {
   const dlg = $('#dlg'), input = $('#dlg-input'), okBtn = $('#dlg-ok');
   $('#dlg-title').textContent = title;
   input.setAttribute('aria-label', title);
@@ -2475,7 +2363,7 @@ function ask({ title, hint = '', value = null, ok = t('Tamam'), danger = false, 
 
 /* ---------- işlemler ---------- */
 async function newFolder(dir) {
-  const name = await ask({ title: dir ? t('“{name}” içinde yeni klasör', { name: baseOf(dir) }) : t('Yeni ders'), value: '', ok: t('Oluştur') });
+  const name = await ask({ title: dir ? t('folder.new_in', { name: baseOf(dir) }) : t('course.new'), value: '', ok: t('dlg.create') });
   if (!name) return;
   try {
     const { path } = await api('/api/mkdir', { dir, name });
@@ -2518,7 +2406,7 @@ function afterMove(from, to) {
 }
 
 async function rename(path, isDir) {
-  const name = await ask({ title: t('Yeni ad'), value: baseOf(path), ok: t('Kaydet'), selectStem: !isDir });
+  const name = await ask({ title: t('dlg.new_name'), value: baseOf(path), ok: t('dlg.save'), selectStem: !isDir });
   if (!name || name === baseOf(path)) return;
   try {
     const r = await api('/api/move', { from: path, dir: dirOf(path), name });
@@ -2530,9 +2418,9 @@ async function rename(path, isDir) {
 
 async function remove(path, isDir) {
   const ok = await ask({
-    title: isDir ? t('“{name}” klasörü ve içindekiler silinsin mi?', { name: baseOf(path) }) : t('“{name}” silinsin mi?', { name: baseOf(path) }),
-    hint: t("Dosyalar silinmez, .silinenler klasörüne taşınır; bildirimdeki “Geri al” ya da Gezgin'den geri alabilirsin."),
-    ok: t('Sil'), danger: true,
+    title: isDir ? t('delete.title_folder', { name: baseOf(path) }) : t('delete.title_file', { name: baseOf(path) }),
+    hint: t('delete.hint'),
+    ok: t('action.delete'), danger: true,
   });
   if (!ok) return;
   const color = path.includes('/') ? '' : (tree.colors || {})[path] || '';
@@ -2541,15 +2429,15 @@ async function remove(path, isDir) {
     const r = await api('/api/delete', { path });
     if (cur === path || cur.startsWith(path + '/')) go(dirOf(path));
     await load();
-    toast(t('Silindi'), false, false, null, {
-      label: t('Geri al'),
+    toast(t('toast.deleted'), false, false, null, {
+      label: t('toast.undo'),
       fn: async () => {
         try {
           const back = await api('/api/restore', { trash: r.trash, to: path });
           arrivals.add(back.path);
           if (color) await api('/api/color', { path: back.path, color });
           await load();
-          toast(t('Geri yüklendi'));
+          toast(t('toast.restored'));
         } catch (e) { fail(e); }
       },
     });
@@ -2564,8 +2452,8 @@ async function moveTo(src, dir) {
     afterMove(src, r.path);
     await load();
     flashAccept(dir);
-    toast(t('Taşındı → {name}', { name: dir ? baseOf(dir) : t('Ana sayfa') }), false, false, null, {
-      label: t('Geri al'),
+    toast(t('toast.moved', { name: dir ? baseOf(dir) : t('nav.home') }), false, false, null, {
+      label: t('toast.undo'),
       fn: async () => {
         try {
           const back = await api('/api/move', { from: r.path, dir: dirOf(src), name: baseOf(src) });
@@ -2584,16 +2472,16 @@ async function uploadItems(items, dir) {
   let done = 0;
   try {
     for (const { file, rel } of items) {
-      toast(t('Yükleniyor {i}/{n} — {name}', { i: done + 1, n: items.length, name: file.name }), false, true, done / items.length);
+      toast(t('upload.progress', { i: done + 1, n: items.length, name: file.name }), false, true, done / items.length);
       const target = join(dir, rel);
       const r = await fetch(`/api/upload?dir=${encodeURIComponent(target)}&name=${encodeURIComponent(file.name)}`, { method: 'POST', headers: { 'X-Libzie': '1' }, body: file });
-      const j = await r.json().catch(() => ({ error: 'Yükleme başarısız' }));
-      if (j.error) throw new Error(`${file.name}: ${tErr(j.error)}`);
+      const j = await r.json().catch(() => ({ error: 'x', code: 'err.upload_failed' }));
+      if (j.error) throw new Error(`${file.name}: ${errText(j)}`);
       arrivals.add(j.path);
       if (rel) arrivals.add(join(dir, rel.split('/')[0])); // klasör bırakıldıysa üst klasörü de vurgula
       done++;
     }
-    toast(t('{n} dosya yüklendi', { n: done }), false, false, 1);
+    toast(t('upload.done', { n: done }), false, false, 1);
   } catch (e) { fail(e); }
   await load();
 }
@@ -2763,13 +2651,13 @@ async function openSettings() {
     $('#settings').showModal();
     if (!s.locked) $('#s-path').focus();
     initUpdate(s);
-  } catch { toast(t('Ayarlar okunamadı'), true); }
+  } catch { toast(t('set.read_failed'), true); }
 }
 async function saveSettings() {
   try {
     await api('/api/settings', { kaynak_klasoru: $('#s-path').value });
   } catch (e) {
-    $('#s-error').textContent = tErr(e.message);
+    $('#s-error').textContent = e.message;
     return;
   }
   $('#settings').close();
@@ -2778,17 +2666,17 @@ async function saveSettings() {
   cur = '';
   await load();
   go('');
-  toast(t('Kaynak klasörü güncellendi'));
+  toast(t('set.root_updated'));
 }
 // Yol yazılırken (gecikmeli) klasörde kaç ders/dosya olduğunu gösterir; yanlış yol kaydetmeden önce fark edilir
 let previewTimer;
 async function updatePreview() {
   const el = $('#s-preview');
   const v = $('#s-path').value;
-  if (!v.trim()) { el.textContent = t('Boş bırakırsan varsayılan klasör kullanılır.'); return; }
+  if (!v.trim()) { el.textContent = t('set.root_empty_hint'); return; }
   try {
     const j = await (await fetch('/api/preview?path=' + encodeURIComponent(v))).json();
-    el.textContent = j.exists ? t('Bu klasörde {c} ders klasörü, {f} dosya var.', { c: j.courses, f: `${j.files}${j.capped ? '+' : ''}` }) : t('Bu klasör bulunamadı.');
+    el.textContent = j.exists ? t('set.root_preview', { c: j.courses, f: `${j.files}${j.capped ? '+' : ''}` }) : t('set.root_not_found');
   } catch { el.textContent = ''; }
 }
 $('#s-path').addEventListener('input', () => { clearTimeout(previewTimer); previewTimer = setTimeout(updatePreview, 350); });
@@ -2797,11 +2685,11 @@ $('#open-keys').onclick = () => $('#keys').showModal();
 document.querySelector('.skip').addEventListener('click', e => { e.preventDefault(); $('#content').focus(); });
 $('#s-save').onclick = saveSettings;
 $('#s-cancel').onclick = () => $('#settings').close();
-$('#s-reveal').onclick = () => api('/api/reveal', { path: '' }).catch(e => { $('#s-error').textContent = tErr(e.message); });
+$('#s-reveal').onclick = () => api('/api/reveal', { path: '' }).catch(e => { $('#s-error').textContent = e.message; });
 $('#s-lang').onchange = e => setLang(e.target.value);
 $('#s-path').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveSettings(); } });
 // Kenar çubuğunda boş alana sağ tık → yeni ders
-onRightClick($('#tree'), (el, pos) => menu(el, [[t('Yeni ders'), () => newFolder('')]], pos));
+onRightClick($('#tree'), (el, pos) => menu(el, [[t('course.new'), () => newFolder('')]], pos));
 
 /* ---------- kenar çubuğu PCB'si ---------- */
 // Sağ kenarda birbirine sarılan iki büyük sarmal (çift sarmal) tüm çubuk boyunca iner. İki iz x = cx ± A cos t ile
@@ -2915,12 +2803,7 @@ document.addEventListener('visibilitychange', () => document.documentElement.cla
 // Konum tarayıcıdan istenmez; kullanıcı şehir adını yazar, servise yalnızca o şehrin koordinatları gider.
 // Son sonuç 30 dk önbellekte tutulur; internet yoksa son bilinen değer gösterilir.
 const WMO = {
-  0: 'Açık', 1: 'Az bulutlu', 2: 'Parçalı bulutlu', 3: 'Kapalı', 45: 'Sisli', 48: 'Kırağılı sis',
-  51: 'Hafif çisenti', 53: 'Çisenti', 55: 'Yoğun çisenti', 56: 'Dondurucu çisenti', 57: 'Dondurucu çisenti',
-  61: 'Hafif yağmur', 63: 'Yağmurlu', 65: 'Şiddetli yağmur', 66: 'Dondurucu yağmur', 67: 'Dondurucu yağmur',
-  71: 'Hafif kar', 73: 'Karlı', 75: 'Yoğun kar', 77: 'Kar taneleri',
-  80: 'Hafif sağanak', 81: 'Sağanak', 82: 'Şiddetli sağanak', 85: 'Kar sağanağı', 86: 'Yoğun kar sağanağı',
-  95: 'Gök gürültülü', 96: 'Dolu ihtimali', 99: 'Dolu ve fırtına',
+  0: 'wmo.0', 1: 'wmo.1', 2: 'wmo.2', 3: 'wmo.3', 45: 'wmo.45', 48: 'wmo.48', 51: 'wmo.51', 53: 'wmo.53', 55: 'wmo.55', 56: 'wmo.56', 57: 'wmo.57', 61: 'wmo.61', 63: 'wmo.63', 65: 'wmo.65', 66: 'wmo.66', 67: 'wmo.67', 71: 'wmo.71', 73: 'wmo.73', 75: 'wmo.75', 77: 'wmo.77', 80: 'wmo.80', 81: 'wmo.81', 82: 'wmo.82', 85: 'wmo.85', 86: 'wmo.86', 95: 'wmo.95', 96: 'wmo.96', 99: 'wmo.99',
 };
 // Hava durumu ikonları (WMO kod grubuna göre), sitenin ince çizgi dilinde
 // Her parçanın sınıfı CSS animasyonunu seçer (wi-rays döner, wi-cloud kayar, wi-rain/wi-drop/wi-flake düşer,
@@ -2959,7 +2842,7 @@ function showWeather(w) {
   $('#w-temp').textContent = `${w.temp}°`;
   $('#w-cond').textContent = t(WMO[w.code] || '—');
   $('#w-icon').innerHTML = weatherIcon(w.code);
-  $('#weather').title = t('{place} · Şu an: {now}, {temp}° · Bugün en düşük {min}°, en yüksek {max}° · Şehri değiştirmek için tıklayın',
+  $('#weather').title = t('weather.tooltip',
     { place: weatherPlace.name, now: t(WMO[w.nowCode] || '—'), temp: w.temp, min: w.min, max: w.max });
 }
 async function loadWeather(force = false) {
@@ -2967,8 +2850,8 @@ async function loadWeather(force = false) {
   if (!weatherPlace) {
     $('#w-icon').innerHTML = '<path d="M12 5v14M5 12h14"/>'; // bozuk görünen "—" yerine sakin bir "ekle" eylemi
     $('#w-temp').textContent = '';
-    $('#w-cond').textContent = t('Hava durumu ekle');
-    box.title = t('Hava durumu için şehir seçin');
+    $('#w-cond').textContent = t('weather.add');
+    box.title = t('weather.choose_city');
     return;
   }
   const cached = store.get('weather', null);
@@ -2993,32 +2876,40 @@ async function loadWeather(force = false) {
     if (!cached || cached.key !== placeKey()) {
       $('#w-icon').innerHTML = '';
       $('#w-temp').textContent = '—';
-      $('#w-cond').textContent = t('Bağlantı yok');
+      $('#w-cond').textContent = t('weather.offline');
     }
-    box.title = t('Hava durumu alınamadı (internet bağlantısı gerekir) · Şehri değiştirmek için tıklayın');
+    box.title = t('weather.unavailable');
   } finally {
     box.classList.remove('loading');
   }
 }
 $('#weather').onclick = async () => {
-  const name = await ask({ title: t('Hava durumu için şehir'), value: weatherPlace ? weatherPlace.name : '', ok: t('Kaydet') });
+  const name = await ask({ title: t('weather.city_prompt'), value: weatherPlace ? weatherPlace.name : '', ok: t('dlg.save') });
   if (!name) return;
   try {
     const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=${lang}&format=json`;
     const r = ((await (await fetch(url)).json()).results || [])[0];
-    if (!r) return toast(t('Şehir bulunamadı'), true);
+    if (!r) return toast(t('weather.city_not_found'), true);
     weatherPlace = { name: r.name, lat: r.latitude, lon: r.longitude };
     store.set('weatherPlace', weatherPlace);
     loadWeather(true);
-  } catch { toast(t('Hava durumu servisine ulaşılamadı'), true); }
+  } catch { toast(t('weather.service_error'), true); }
 };
 loadWeather();
 setInterval(loadWeather, 10 * 60e3); // önbellek 30 dk dolmadıkça istek atmaz
 
 /* ---------- güncelleme ---------- */
 // Sunucu GitHub'daki son sürüme bakar (internete çıkan, isteğe bağlı ikinci istek); indirme ve yerine koyma da sunucuda yapılır.
-let lastUpd = ['', false, null];
-function updMsg(text, err, vars) { lastUpd = [text, err, vars]; const m = $('#u-msg'); m.textContent = text ? tErr(text, vars) : ''; m.style.color = err ? 'var(--danger)' : ''; }
+let lastUpd = { id: '', err: false, vars: null, raw: '' };
+function showUpd() {
+  const u = lastUpd, m = $('#u-msg');
+  m.textContent = u.id && has(u.id) ? t(u.id, u.vars) : u.raw || (u.id ? t(u.id, u.vars) : '');
+  m.style.color = u.err ? 'var(--danger)' : '';
+}
+function updMsg(id, err, vars) { lastUpd = { id, err: !!err, vars: vars || null, raw: '' }; showUpd(); }
+// Sunucu hatası ({ error: Türkçe varsayılan, code: kimlik, vars }): kimlik sözlükte varsa etkin dilde, yoksa varsayılan metinle
+function updErr(j) { lastUpd = { id: (j && j.code) || '', err: true, vars: (j && j.vars) || null, raw: (j && j.error) || '' }; showUpd(); }
+const srvErr = st => ({ error: st.error, code: st.error_code, vars: st.error_vars });
 function updBar(frac) { $('#u-bar').hidden = false; $('#u-bar i').style.width = Math.round(Math.min(1, frac) * 100) + '%'; }
 function pollUpdate(render) {
   const tick = async () => {
@@ -3032,25 +2923,25 @@ function pollUpdate(render) {
 }
 function renderUpdateProgress(st) {
   const frac = st.total > 0 ? st.done / st.total : 0;
-  if (st.phase === 'downloading') { updBar(frac); updMsg('İndiriliyor… %{p}', false, { p: Math.round(frac * 100) }); }
-  else if (st.phase === 'restarting') { updBar(1); updMsg('Yeni sürüm kuruluyor, libzie birazdan yeniden açılacak…'); }
-  else if (st.phase === 'error') { $('#u-bar').hidden = true; updMsg(st.error, true); $('#u-apply').disabled = false; $('#u-check').disabled = false; }
+  if (st.phase === 'downloading') { updBar(frac); updMsg('upd.downloading', false, { p: Math.round(frac * 100) }); }
+  else if (st.phase === 'restarting') { updBar(1); updMsg('upd.installing'); }
+  else if (st.phase === 'error') { $('#u-bar').hidden = true; updErr(srvErr(st)); $('#u-apply').disabled = false; $('#u-check').disabled = false; }
 }
 async function checkUpdate() {
   $('#u-check').disabled = true;
   $('#u-apply').hidden = true;
-  updMsg('Denetleniyor…');
+  updMsg('upd.checking');
   try {
     const u = await (await fetch('/api/update/check')).json();
-    if (u.error) { updMsg(u.error, true); $('#u-new').textContent = '—'; return; }
+    if (u.error) { updErr(u); $('#u-new').textContent = '—'; return; }
     $('#u-cur').textContent = u.current;
     $('#u-new').textContent = u.latest;
     $('#u-new').classList.toggle('new', u.available);
-    if (!u.available) updMsg('libzie güncel.');
-    else if (u.kind === 'kaynak') updMsg('Yeni sürüm var. Kaynak koddan çalıştığın için depoyu git pull ile güncelle.');
-    else if (!u.downloadable) updMsg('Yeni sürüm var ama indirme dosyası henüz hazır değil; birkaç dakika sonra tekrar denetle.');
-    else { updMsg('Yeni sürüm hazır.'); $('#u-apply').hidden = false; }
-  } catch { updMsg('Denetlenemedi.', true); }
+    if (!u.available) updMsg('upd.up_to_date');
+    else if (u.kind === 'kaynak') updMsg('upd.new_from_source');
+    else if (!u.downloadable) updMsg('upd.new_not_ready');
+    else { updMsg('upd.new_ready'); $('#u-apply').hidden = false; }
+  } catch { updMsg('upd.check_failed', true); }
   finally { $('#u-check').disabled = false; }
 }
 function initUpdate(s) {
@@ -3062,19 +2953,19 @@ function initUpdate(s) {
   $('#u-apply').disabled = false;
   $('#u-auto').checked = !!s.auto_update;
   $('#u-auto').disabled = s.update_kind === 'kaynak';
-  $('#u-auto').title = s.update_kind === 'kaynak' ? t('Kaynak koddan çalışırken otomatik güncelleme yoktur') : '';
+  $('#u-auto').title = s.update_kind === 'kaynak' ? t('upd.auto_unavailable') : '';
   checkUpdate();
 }
 $('#u-check').onclick = checkUpdate;
 $('#u-auto').onchange = async e => {
   try { await api('/api/update/settings', { auto: e.target.checked }); }
-  catch (err) { e.target.checked = !e.target.checked; updMsg(err.message, true); }
+  catch (err) { e.target.checked = !e.target.checked; updErr({ error: err.message }); }
 };
 $('#u-apply').onclick = async () => {
   $('#u-apply').disabled = true;
   $('#u-check').disabled = true;
   try { await api('/api/update/apply', {}); }
-  catch (e) { updMsg(e.message, true); $('#u-apply').disabled = false; $('#u-check').disabled = false; return; }
+  catch (e) { updErr({ error: e.message }); $('#u-apply').disabled = false; $('#u-check').disabled = false; return; }
   pollUpdate(renderUpdateProgress);
 };
 // Otomatik güncelleme açıksa: açılışta bir kez bakar, yeni sürüm varsa indirip yeniden başlar
@@ -3084,13 +2975,13 @@ async function autoUpdate() {
     if (!s.auto_update || s.update_kind === 'kaynak') return;
     const u = await (await fetch('/api/update/check')).json();
     if (!u.available || !u.downloadable) return;
-    toast(t('libzie {v} indiriliyor…', { v: u.latest }), false, true, 0);
+    toast(t('upd.toast_downloading', { v: u.latest }), false, true, 0);
     await api('/api/update/apply', { auto: true });
     pollUpdate(st => {
       const frac = st.total > 0 ? st.done / st.total : 0;
-      if (st.phase === 'downloading') toast(t('libzie {v} indiriliyor… %{p}', { v: u.latest, p: Math.round(frac * 100) }), false, true, frac);
-      else if (st.phase === 'restarting') toast(t('Güncelleniyor, libzie yeniden açılacak…'), false, true);
-      else if (st.phase === 'error') toast(tErr(st.error), true);
+      if (st.phase === 'downloading') toast(t('upd.toast_downloading_pct', { v: u.latest, p: Math.round(frac * 100) }), false, true, frac);
+      else if (st.phase === 'restarting') toast(t('upd.toast_restarting'), false, true);
+      else if (st.phase === 'error') toast(errText(srvErr(st)), true);
     });
   } catch { $('#toast').className = ''; }
 }
@@ -3105,9 +2996,10 @@ function setLang(pref) {
   render();
   loadWeather();
   updatePreview();
-  updMsg(...lastUpd);
-  if ($('#u-auto').disabled) $('#u-auto').title = t('Kaynak koddan çalışırken otomatik güncelleme yoktur');
+  showUpd();
+  if ($('#u-auto').disabled) $('#u-auto').title = t('upd.auto_unavailable');
 }
+buildLangSelect();
 applyI18n();
 
 cur = pathFromHash();

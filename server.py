@@ -20,6 +20,8 @@ from pathlib import Path
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import guncelleme
+import i18n
+from i18n import AppError, err_json
 
 FROZEN = getattr(sys, "frozen", False)  # PyInstaller ile paketlenmiş uygulama
 BASE = Path(__file__).resolve().parent
@@ -124,12 +126,12 @@ def check_write(p):
     p = Path(p).resolve()
     for d in PROTECTED:
         if p == d or d in p.parents:
-            raise ValueError("Bu klasöre yazılamaz (sistem, Başlangıç ya da uygulama klasörü)")
+            raise AppError("err.write_blocked")
 
 
 def check_ext(name):
     if Path(name).suffix.lower().lstrip(".") in BLOCKED_EXT:
-        raise ValueError("Bu dosya türü (çalıştırılabilir/betik) arşive eklenemez")
+        raise AppError("err.ext_blocked")
 
 ENV_ROOT = os.environ.get("KAYNAK_KLASORU", "")  # ayarlanmışsa arayüzden değiştirilemez
 
@@ -156,21 +158,21 @@ def pick_root():
     """Kaynak klasörü: KAYNAK_KLASORU ortam değişkeni > ayarlar.json > ./kaynaklar.
     Ayarlı klasör yoksa (ör. Drive kapalı) varsayılana dönülür ve uyarı verilir."""
     custom = ENV_ROOT or str(read_settings().get("kaynak_klasoru") or "")
-    warning = ""
+    warning = None
     if custom.strip():
         p = parse_dir(custom)
         if p.is_dir():
             return p.resolve(), ""
-        warning = f"Ayarlanan kaynak klasörü bulunamadı: {p} — varsayılan klasör gösteriliyor."
+        warning = ("warn.root_missing", {"path": str(p)})
     DEFAULT_ROOT.mkdir(parents=True, exist_ok=True)
     return DEFAULT_ROOT.resolve(), warning
 
 
 ROOT = TRASH = COLOR_FILE = ICON_FILE = None
-ROOT_WARNING = ""
+ROOT_WARNING = None  # (kimlik, değişkenler) ya da None
 
 
-def set_root(root, warning=""):
+def set_root(root, warning=None):
     global ROOT, TRASH, COLOR_FILE, ICON_FILE, ROOT_WARNING
     ROOT, TRASH, COLOR_FILE, ICON_FILE = root, root / ".silinenler", root / ".renkler.json", root / ".ikonlar.json"
     ROOT_WARNING = warning
@@ -183,7 +185,7 @@ def safe(rel_path):
     """Göreli yolu kaynaklar/ altında mutlak yola çevirir; dışarı çıkmaya izin vermez."""
     p = (ROOT / (rel_path or "")).resolve()
     if p != ROOT and ROOT not in p.parents:
-        raise ValueError("Geçersiz yol")
+        raise AppError("err.bad_path")
     return p
 
 
@@ -206,7 +208,7 @@ def clean_name(name):
     name = Path(str(name).replace("\\", "/")).name.strip()
     if (not name or name.startswith(".") or name.endswith(".") or any(c in name for c in '<>:"|?*')
             or any(ord(c) < 32 for c in name) or name.split(".")[0].strip().lower() in RESERVED):
-        raise ValueError("Geçersiz ad")
+        raise AppError("err.bad_name")
     return name
 
 
@@ -272,7 +274,7 @@ def tree(d):
 
 def open_with_system(p):
     if p.is_file() and p.suffix.lower().lstrip(".") not in OPEN_OK:
-        raise ValueError("Bu dosya türü güvenlik nedeniyle doğrudan açılmaz (çalıştırılabilir olabilir). “Klasörde göster”i kullan.")
+        raise AppError("err.open_blocked")
     if sys.platform == "win32":
         os.startfile(p)
     elif sys.platform == "darwin":
@@ -286,7 +288,7 @@ def reveal(p):
         if p.is_dir():
             os.startfile(p)
         elif '"' in str(p):
-            raise ValueError("Geçersiz yol")
+            raise AppError("err.bad_path")
         else:
             subprocess.Popen(f'explorer /select,"{p}"')
     elif sys.platform == "darwin":
@@ -303,7 +305,8 @@ class Handler(BaseHTTPRequestHandler):
         port = self.server.server_address[1]
         return {f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}"}
 
-    def deny(self, code, text):
+    def deny(self, code, key):
+        text = " / ".join(dict.fromkeys(i18n.msg(key, lang) for lang in (i18n.DEFAULT, "en")))  # "Türkçe / English"
         data = f"<!doctype html><meta charset=utf-8><title>libzie</title><p>{text}</p>".encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -327,16 +330,16 @@ class Handler(BaseHTTPRequestHandler):
         """İstek bu uygulamanın kendi sayfasından mı geliyor? Değilse yanıtı verir ve False döner.
         Host denetimi DNS rebinding'i, Sec-Fetch-Site/Origin ve özel başlık başka sitelerden gelen istekleri (CSRF) keser."""
         if self.headers.get("Host", "") not in self.hosts():
-            self.deny(403, "Geçersiz istek. / Invalid request.")
+            self.deny(403, "http.bad_request")
             return False
         site = self.headers.get("Sec-Fetch-Site")
         if site and site not in ("same-origin", "none"):
-            self.deny(403, "Başka bir siteden gelen istek reddedildi. / Request from another site was rejected.")
+            self.deny(403, "http.cross_site")
             return False
         if post:
             origin = self.headers.get("Origin")
             if (origin and origin not in {f"http://{h}" for h in self.hosts()}) or self.headers.get("X-Libzie") != "1":
-                self.deny(403, "Başka bir siteden gelen istek reddedildi. / Request from another site was rejected.")
+                self.deny(403, "http.cross_site")
                 return False
         return True
 
@@ -351,7 +354,7 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             return False
         if not self.has_token():
-            self.deny(401, "libzie'ye erişim izni yok. Uygulamayı libzie.exe (ya da baslat.bat) ile aç. / Access denied. Open libzie through libzie.exe (or baslat.bat).")
+            self.deny(401, "http.no_access")
             return False
         return True
 
@@ -362,6 +365,22 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+        self.wfile.write(data)
+
+    def send_index(self):
+        """Uygulama sayfası: dil sözlükleri (static/lang/*.json) sayfaya gömülür, ek istek ve gecikme olmaz."""
+        page = (STATIC / "index.html").read_text(encoding="utf-8").replace("/*I18N*/", i18n.dict_json(), 1)
+        data = page.encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-cache")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Cross-Origin-Resource-Policy", "same-origin")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Content-Security-Policy", CSP_APP)
+        self.send_header("X-Frame-Options", "DENY")
         self.end_headers()
         self.wfile.write(data)
 
@@ -439,12 +458,14 @@ class Handler(BaseHTTPRequestHandler):
             if not self.authorized(path, parse_qs(u.query)):
                 return
             if path in ("/", "/index.html"):
-                return self.send_file(STATIC / "index.html")
+                return self.send_index()
             if path == "/api/tree":
                 data = tree(ROOT)
                 data["colors"] = load_colors()
                 data["icons"] = load_icons()
-                data["warning"] = ROOT_WARNING
+                data["warning"] = i18n.msg(ROOT_WARNING[0], **ROOT_WARNING[1]) if ROOT_WARNING else ""
+                data["warning_code"] = ROOT_WARNING[0] if ROOT_WARNING else ""
+                data["warning_vars"] = ROOT_WARNING[1] if ROOT_WARNING else {}
                 return self.send_json(data)
             if path == "/api/settings":
                 return self.send_json({
@@ -465,7 +486,7 @@ class Handler(BaseHTTPRequestHandler):
             if path.startswith("/vendor/"):
                 name = path[len("/vendor/"):]
                 if not name or "/" in name or "\\" in name or name.startswith("."):
-                    raise ValueError("Geçersiz yol")
+                    raise AppError("err.bad_path")
                 return self.send_file(STATIC / "vendor" / name, cache="public, max-age=86400")
             if path == "/api/preview":
                 # Ayarlar'da yol yazılırken: "bu klasörde N ders, M dosya var" (yalnızca okur)
@@ -486,10 +507,17 @@ class Handler(BaseHTTPRequestHandler):
                     return self.send_json({"exists": False})
                 return self.send_json({"exists": True, "courses": courses, "files": files, "capped": capped})
             self.send_error(404)
+        except AppError as e:
+            if e.code == "err.bad_path":
+                self.send_error(403)
+            else:
+                self.send_json(err_json(e), 400)
         except ValueError:
             self.send_error(403)
         except (ConnectionAbortedError, BrokenPipeError, ConnectionResetError):
             pass
+        except Exception as e:  # noqa: BLE001 — hatayı arayüze ilet
+            self.send_json(err_json(e), 400)
 
     def do_POST(self):
         u = urlparse(self.path)
@@ -502,7 +530,7 @@ class Handler(BaseHTTPRequestHandler):
             except ValueError:
                 length = -1
             if length < 0:
-                raise ValueError("Geçersiz istek")
+                raise AppError("err.bad_request")
             if u.path == "/api/upload":
                 d = safe(q.get("dir", ""))
                 check_write(d)
@@ -521,17 +549,17 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json({"path": rel(target)})
 
             if length > MAX_JSON:
-                raise ValueError("İstek çok büyük")
+                raise AppError("err.too_large")
             body = json.loads(self.rfile.read(length) or b"{}")
             if not isinstance(body, dict):
-                raise ValueError("Geçersiz istek")
+                raise AppError("err.bad_request")
 
             if u.path == "/api/mkdir":
                 parent = safe(body.get("dir", ""))
                 check_write(parent)
                 p = parent / clean_name(body.get("name", ""))
                 if p.exists():
-                    raise ValueError("Bu adla bir öğe zaten var")
+                    raise AppError("err.exists")
                 p.mkdir(parents=True)
                 return self.send_json({"path": rel(p)})
 
@@ -543,11 +571,11 @@ class Handler(BaseHTTPRequestHandler):
                 if dst.suffix.lower() != src.suffix.lower():
                     check_ext(dst.name)  # yeniden adlandırarak yürütülebilir türe çevirmek de engellenir
                 if src == ROOT or not src.exists():
-                    raise ValueError("Öğe bulunamadı")
+                    raise AppError("err.not_found")
                 if src.is_dir() and (dst_dir == src or src in dst_dir.parents):
-                    raise ValueError("Klasör kendi içine taşınamaz")
+                    raise AppError("err.move_into_self")
                 if dst.exists() and not os.path.samefile(src, dst):
-                    raise ValueError("Hedefte aynı adla bir öğe var")
+                    raise AppError("err.dest_exists")
                 dst_dir.mkdir(parents=True, exist_ok=True)
                 os.rename(src, dst)
                 if src.parent == ROOT:
@@ -566,7 +594,7 @@ class Handler(BaseHTTPRequestHandler):
                     latest = guncelleme.check()["latest"]
                     settings = read_settings()
                     if settings.get("son_otomatik_deneme") == latest:
-                        raise guncelleme.UpdateError("Bu sürüm otomatik olarak zaten denendi; Ayarlar'dan elle güncelle.")
+                        raise guncelleme.UpdateError("upd.err.auto_tried")
                     settings["son_otomatik_deneme"] = latest
                     write_settings(settings)
                 guncelleme.start_apply()
@@ -574,13 +602,13 @@ class Handler(BaseHTTPRequestHandler):
 
             if u.path == "/api/settings":
                 if ENV_ROOT:
-                    raise ValueError("Klasör KAYNAK_KLASORU ortam değişkeniyle sabitlenmiş")
+                    raise AppError("err.root_locked")
                 text = str(body.get("kaynak_klasoru") or "").strip()
                 settings = read_settings()
                 if text:
                     p = parse_dir(text)
                     if not p.is_dir():
-                        raise ValueError(f"Klasör bulunamadı: {p}")
+                        raise AppError("err.folder_missing", path=str(p))
                     settings["kaynak_klasoru"] = str(p.resolve())
                     new_root = p.resolve()
                 else:
@@ -594,11 +622,11 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/color":
                 course = safe(body["path"])
                 if course.parent != ROOT or not course.is_dir():
-                    raise ValueError("Renk yalnızca derslere verilebilir")
+                    raise AppError("err.color_course_only")
                 colors = load_colors()
                 if body.get("color"):
                     if not re.fullmatch(r"#[0-9a-fA-F]{3,8}", str(body["color"])):
-                        raise ValueError("Geçersiz renk")
+                        raise AppError("err.bad_color")
                     colors[course.name] = str(body["color"])
                 else:
                     colors.pop(course.name, None)
@@ -608,10 +636,10 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/icon":
                 course = safe(body["path"])
                 if course.parent != ROOT or not course.is_dir():
-                    raise ValueError("İkon yalnızca derslere verilebilir")
+                    raise AppError("err.icon_course_only")
                 icon = str(body.get("icon") or "")
                 if icon and not re.fullmatch(r"[a-z0-9-]{1,24}", icon):
-                    raise ValueError("Geçersiz ikon")
+                    raise AppError("err.bad_icon")
                 icons = load_icons()
                 if icon:
                     icons[course.name] = icon
@@ -623,7 +651,7 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/delete":
                 src = safe(body["path"])
                 if src == ROOT or not src.exists():
-                    raise ValueError("Öğe bulunamadı")
+                    raise AppError("err.not_found")
                 if src.parent == ROOT:
                     move_course_meta(src.name, None)
                 TRASH.mkdir(exist_ok=True)
@@ -635,7 +663,7 @@ class Handler(BaseHTTPRequestHandler):
                 # "Geri al": .silinenler içindeki öğeyi eski yoluna döndürür (ad çakışırsa " (2)" eklenir)
                 src = TRASH / clean_name(body["trash"])
                 if not src.exists():
-                    raise ValueError("Öğe bulunamadı")
+                    raise AppError("err.not_found")
                 dst = safe(body["to"])
                 check_write(dst.parent)
                 dst.parent.mkdir(parents=True, exist_ok=True)
@@ -655,7 +683,7 @@ class Handler(BaseHTTPRequestHandler):
         except (ConnectionAbortedError, BrokenPipeError, ConnectionResetError):
             pass
         except Exception as e:  # noqa: BLE001 — hatayı arayüze ilet
-            self.send_json({"error": str(e)}, 400)
+            self.send_json(err_json(e), 400)
 
 
 class Server(ThreadingHTTPServer):
@@ -714,7 +742,7 @@ def main():
     print(f"libzie çalışıyor: {url}")
     print(f"Dosyalar: {ROOT}")
     if ROOT_WARNING:
-        print(f"UYARI: {ROOT_WARNING}")
+        print(f"UYARI: {i18n.msg(ROOT_WARNING[0], **ROOT_WARNING[1])}")
     print("Kapatmak için bu pencereyi kapatın veya Ctrl+C'ye basın.")
     print(f"Tarayıcıda açmak için (bu adres sana özel, paylaşma): {launch_url(url)}")
     if "--no-browser" not in sys.argv:

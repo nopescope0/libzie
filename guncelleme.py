@@ -16,6 +16,9 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+import i18n
+from i18n import AppError
+
 VERSION = "0.1.2"  # GitHub Actions, sürüm etiketinden (v0.1.3 → 0.1.3) derleme sırasında bu satırı yeniden yazar
 REPO = "nopescope0/libzie"
 FROZEN = getattr(sys, "frozen", False)
@@ -26,11 +29,11 @@ API = TEST_API or f"https://api.github.com/repos/{REPO}/releases/latest"
 ASSETS = {"kurulum": "libzie-kurulum.exe", "tasinabilir": "libzie-tasinabilir.exe"}
 
 _lock = threading.Lock()
-_state = {"phase": "idle", "done": 0, "total": 0, "error": ""}  # idle | downloading | restarting | error
+_state = {"phase": "idle", "done": 0, "total": 0, "error": "", "error_code": "", "error_vars": {}}  # idle | downloading | restarting | error
 
 
-class UpdateError(Exception):
-    pass
+class UpdateError(AppError):
+    """Kimlikli güncelleme hatası (UpdateError("upd.err.no_release")); metin static/lang/*.json içindedir."""
 
 
 class _HttpsOnly(urllib.request.HTTPRedirectHandler):
@@ -38,7 +41,7 @@ class _HttpsOnly(urllib.request.HTTPRedirectHandler):
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         if not TEST_API and not newurl.lower().startswith("https://"):
-            raise UpdateError("Güvenli olmayan bir yönlendirme reddedildi.")
+            raise UpdateError("upd.err.redirect")
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
@@ -63,19 +66,19 @@ def fetch_release():
             return json.loads(r.read())
     except urllib.error.HTTPError as e:
         if e.code == 404:
-            raise UpdateError("Yayınlanmış bir sürüm bulunamadı.") from e
+            raise UpdateError("upd.err.no_release") from e
         if e.code in (403, 429):
-            raise UpdateError("GitHub şu an istek kabul etmiyor; biraz sonra tekrar dene.") from e
-        raise UpdateError(f"Sürüm bilgisi alınamadı (GitHub {e.code}).") from e
+            raise UpdateError("upd.err.rate_limited") from e
+        raise UpdateError("upd.err.version_http", code=e.code) from e
     except (OSError, ValueError) as e:
-        raise UpdateError("Sürüm bilgisi alınamadı; internet bağlantını kontrol et.") from e
+        raise UpdateError("upd.err.offline") from e
 
 
 def check():
     rel = fetch_release()
     tag = str(rel.get("tag_name") or "")
     if not tag:
-        raise UpdateError("Sürüm bilgisi okunamadı.")
+        raise UpdateError("upd.err.unreadable")
     k = kind()
     names = {a.get("name") for a in rel.get("assets") or []}
     return {
@@ -127,12 +130,12 @@ def _download(url, dest, size, digest):
             _set(done=_state["done"] + len(chunk))
     got = dest.stat().st_size
     if size and got != size:
-        raise UpdateError("İndirilen dosya eksik; tekrar dene.")
+        raise UpdateError("upd.err.incomplete")
     with open(dest, "rb") as f:
         if f.read(2) != b"MZ":
-            raise UpdateError("İndirilen dosya geçerli bir uygulama değil.")
+            raise UpdateError("upd.err.not_app")
     if sha.hexdigest() != digest[7:].lower():
-        raise UpdateError("İndirilen dosyanın doğrulaması tutmadı; tekrar dene.")
+        raise UpdateError("upd.err.checksum_bad")
 
 
 def _expected_digest(rel, asset):
@@ -153,7 +156,7 @@ def _expected_digest(rel, asset):
                     return "sha256:" + parts[0].lower()
         except (OSError, UpdateError):
             pass
-    raise UpdateError("Bu sürümün doğrulama özeti yok; güvenlik nedeniyle güncelleme yapılmadı.")
+    raise UpdateError("upd.err.no_checksum")
 
 
 def _can_write(folder):
@@ -185,17 +188,17 @@ def _run():
         k = kind()
         rel = fetch_release()
         if parse_version(rel.get("tag_name", "")) <= parse_version(VERSION):
-            raise UpdateError("libzie zaten güncel.")
+            raise UpdateError("upd.err.up_to_date")
         asset = next((a for a in rel.get("assets") or [] if a.get("name") == ASSETS[k]), None)
         if not asset:
-            raise UpdateError("Bu sürümün indirme dosyası henüz hazır değil; birkaç dakika sonra tekrar dene.")
+            raise UpdateError("upd.err.asset_missing")
         url = str(asset.get("browser_download_url") or "")
         if not TEST_API and not url.startswith(f"https://github.com/{REPO}/releases/download/"):
-            raise UpdateError("Beklenmeyen indirme adresi; güncelleme iptal edildi.")
+            raise UpdateError("upd.err.bad_url")
         digest = _expected_digest(rel, asset)
         exe = Path(sys.executable)
         if k == "tasinabilir" and not _can_write(exe.parent):
-            raise UpdateError(f"{exe.parent} klasörüne yazılamıyor; uygulamayı yazılabilir bir klasöre taşı ya da kurulum sürümünü kullan.")
+            raise UpdateError("upd.err.not_writable", dir=str(exe.parent))
         for old in Path(tempfile.gettempdir()).glob("libzie-guncelleme-*"):  # önceki denemelerin artıkları
             shutil.rmtree(old, ignore_errors=True)
         work = Path(tempfile.mkdtemp(prefix="libzie-guncelleme-"))  # tahmin edilemez, yalnızca bu kullanıcıya açık klasör
@@ -214,16 +217,16 @@ def _run():
         _set(phase="restarting")
         threading.Timer(1.5, lambda: os._exit(0)).start()
     except UpdateError as e:
-        _set(phase="error", error=str(e))
+        _set(phase="error", error=str(e), error_code=e.code, error_vars=e.vars)
     except Exception as e:  # noqa: BLE001 — hata arayüze gösterilir
-        _set(phase="error", error=f"Güncelleme başarısız: {e}")
+        _set(phase="error", error=i18n.msg("upd.err.failed", error=str(e)), error_code="upd.err.failed", error_vars={"error": str(e)})
 
 
 def start_apply():
     if kind() == "kaynak":
-        raise UpdateError("Kaynak koddan çalışırken uygulama içinden güncellenemez; depoyu git pull ile güncelle.")
+        raise UpdateError("upd.err.from_source")
     with _lock:
         if _state["phase"] in ("downloading", "restarting"):
-            raise UpdateError("Güncelleme zaten sürüyor.")
-        _state.update(phase="downloading", done=0, total=0, error="")
+            raise UpdateError("upd.err.in_progress")
+        _state.update(phase="downloading", done=0, total=0, error="", error_code="", error_vars={})
     threading.Thread(target=_run, daemon=True).start()
