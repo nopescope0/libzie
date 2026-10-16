@@ -822,6 +822,10 @@
   /* Ayarlar penceresi geçişi: kenar çubuğundaki dişli, pencerenin başlığındaki dişliye uçar (ders karosunun şeklinin konum yolundaki
      ikona uçmasıyla aynı "paylaşılan öğe" dili). Pencerenin kendisi diğer pencereler gibi `dialog[open]`'ın kendi açılışıyla gelir
      (ölçek 0,96, 250ms); kapanışta pencere ve karartma 150ms'de solar, dişli 250ms'de simgesine döner. Bulanıklık ya da maske yok. */
+  :root.vt-set-open::view-transition-group(vt-keys) { animation-duration: var(--duration-slow); animation-timing-function: var(--ease-smooth-out); }
+  :root.vt-set-close::view-transition-group(vt-keys) { animation-duration: var(--duration-fast); animation-timing-function: var(--ease-smooth-out); }
+  :root.vt-set-open::view-transition-old(vt-keys), :root.vt-set-open::view-transition-new(vt-keys),
+  :root.vt-set-close::view-transition-old(vt-keys), :root.vt-set-close::view-transition-new(vt-keys) { mix-blend-mode: normal; }
   :root.vt-set-open::view-transition-group(vt-gear) { animation-duration: var(--duration-slow); animation-timing-function: var(--ease-smooth-out); }
   :root.vt-set-close::view-transition-group(vt-gear) { animation-duration: var(--duration-fast); animation-timing-function: var(--ease-smooth-out); }
   :root.vt-set-open::view-transition-old(vt-gear), :root.vt-set-open::view-transition-new(vt-gear),
@@ -911,6 +915,9 @@
   #toast .toast-act:hover { color: var(--highlight); }
   kbd { font: 12px var(--font); color: var(--muted); border: 1px solid var(--line-strong); border-radius: var(--r); padding: 1px 6px; background: var(--bg); white-space: nowrap; }
   #keys { width: min(460px, calc(100vw - 32px)); }
+  #keys[open] { animation: fade var(--duration-fast) var(--ease-smooth-out); } /* ayarlar penceresi gibi: yalnızca solar, simge karodan uçar */
+  .keys-head { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; }
+  .keys-head svg { width: 16px; height: 16px; stroke: var(--muted); stroke-width: 1.3; stroke-linejoin: miter; stroke-linecap: square; }
   .keys { display: grid; grid-template-columns: auto 1fr; gap: 9px 16px; align-items: baseline; margin: 0 0 16px; }
   .keys dt { text-align: right; }
   .keys dd { margin: 0; color: var(--muted); }
@@ -1162,7 +1169,7 @@
 
 <dialog id="keys">
   <form method="dialog">
-    <p class="dlg-head" data-i="nav.shortcuts">Kısayollar</p>
+    <p class="dlg-head keys-head"><svg id="keys-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg><span data-i="nav.shortcuts">Kısayollar</span></p>
     <dl class="keys">
       <dt><kbd>/</kbd></dt><dd data-i="keys.search">Ara; bulunduğun dersin içinde arar</dd>
       <dt><kbd>Ctrl</kbd> <kbd>K</kbd></dt><dd data-i-html="keys.search_all">Tüm derslerde ara; <kbd>Enter</kbd> ilk sonucu açar</dd>
@@ -2733,7 +2740,7 @@ document.addEventListener('keydown', e => {
     toggleFullscreen();
   } else if (e.key === '?' && !typing) {
     e.preventDefault();
-    $('#keys').showModal();
+    showKeysDialog();
   } else if ((e.key === '/' && !typing) || (e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey))) {
     e.preventDefault();
     if (e.key !== '/') { searchAll = true; if (query) renderContent(); } // Ctrl+K: tüm derslerde hızlı aç
@@ -2856,6 +2863,29 @@ function closeSettingsDialog() {
     () => root.classList.remove('vt-set-close')
   );
 }
+// Kısayollar penceresi: aynı dil, dönüşsüz (klavye simgesi başlıktaki simgeye uçar)
+function showKeysDialog() {
+  const dlg = $('#keys'), root = document.documentElement;
+  if (dlg.open) return;
+  root.classList.add('vt-set-open');
+  transition(
+    () => { dlg.showModal(); },
+    () => vtName($('#open-keys svg'), 'vt-keys'),
+    () => vtName($('#keys-ic'), 'vt-keys'),
+    () => root.classList.remove('vt-set-open')
+  );
+}
+function closeKeysDialog() {
+  const dlg = $('#keys'), root = document.documentElement;
+  if (!dlg.open) return;
+  root.classList.add('vt-set-close');
+  transition(
+    () => { dlg.close(); },
+    () => vtName($('#keys-ic'), 'vt-keys'),
+    () => vtName($('#open-keys svg'), 'vt-keys'),
+    () => root.classList.remove('vt-set-close')
+  );
+}
 async function openSettings(tab) {
   // Animasyon tıklamayla aynı anda başlar; ayarlar sunucudan gelirken alanlar doldurulur (bekleme, gecikme eklemez)
   settingsData = null;
@@ -2911,7 +2941,10 @@ async function updatePreview() {
 }
 $('#s-path').addEventListener('input', () => { clearTimeout(previewTimer); previewTimer = setTimeout(updatePreview, 350); });
 $('#open-settings').onclick = () => openSettings();
-$('#open-keys').onclick = () => $('#keys').showModal();
+$('#open-keys').onclick = showKeysDialog;
+$('#keys form').addEventListener('submit', e => { e.preventDefault(); closeKeysDialog(); }); // Tamam
+$('#keys').addEventListener('cancel', e => { e.preventDefault(); closeKeysDialog(); });
+$('#keys').addEventListener('click', e => { const r = e.currentTarget.getBoundingClientRect(); if (e.target === e.currentTarget && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) closeKeysDialog(); });
 document.querySelector('.skip').addEventListener('click', e => { e.preventDefault(); $('#content').focus(); });
 $('#s-save').onclick = saveSettings;
 $('#s-cancel').onclick = closeSettingsDialog;
