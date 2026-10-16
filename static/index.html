@@ -815,18 +815,21 @@
   :root.vt-set-open::view-transition-old(vt-gear) { animation: vt-fade-out var(--duration-quick) var(--ease-out) both; }
   :root.vt-set-open::view-transition-new(vt-gear) { animation: vt-gear-arrive var(--duration-very-slow) var(--ease-in-out) both; }
   :root.vt-set-open::view-transition-new(vt-dialog) { animation: vt-dialog-open var(--duration-very-slow) var(--ease-smooth-out) both; }
-  :root.vt-set-open::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-up var(--duration-very-slow) linear both; }
+  :root.vt-set-open::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-up var(--duration-very-slow) linear both, vt-gear-blur-up var(--duration-very-slow) var(--ease-in-out) both; }
   /* Kapanış (350ms, daha hızlı ve sessiz: bulanıklık yok): pencere solarak küçülür, dişli belirip simgesine yavaşlayarak oturur */
   :root.vt-set-close::view-transition-old(vt-dialog) { animation: vt-dialog-close var(--duration-medium) var(--ease-smooth-out) both; }
   :root.vt-set-close::view-transition-old(vt-gear) { animation: vt-gear-depart var(--duration-medium) var(--ease-in-out) both; }
   :root.vt-set-close::view-transition-new(vt-gear) { animation: vt-fade-in-late var(--duration-medium) var(--ease-out) both; }
-  :root.vt-set-close::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-down var(--duration-medium) var(--ease-smooth-out) both; }
+  :root.vt-set-close::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-down var(--duration-medium) var(--ease-smooth-out) both, vt-gear-blur-down var(--duration-medium) var(--ease-out) both; }
   @keyframes vt-gear-spin-up {
     0% { rotate: 0deg; animation-timing-function: cubic-bezier(.6, 0, 1, .5); }
     50% { rotate: 720deg; animation-timing-function: var(--ease-smooth-out); }
     100% { rotate: 900deg; }
   }
   @keyframes vt-gear-spin-down { from { rotate: 0deg; } to { rotate: -720deg; } }
+  /* Hareket bulanıklığı: dönüş hızlandıkça artar, varış anında tepe yapar, sonra netleşir (token: --blur-small; daha fazlası ince çizgiyi parlak bir hâleye çevirir) */
+  @keyframes vt-gear-blur-up { 0% { filter: blur(0); } 20%, 50% { filter: blur(var(--blur-small)); } 80%, 100% { filter: blur(0); } }
+  @keyframes vt-gear-blur-down { 0% { filter: blur(var(--blur-small)); } 60%, 100% { filter: blur(0); } }
   @keyframes vt-fade-out { to { opacity: 0; } }
   @keyframes vt-gear-arrive { 0% { opacity: 0; } 12% { opacity: 1; } 50% { opacity: 1; } 75%, 100% { opacity: 0; } }
   /* Pencere dairesel bir maskeyle değil, dişli sönerken ölçek+solma+bulanıklıkla açılır (maske dişlinin arkasında "çember" gibi görünüyordu) */
