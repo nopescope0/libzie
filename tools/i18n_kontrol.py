@@ -27,7 +27,7 @@ prefixes = {k.split(".")[0] for k in base}
 
 # ---- koddaki kullanımlar
 html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-py = "\n".join((ROOT / n).read_text(encoding="utf-8") for n in ("server.py", "guncelleme.py"))
+py = "\n".join((ROOT / n).read_text(encoding="utf-8") for n in ("server.py", "guncelleme.py", "tepsi.py", "app.py"))
 used = {}
 
 

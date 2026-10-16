@@ -37,6 +37,7 @@ Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarınd
 - Türkçe karakterden bağımsız arama (`isletim` → "İşletim"), `Ctrl+K` ile tüm derslerde hızlı arama.
 - Tam klavye kullanımı (`?` kısayolları gösterir), `F` ile tam ekran, `Ctrl+B` ile kenar çubuğu.
 - Koyu ve açık tema, ya da sistem tercihini izle (Ayarlar → Tema).
+- Pencereyi kapatınca sistem tepsisinde çalışmaya devam eder (simgeye tıklayınca açılır, sağ tıkla çıkış); Ayarlar → Genel'den kapatılabilir.
 - Tamamen çevrimdışı çalışır. İnternete çıkan tek şeyler isteğe bağlı hava durumu (Open-Meteo, şehri sen yazarsın) ve Ayarlar'da Hakkında sekmesini açınca ya da otomatik güncelleme açıkken başlangıçta yapılan sürüm denetimi (GitHub).
 
 ## Kurulum (Windows uygulaması)

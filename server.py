@@ -134,6 +134,16 @@ def check_ext(name):
     if Path(name).suffix.lower().lstrip(".") in BLOCKED_EXT:
         raise AppError("err.ext_blocked")
 
+# Masaüstü uygulaması (app.py): pencere kapanınca arka planda kalma ve ikinci başlatmada pencereyi öne getirme
+DESKTOP = False        # app.py tepsiyi başarıyla kurunca True olur
+DESKTOP_HOOKS = {}     # {"show": pencereyi göster}
+
+
+def tray_enabled():
+    """Pencereyi kapatınca arka planda (sistem tepsisinde) çalışmaya devam et (varsayılan açık)."""
+    return bool(read_settings().get("arka_planda", True))
+
+
 ENV_ROOT = os.environ.get("KAYNAK_KLASORU", "")  # ayarlanmışsa arayüzden değiştirilemez
 
 
@@ -478,6 +488,8 @@ class Handler(BaseHTTPRequestHandler):
                     "version": guncelleme.VERSION,
                     "update_kind": guncelleme.kind(),
                     "auto_update": bool(read_settings().get("otomatik_guncelleme")),
+                    "desktop": DESKTOP,
+                    "tray": tray_enabled(),
                 })
             if path == "/api/update/check":
                 return self.send_json(guncelleme.check())
@@ -583,6 +595,25 @@ class Handler(BaseHTTPRequestHandler):
                 if src.parent == ROOT:
                     move_course_meta(src.name, dst.name if dst.parent == ROOT else None)
                 return self.send_json({"path": rel(dst)})
+
+            if u.path == "/api/settings/general":
+                # Genel sekmesi: arka planda çalışma ve arayüz dili (tepsi menüsü dili bilsin diye sunucuda da tutulur)
+                settings = read_settings()
+                if "tray" in body:
+                    settings["arka_planda"] = bool(body["tray"])
+                if "lang" in body:
+                    lang = str(body["lang"])
+                    if lang != "auto" and lang not in i18n.dictionary():
+                        raise AppError("err.bad_request")
+                    settings["dil"] = lang
+                write_settings(settings)
+                return self.send_json({"tray": tray_enabled()})
+
+            if u.path == "/api/desktop/show":
+                show = DESKTOP_HOOKS.get("show")
+                if show:
+                    show()
+                return self.send_json({"ok": bool(show)})
 
             if u.path == "/api/update/settings":
                 settings = read_settings()
@@ -711,6 +742,25 @@ def is_libzie(port):
         return data.get("app") == "libzie" and same(data.get("proof", ""), proof(nonce))
     except (OSError, ValueError, AttributeError):
         return False
+
+
+def request_show(url):
+    """Başka bir libzie masaüstü uygulaması zaten çalışıyorsa (pencere gizli olabilir) onu öne getirir. Başarılıysa True."""
+    port = url.rsplit(":", 1)[1]
+    req = urllib.request.Request(f"{url}/api/desktop/show", data=b"{}", method="POST", headers={
+        "Content-Type": "application/json", "X-Libzie": "1", "Origin": url, "Cookie": f"libzie_k_{port}={TOKEN}"})
+    try:
+        with urllib.request.urlopen(req, timeout=3) as r:
+            return json.loads(r.read()).get("ok") is True
+    except (OSError, ValueError):
+        return False
+
+
+def ui_lang():
+    """Tepsi menüsü dili: kullanıcının libzie'de seçtiği dil, 'otomatik' ise Windows'un arayüz dili."""
+    import tepsi
+    pref = str(read_settings().get("dil") or "auto")
+    return pref if pref in i18n.dictionary() else tepsi.system_lang()
 
 
 def launch_url(url):

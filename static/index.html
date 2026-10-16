@@ -94,7 +94,7 @@
     font: 15px/1.5 var(--font);
     display: flex; overflow: hidden;
   }
-  button, input { font: inherit; color: inherit; }
+  button, input, select { font: inherit; color: inherit; }
   /* Başlık yazı tipi (serif) yalnızca başlıklarda; geri kalan her şey yumuşak gövde fontunda */
   h2, .brand, .greet .hi, .clock, .weather .w-temp, .dlg-head, .set-title, .set-h, .about-name { font-family: var(--font-head); }
   button { background: none; border: 0; cursor: pointer; }
@@ -378,6 +378,9 @@
   .theme-split { display: grid; grid-template-columns: 1fr 1fr; height: 78px; border: 1px solid var(--line-strong); border-radius: var(--r); overflow: hidden; }
   .theme-split .theme-prev { height: 100%; border: 0; border-radius: 0; grid-template-columns: 34% 1fr; }
   .set-empty { color: var(--faint); border: 1px dashed var(--line-strong); border-radius: var(--r); padding: 34px 20px; text-align: center; margin: 0; }
+  .gen-chk { display: flex; align-items: center; gap: 9px; margin: 22px 0 6px; cursor: pointer; font-size: 13px; }
+  .gen-chk input { width: auto; margin: 0; accent-color: var(--accent); cursor: pointer; }
+  .gen-chk input:disabled { cursor: default; }
   .set-actions { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
   .set-actions .grow { flex: 1; }
   .about-brand { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
@@ -385,6 +388,8 @@
   .about-brand .logo-dot { fill: var(--accent); stroke: none; }
   .about-brand .logo-l { transform-origin: 4.5px 21px; transform: rotate(8deg); }
   .about-brand .logo-b { transform-origin: 15.5px 21px; transform: rotate(-8deg); }
+  .about-brand:hover .logo-l, .about-brand.play .logo-l { animation: topple-l .9s cubic-bezier(.4, 0, .3, 1); }
+  .about-brand:hover .logo-b, .about-brand.play .logo-b { animation: topple-b .9s cubic-bezier(.4, 0, .3, 1) .08s; }
   .about-name { font-size: 30px; line-height: 1.1; letter-spacing: -.3px; }
   .about-ver { color: var(--muted); font-size: 13px; margin-top: 3px; }
   .about-ver b { color: var(--text); font-weight: 400; font-variant-numeric: tabular-nums lining-nums; }
@@ -1065,6 +1070,8 @@
         <label class="field" for="s-lang">Dil / Language</label>
         <select id="s-lang"></select>
         <p class="hint" data-i="set.lang_hint">Arayüz dili. “Otomatik” sistem dilini izler.</p>
+        <label class="chk gen-chk"><input type="checkbox" id="g-tray"><span data-i="set.tray_label">Pencereyi kapatınca arka planda çalışmaya devam et</span></label>
+        <p class="hint" data-i="set.tray_help">libzie sistem tepsisinde kalır; simgeye tıklayınca pencere açılır, sağ tıklayıp tamamen çıkabilirsin.</p>
       </section>
 
       <section class="set-pane" role="tabpanel" id="pane-theme" data-pane="theme" aria-labelledby="tab-theme" hidden>
@@ -2763,7 +2770,15 @@ function selectSettingsTab(name, focus = false) {
   document.querySelectorAll('#settings .set-pane').forEach(p => { p.hidden = p.dataset.pane !== name; });
   lastSettingsTab = name;
   if (focus) $('#tab-' + name).focus();
-  if (name === 'about' && !aboutLoaded && settingsData) { aboutLoaded = true; initUpdate(settingsData); }
+  if (name === 'about') {
+    // Logo, kenar çubuğundaki gibi bir kez devrilip kalkar (her açılışta yeniden oynasın diye sınıf sıfırlanır)
+    const brand = $('#pane-about .about-brand');
+    brand.classList.remove('play');
+    void brand.offsetWidth;
+    brand.classList.add('play');
+    setTimeout(() => brand.classList.remove('play'), 1200);
+    if (!aboutLoaded && settingsData) { aboutLoaded = true; initUpdate(settingsData); }
+  }
 }
 $('#settings .set-nav').addEventListener('click', e => { const b = e.target.closest('.set-tab'); if (b) selectSettingsTab(b.dataset.tab); });
 // Klavye: ↑/↓ (← / → dar pencerede), Home, End sekmeler arasında gezer ve sekmeyi açar
@@ -2790,6 +2805,9 @@ async function openSettings(tab) {
     $('#s-save').disabled = s.locked;
     $('#s-lock').hidden = !s.locked;
     $('#s-lang').value = langPref;
+    $('#g-tray').checked = !!s.tray;
+    $('#g-tray').disabled = !s.desktop;
+    $('#g-tray').title = s.desktop ? '' : t('set.tray_desktop_only');
     $('#s-current').textContent = s.root;
     $('#s-default').textContent = s.default;
     $('#s-error').textContent = '';
@@ -2832,6 +2850,10 @@ $('#s-save').onclick = saveSettings;
 $('#s-cancel').onclick = () => $('#settings').close();
 $('#s-reveal').onclick = () => api('/api/reveal', { path: '' }).catch(e => { $('#s-error').textContent = e.message; });
 $('#s-lang').onchange = e => setLang(e.target.value);
+$('#g-tray').onchange = async e => {
+  try { await api('/api/settings/general', { tray: e.target.checked }); }
+  catch (err) { e.target.checked = !e.target.checked; fail(err); }
+};
 $('#s-path').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveSettings(); } });
 // Kenar çubuğunda boş alana sağ tık → yeni ders
 onRightClick($('#tree'), (el, pos) => menu(el, [[t('course.new'), () => newFolder('')]], pos));
@@ -3136,6 +3158,7 @@ setTimeout(autoUpdate, 4000);
 function setLang(pref) {
   langPref = pref === 'tr' || pref === 'en' ? pref : 'auto';
   store.set('lang', langPref);
+  api('/api/settings/general', { lang: langPref }).catch(() => {}); // tepsi menüsü de aynı dili kullansın
   lang = langPref === 'auto' ? detectLang() : langPref;
   applyI18n();
   buildThemePane();
@@ -3200,6 +3223,7 @@ $('#theme-list').addEventListener('keydown', e => {
 buildLangSelect();
 applyI18n();
 buildThemePane();
+api('/api/settings/general', { lang: langPref }).catch(() => {});
 
 cur = pathFromHash();
 load();

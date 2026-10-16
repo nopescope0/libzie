@@ -32,6 +32,7 @@ Kaynak: ilk eleştiri turu (`.impeccable/critique/`) ve kendi kullanım notları
 - [ ] **İlk açılış karşılaması:** boş arşivde 3 adımlık yönlendirme (ders ekle, dosya sürükle, ikon/renk seç) ve örnek ders **(S)**
 - [ ] **Dersi özelleştir:** renk ve ikon seçimini tek pencerede birleştir **(S)**
 - [x] **Güncelleme (isteğe bağlı):** Ayarlar → Hakkında'da sürüm bilgisi ve tek tıkla/otomatik güncelleme
+- [ ] **Windows açılışında başlat (isteğe bağlı):** tepsi simgesiyle birlikte pencere açmadan arka planda başlasın; Ayarlar → Genel'de seçenek **(S)**
 - [ ] **Yedek dışa aktarma:** dersi `.zip` olarak dışa aktar **(S)**
 - [ ] **Ayarlar penceresi:** klasör seçme penceresi (yolu elle yazmak yerine) **(S)**
 

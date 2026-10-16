@@ -28,6 +28,7 @@ TEST_API = "" if FROZEN else os.environ.get("LIBZIE_GUNCELLEME_URL", "")
 API = TEST_API or f"https://api.github.com/repos/{REPO}/releases/latest"
 ASSETS = {"kurulum": "libzie-kurulum.exe", "tasinabilir": "libzie-tasinabilir.exe"}
 
+EXIT_HOOKS = []  # app.py: uygulama os._exit ile kapanmadan önce çalışır (tepsi simgesini kaldırır)
 _lock = threading.Lock()
 _state = {"phase": "idle", "done": 0, "total": 0, "error": "", "error_code": "", "error_vars": {}}  # idle | downloading | restarting | error
 
@@ -215,7 +216,14 @@ def _run():
             env.update(LIBZIE_YENI=str(dest).replace("/", "\\"), LIBZIE_EXE=str(exe).replace("/", "\\"))  # move eğik çizgiyi sevmez
             subprocess.Popen(["cmd", "/c", str(bat)], **{**_detached(True), "env": env})
         _set(phase="restarting")
-        threading.Timer(1.5, lambda: os._exit(0)).start()
+        def _bye():
+            for fn in EXIT_HOOKS:
+                try:
+                    fn()
+                except Exception:  # noqa: BLE001
+                    pass
+            os._exit(0)
+        threading.Timer(1.5, _bye).start()
     except UpdateError as e:
         _set(phase="error", error=str(e), error_code=e.code, error_vars=e.vars)
     except Exception as e:  # noqa: BLE001 — hata arayüze gösterilir
