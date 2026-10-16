@@ -149,7 +149,7 @@
   .search input::placeholder { color: var(--faint); }
   .search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--faint); }
   /* Dijital saat (kenar çubuğu, başlığın altında): SS:DD, ayraç her saniye hafifçe söner; köşeler çok hafif yuvarlak */
-  .widgets { display: flex; gap: 6px; margin: 2px 12px 12px; }
+  .widgets { display: flex; gap: 6px; margin: 2px 12px 12px; width: 236px; min-width: 0; } /* aside > * min-width'i kenar boşluklarıyla taşıyordu; kenar çubuğu genişliği 260 - 2x12 */
   .clock {
     flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 0 10px;
     background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
@@ -192,6 +192,13 @@
   .paused *, .paused *::before, .paused *::after { animation-play-state: paused !important; }
   /* Hareketi azalt: ikonlar sabit ve tam görünür (düşen parçalar opaklık 0'dan başladığı için gerekli) */
   @media (prefers-reduced-motion: reduce) { .w-icon * { animation: none !important; opacity: 1 !important; } }
+  .weather .w-top { width: 100%; }
+  .weather .w-range { margin-left: auto; display: flex; flex-direction: column; gap: 3px; align-items: flex-end; font-size: 12px; line-height: 1; color: var(--muted); font-variant-numeric: lining-nums tabular-nums; }
+  .weather .w-range[hidden] { display: none; }
+  .weather .w-range span { display: flex; align-items: center; gap: 2px; }
+  .weather .w-range b { font-weight: 400; }
+  .weather .w-range svg { width: 10px; height: 10px; stroke: var(--faint); stroke-width: 2; fill: none; }
+  .weather.loading .w-range { opacity: .4; }
   .weather .w-temp:empty { display: none; }
   .weather .w-temp { font-size: 21px; line-height: 1; font-variant-numeric: lining-nums; transition: opacity .2s ease; }
   .weather .w-cond { max-width: 100%; margin-top: 5px; font-size: 12.5px; line-height: 1.2; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -935,6 +942,7 @@
 
   @media (max-width: 760px) {
     :root { --side-w: 200px; }
+    .widgets { width: 176px; }
     .row .meta.date { display: none; }
     .topbar, #content { padding-left: 16px; padding-right: 16px; }
     .topbar .search { width: 150px; }
@@ -976,6 +984,10 @@
       <span class="w-top">
         <svg class="w-icon" id="w-icon" viewBox="0 0 24 24" aria-hidden="true"></svg>
         <span class="w-temp" id="w-temp"></span>
+        <span class="w-range" id="w-range" hidden>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg><b id="w-max"></b></span>
+          <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg><b id="w-min"></b></span>
+        </span>
       </span>
       <span class="w-cond" id="w-cond">Hava durumu ekle</span>
     </button>
@@ -3149,6 +3161,9 @@ function showWeather(w) {
   $('#w-temp').textContent = `${w.temp}°`;
   $('#w-cond').textContent = t(WMO[w.code] || '—');
   $('#w-icon').innerHTML = weatherIcon(w.code);
+  $('#w-max').textContent = `${w.max}°`;
+  $('#w-min').textContent = `${w.min}°`;
+  $('#w-range').hidden = w.min == null || w.max == null; // günün en yüksek / en düşük sıcaklığı (aynı istekten, ek ağ çağrısı yok)
   $('#weather').title = t('weather.tooltip',
     { place: weatherPlace.name, now: t(WMO[w.nowCode] || '—'), temp: w.temp, min: w.min, max: w.max });
 }
@@ -3157,6 +3172,7 @@ async function loadWeather(force = false) {
   if (!weatherPlace) {
     $('#w-icon').innerHTML = '<path d="M12 5v14M5 12h14"/>'; // bozuk görünen "—" yerine sakin bir "ekle" eylemi
     $('#w-temp').textContent = '';
+    $('#w-range').hidden = true;
     $('#w-cond').textContent = t('weather.add');
     box.title = t('weather.choose_city');
     return;
@@ -3183,6 +3199,7 @@ async function loadWeather(force = false) {
     if (!cached || cached.key !== placeKey()) {
       $('#w-icon').innerHTML = '';
       $('#w-temp').textContent = '—';
+      $('#w-range').hidden = true;
       $('#w-cond').textContent = t('weather.offline');
     }
     box.title = t('weather.unavailable');
