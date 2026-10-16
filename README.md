@@ -8,7 +8,7 @@
 
 Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarında yerel çalışan küçük bir arşiv. Dosyalar senin klasörlerinde durur; libzie onları ders karoları, küçük resimler ve sekmeli PDF görüntüleyiciyle gösterir. Hesap, bulut ya da veritabanı yok.
 
-> Arayüz Türkçedir. Şimdilik Windows için yazıldı.
+> Arayüz Türkçe ve İngilizcedir (dil Ayarlar'dan seçilir, varsayılan olarak sistem dilini izler). Şimdilik Windows için yazıldı.
 
 ![Ana sayfa: dersler rafta kitaplar olarak](assets/ekran-ana-sayfa.png)
 

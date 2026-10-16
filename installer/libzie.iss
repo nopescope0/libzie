@@ -28,9 +28,10 @@ ArchitecturesInstallIn64BitMode=x64compatible
 
 [Languages]
 Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
+Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "Masaüstüne kısayol oluştur"; GroupDescription: "Ek görevler:"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
 Source: "..\dist\libzie\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
@@ -40,6 +41,6 @@ Name: "{autoprograms}\libzie"; Filename: "{app}\libzie.exe"
 Name: "{autodesktop}\libzie"; Filename: "{app}\libzie.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\libzie.exe"; Description: "libzie'yi başlat"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\libzie.exe"; Description: "{cm:LaunchProgram,libzie}"; Flags: nowait postinstall skipifsilent
 ; Uygulama içi güncelleme sihirbazı sessiz çalıştırır; bitince libzie yeniden açılır
 Filename: "{app}\libzie.exe"; Flags: nowait runasoriginaluser; Check: WizardSilent

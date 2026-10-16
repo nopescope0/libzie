@@ -327,16 +327,16 @@ class Handler(BaseHTTPRequestHandler):
         """İstek bu uygulamanın kendi sayfasından mı geliyor? Değilse yanıtı verir ve False döner.
         Host denetimi DNS rebinding'i, Sec-Fetch-Site/Origin ve özel başlık başka sitelerden gelen istekleri (CSRF) keser."""
         if self.headers.get("Host", "") not in self.hosts():
-            self.deny(403, "Geçersiz istek.")
+            self.deny(403, "Geçersiz istek. / Invalid request.")
             return False
         site = self.headers.get("Sec-Fetch-Site")
         if site and site not in ("same-origin", "none"):
-            self.deny(403, "Başka bir siteden gelen istek reddedildi.")
+            self.deny(403, "Başka bir siteden gelen istek reddedildi. / Request from another site was rejected.")
             return False
         if post:
             origin = self.headers.get("Origin")
             if (origin and origin not in {f"http://{h}" for h in self.hosts()}) or self.headers.get("X-Libzie") != "1":
-                self.deny(403, "Başka bir siteden gelen istek reddedildi.")
+                self.deny(403, "Başka bir siteden gelen istek reddedildi. / Request from another site was rejected.")
                 return False
         return True
 
@@ -351,7 +351,7 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             return False
         if not self.has_token():
-            self.deny(401, "libzie'ye erişim izni yok. Uygulamayı libzie.exe (ya da baslat.bat) ile aç.")
+            self.deny(401, "libzie'ye erişim izni yok. Uygulamayı libzie.exe (ya da baslat.bat) ile aç. / Access denied. Open libzie through libzie.exe (or baslat.bat).")
             return False
         return True
 
