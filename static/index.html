@@ -337,34 +337,31 @@
   .upd .row-btns { display: flex; gap: 8px; margin-top: 12px; }
   .upd .row-btns .btn[hidden] { display: none; }
 
-  /* Ayarlar: solda dikey sekmeler, sağda seçili sekmenin içeriği */
+  /* Ayarlar: solda dikey sekmeler (kenar çubuğu düğmeleriyle aynı .node), sağda içerik. Bileşenler mevcut sistemden: .node, .sec-head,
+     .btn, .hint, .field, 2px köşe, düz bloklar, 5px boşluk; ayrıntı: docs/UI-REHBERI.md */
   #settings { padding: 0; width: min(880px, calc(100vw - 32px)); height: min(640px, calc(100vh - 48px)); overflow: hidden; }
   .set { display: grid; grid-template-columns: 220px minmax(0, 1fr); width: 100%; height: 100%; margin: 0; }
-  .set-nav { display: flex; flex-direction: column; gap: 2px; padding: 24px 12px; background: var(--side); border-right: 1px solid var(--line); overflow-y: auto; }
-  .set-title { font-weight: 400; font-size: 24px; letter-spacing: -.3px; margin: 0 8px 20px; }
-  .set-tab {
-    display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: var(--r); text-align: left;
-    color: var(--muted); box-shadow: inset 2px 0 0 transparent;
-    transition: background var(--duration-fast) var(--ease-smooth-out), color var(--duration-fast) var(--ease-smooth-out), box-shadow var(--duration-fast) var(--ease-smooth-out);
-  }
-  .set-tab svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-  .set-tab:hover { background: var(--hover); color: var(--text); }
-  .set-tab[aria-selected="true"] { background: var(--hover); color: var(--text); box-shadow: inset 2px 0 0 var(--accent); }
-  .set-tab[aria-selected="true"] svg { color: var(--accent); }
-  .set-main { position: relative; min-width: 0; padding: 30px 36px 28px; overflow-y: auto; }
+  .set-nav { display: flex; flex-direction: column; gap: 2px; padding: 24px 8px; background: var(--side); border-right: 1px solid var(--line); overflow-y: auto; }
+  .set-title { display: flex; align-items: center; gap: 8px; font-weight: 400; font-size: 22px; letter-spacing: -.3px; margin: 0 8px 16px; }
+  .set-title svg { width: 16px; height: 16px; stroke: var(--muted); stroke-width: 1.3; stroke-linejoin: miter; stroke-linecap: square; }
+  .set-tab { width: 100%; padding: 7px 8px; gap: 8px; text-align: left; }
+  .set-tab[aria-selected="true"] { background: var(--hover); color: var(--text); }
+  .set-main { position: relative; min-width: 0; padding: 28px 32px; overflow-y: auto; }
   .set-x { position: absolute; top: 14px; right: 14px; }
   .set-x svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
-  .set-h { font-weight: 400; font-size: 30px; letter-spacing: -.4px; margin: 0 0 22px; padding-right: 34px; }
+  .set-pane > .sec-head:first-child { margin: 0 30px 20px 0; }
   .set-pane[hidden] { display: none; }
   .set-pane.enter { animation: set-in var(--duration-fast) var(--ease-smooth-out); }
   @keyframes set-in { from { opacity: 0; transform: translateY(var(--distance-micro)); } }
   .set-pane .field { margin-top: 2px; }
-  .set-hint { margin: -10px 0 18px; }
-  .theme-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 14px; }
-  .theme-card { display: grid; gap: 9px; padding: 10px; border-radius: var(--r); border: 1px solid var(--line); text-align: left; color: var(--muted);
-    transition: border-color var(--duration-fast) var(--ease-smooth-out), background var(--duration-fast) var(--ease-smooth-out); }
-  .theme-card:hover { background: var(--hover); color: var(--text); }
-  .theme-card[aria-checked="true"] { border-color: var(--accent); color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); }
+  .set-hint { margin: 0 0 16px; }
+  /* Tema kartları: düz blok (dolgu değişmez); üzerine gelince önizleme hafifçe yakınlaşır, seçili olanın önizleme çerçevesi vurgu rengindedir */
+  .theme-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: var(--gap); }
+  .theme-card { display: grid; gap: 8px; padding: 10px; background: var(--bg); border-radius: var(--r); text-align: left; color: var(--muted); }
+  .theme-card:hover, .theme-card[aria-checked="true"] { color: var(--text); }
+  .theme-card .theme-prev, .theme-card .theme-split { transition: transform var(--duration-fast) var(--ease-smooth-out), border-color var(--duration-fast) var(--ease-smooth-out); }
+  .theme-card:hover .theme-prev, .theme-card:hover .theme-split { transform: scale(1.03); }
+  .theme-card[aria-checked="true"] .theme-prev, .theme-card[aria-checked="true"] .theme-split { border-color: var(--accent); }
   .theme-name { display: flex; align-items: center; gap: 7px; font-size: 14px; }
   .theme-name svg { width: 15px; height: 15px; color: var(--accent); opacity: 0; transition: opacity var(--duration-fast) var(--ease-smooth-out); }
   .theme-card[aria-checked="true"] .theme-name svg { opacity: 1; }
@@ -378,12 +375,12 @@
   .theme-split { display: grid; grid-template-columns: 1fr 1fr; height: 78px; border: 1px solid var(--line-strong); border-radius: var(--r); overflow: hidden; }
   .theme-split .theme-prev { height: 100%; border: 0; border-radius: 0; grid-template-columns: 34% 1fr; }
   .set-empty { color: var(--faint); border: 1px dashed var(--line-strong); border-radius: var(--r); padding: 34px 20px; text-align: center; margin: 0; }
-  .gen-chk { display: flex; align-items: center; gap: 9px; margin: 22px 0 6px; cursor: pointer; font-size: 13px; }
+  .gen-chk { display: flex; align-items: center; gap: 8px; margin: 16px 0 4px; cursor: pointer; font-size: 13px; }
   .gen-chk input { width: auto; margin: 0; accent-color: var(--accent); cursor: pointer; }
   .gen-chk input:disabled { cursor: default; }
   .set-actions { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
   .set-actions .grow { flex: 1; }
-  .about-brand { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .about-brand { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
   .about-logo { width: 52px; height: 52px; stroke: var(--text); stroke-width: 1.3; stroke-linejoin: miter; stroke-linecap: square; fill: none; }
   .about-brand .logo-dot { fill: var(--accent); stroke: none; }
   .about-brand .logo-l { transform-origin: 4.5px 21px; transform: rotate(8deg); }
@@ -394,17 +391,15 @@
   .about-ver { color: var(--muted); font-size: 13px; margin-top: 3px; }
   .about-ver b { color: var(--text); font-weight: 400; font-variant-numeric: tabular-nums lining-nums; }
   .about-desc { margin: 0 0 4px; }
-  .about-lic { margin: 22px 0 0; color: var(--faint); }
-  .set-pane .upd { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 18px; }
+  .about-lic { margin: 16px 0 0; color: var(--faint); }
+  .set-pane .upd { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 16px; }
   @media (max-width: 700px) {
     #settings { height: min(680px, calc(100vh - 24px)); }
     .set { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
     .set-nav { flex-direction: row; gap: 4px; padding: 10px; border-right: 0; border-bottom: 1px solid var(--line); overflow-x: auto; overflow-y: hidden; }
     .set-title { display: none; }
-    .set-tab { width: auto; white-space: nowrap; padding: 9px 12px; box-shadow: inset 0 -2px 0 transparent; }
-    .set-tab[aria-selected="true"] { box-shadow: inset 0 -2px 0 var(--accent); }
-    .set-main { padding: 22px 18px; }
-    .set-h { font-size: 24px; margin-bottom: 16px; }
+    .set-tab { width: auto; white-space: nowrap; padding: 7px 12px; }
+    .set-main { padding: 20px 16px; }
   }
 
   .empty { color: var(--faint); text-align: center; padding: 80px 20px; }
@@ -801,46 +796,19 @@
   ::view-transition-new(vt-tile) { animation: vt-tile-in var(--duration-slow) var(--ease-smooth-out) both; }
   @keyframes vt-tile-out { to { transform: scale(1.6); opacity: 0; filter: blur(var(--blur-medium)); } }
   @keyframes vt-tile-in { from { transform: scale(1.6); opacity: 0; filter: blur(var(--blur-medium)); } }
-  /* Ayarlar: kenar çubuğundaki dişli ekranın ortasına uçup büyür, pencere dişlinin içinden açılır (kapanırken tersi) */
-  .set-gear { display: none; position: absolute; left: 50%; top: 50%; width: 150px; height: 150px; margin: -75px 0 0 -75px; z-index: 6; pointer-events: none; stroke: var(--accent); stroke-width: .5; }
-  /* vt-open: geçişle açılan pencere açık kaldığı sürece `dialog[open]`'ın kendi açılış animasyonu (pop) kapalı kalır; yoksa geçiş bitip
-     sınıf kalkınca pop yeniden başlar ve pencere ikinci kez açılırdı. */
-  #settings.vt-open, #settings.vt-arriving, #settings.vt-closing { animation: none; }
-  #settings.vt-arriving .set-gear, #settings.vt-closing .set-gear { display: block; }
-  :root.vt-set-open::view-transition-group(vt-gear) { animation-duration: var(--duration-fast); }   /* uçuş 250ms: dişli hızla ortaya varır, varış anı dönüşün tepe hızıyla çakışır */
-  :root.vt-set-close::view-transition-group(vt-gear) { animation-duration: var(--duration-medium); } /* kapanış açılıştan hızlı: 350ms */
+  /* Ayarlar penceresi geçişi: kenar çubuğundaki dişli, pencerenin başlığındaki dişliye uçar (ders karosunun şeklinin konum yolundaki
+     ikona uçmasıyla aynı "paylaşılan öğe" dili). Pencerenin kendisi diğer pencereler gibi `dialog[open]`'ın kendi açılışıyla gelir
+     (ölçek 0,96, 250ms); kapanışta pencere ve karartma 150ms'de solar, dişli 250ms'de simgesine döner. Bulanıklık ya da maske yok. */
+  :root.vt-set-open::view-transition-group(vt-gear) { animation-duration: var(--duration-slow); animation-timing-function: var(--ease-smooth-out); }
+  :root.vt-set-close::view-transition-group(vt-gear) { animation-duration: var(--duration-fast); animation-timing-function: var(--ease-smooth-out); }
   :root.vt-set-open::view-transition-old(vt-gear), :root.vt-set-open::view-transition-new(vt-gear),
   :root.vt-set-close::view-transition-old(vt-gear), :root.vt-set-close::view-transition-new(vt-gear) { mix-blend-mode: normal; }
-  /* Açılış (vurgu anı, --duration-very-slow 500ms): dişli uçar+döner, varınca sönerken pencere yerinde belirir; yüzey önce hafif küçük ve bulanık */
-  :root.vt-set-open::view-transition-old(vt-gear) { animation: vt-fade-out var(--duration-quick) var(--ease-out) both; }
-  :root.vt-set-open::view-transition-new(vt-gear) { animation: vt-gear-arrive var(--duration-very-slow) var(--ease-in-out) both; }
-  :root.vt-set-open::view-transition-new(vt-dialog) { animation: vt-dialog-open var(--duration-very-slow) var(--ease-smooth-out) both; }
-  :root.vt-set-open::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-up var(--duration-very-slow) linear both, vt-gear-blur-up var(--duration-very-slow) var(--ease-in-out) both; }
-  /* Kapanış (350ms, daha hızlı ve sessiz: bulanıklık yok): pencere solarak küçülür, dişli belirip simgesine yavaşlayarak oturur */
-  :root.vt-set-close::view-transition-old(vt-dialog) { animation: vt-dialog-close var(--duration-medium) var(--ease-smooth-out) both; }
-  :root.vt-set-close::view-transition-old(vt-gear) { animation: vt-gear-depart var(--duration-medium) var(--ease-in-out) both; }
-  :root.vt-set-close::view-transition-new(vt-gear) { animation: vt-fade-in-late var(--duration-medium) var(--ease-out) both; }
-  :root.vt-set-close::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-down var(--duration-medium) var(--ease-smooth-out) both, vt-gear-blur-down var(--duration-medium) var(--ease-out) both; }
-  @keyframes vt-gear-spin-up {
-    0% { rotate: 0deg; animation-timing-function: cubic-bezier(.6, 0, 1, .5); }
-    50% { rotate: 720deg; animation-timing-function: var(--ease-smooth-out); }
-    100% { rotate: 900deg; }
-  }
-  @keyframes vt-gear-spin-down { from { rotate: 0deg; } to { rotate: -720deg; } }
-  /* Hareket bulanıklığı: dönüş hızlandıkça artar, varış anında tepe yapar, sonra netleşir (token: --blur-small; daha fazlası ince çizgiyi parlak bir hâleye çevirir) */
-  @keyframes vt-gear-blur-up { 0% { filter: blur(0); } 20%, 50% { filter: blur(var(--blur-small)); } 80%, 100% { filter: blur(0); } }
-  @keyframes vt-gear-blur-down { 0% { filter: blur(var(--blur-small)); } 60%, 100% { filter: blur(0); } }
-  @keyframes vt-fade-out { to { opacity: 0; } }
-  @keyframes vt-gear-arrive { 0% { opacity: 0; } 12% { opacity: 1; } 50% { opacity: 1; } 75%, 100% { opacity: 0; } }
-  /* Pencere dairesel bir maskeyle değil, dişli sönerken ölçek+solma+bulanıklıkla açılır (maske dişlinin arkasında "çember" gibi görünüyordu) */
-  @keyframes vt-dialog-open {
-    0%, 50% { opacity: 0; transform: scale(var(--scale-large)); filter: blur(var(--blur-small)); }
-    100% { opacity: 1; transform: none; filter: none; }
-  }
-  @keyframes vt-dialog-close { 0% { opacity: 1; transform: none; } 60%, 100% { opacity: 0; transform: scale(var(--scale-large)); } }
-  @keyframes vt-fade-in-late { 0%, 55% { opacity: 0; } 100% { opacity: 1; } }
-  @keyframes vt-gear-depart { 0% { opacity: 0; } 20%, 70% { opacity: 1; } 100% { opacity: 0; } }
-  @keyframes vt-fade-in-late { 0%, 55% { opacity: 0; } 100% { opacity: 1; } }
+  :root.vt-set-open::view-transition-image-pair(vt-gear) { animation: vt-gear-turn var(--duration-slow) var(--ease-smooth-out) both; }
+  :root.vt-set-close::view-transition-image-pair(vt-gear) { animation: vt-gear-turn-back var(--duration-fast) var(--ease-smooth-out) both; }
+  :root.vt-set-open::view-transition-old(root), :root.vt-set-open::view-transition-new(root) { animation: none; }   /* açılışta karşılıklı solma yok: pencere kendi açılışıyla gelir, sayfa arkada net kalır */
+  :root.vt-set-close::view-transition-old(root), :root.vt-set-close::view-transition-new(root) { animation-duration: var(--duration-quick); }
+  @keyframes vt-gear-turn { from { rotate: 0deg; } to { rotate: 180deg; } }       /* 3 diş: kenar çubuğundaki hover dönüşünün (60°) devamı */
+  @keyframes vt-gear-turn-back { from { rotate: 0deg; } to { rotate: -180deg; } }
   .tile.vt-leaving svg.shape { opacity: .72 !important; transform: none !important; filter: none !important; transition: none !important; }
   .tile.vt-leaving .tile-desc, .tile.vt-leaving .tile-arrow, .tile.vt-leaving .more { opacity: 0 !important; transition: none !important; }
 
@@ -892,7 +860,7 @@
   .menu button:hover { background: var(--hover); }
   .menu button.danger { color: var(--danger); }
   dialog {
-    background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: var(--r);
+    background: var(--surface); color: var(--text); border: 1px solid var(--line-strong); border-radius: var(--r);
     padding: 20px; width: min(380px, calc(100vw - 32px));
   }
   dialog::backdrop { background: var(--scrim); }
@@ -1081,22 +1049,21 @@
 
 <dialog id="settings" aria-labelledby="set-title">
   <form method="dialog" onsubmit="return false" class="set">
-    <svg class="set-gear" id="set-gear" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     <nav class="set-nav" role="tablist" aria-orientation="vertical" aria-labelledby="set-title">
-      <p class="set-title" id="set-title" data-i="nav.settings">Ayarlar</p>
-      <button type="button" role="tab" class="set-tab" id="tab-general" data-tab="general" aria-controls="pane-general">
+      <p class="set-title" id="set-title"><svg id="set-gear" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-i="nav.settings">Ayarlar</span></p>
+      <button type="button" role="tab" class="node set-tab" id="tab-general" data-tab="general" aria-controls="pane-general">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
         <span data-i="set.tab.general">Genel</span>
       </button>
-      <button type="button" role="tab" class="set-tab" id="tab-theme" data-tab="theme" aria-controls="pane-theme">
+      <button type="button" role="tab" class="node set-tab" id="tab-theme" data-tab="theme" aria-controls="pane-theme">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 0 0 16c1.2 0 1.8-.8 1.8-1.7 0-1.3-1-1.5-1-2.5s.8-1.6 1.8-1.6H17a3 3 0 0 0 3-3C20 6.7 16.4 4 12 4Z"/><circle cx="8.3" cy="11" r="1"/><circle cx="11.7" cy="7.8" r="1"/><circle cx="15.5" cy="9.3" r="1"/></svg>
         <span data-i="set.tab.theme">Tema</span>
       </button>
-      <button type="button" role="tab" class="set-tab" id="tab-folder" data-tab="folder" aria-controls="pane-folder">
+      <button type="button" role="tab" class="node set-tab" id="tab-folder" data-tab="folder" aria-controls="pane-folder">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h6l2 2h10v11H3Z"/></svg>
         <span data-i="set.tab.folder">Kaynak yolu</span>
       </button>
-      <button type="button" role="tab" class="set-tab" id="tab-about" data-tab="about" aria-controls="pane-about">
+      <button type="button" role="tab" class="node set-tab" id="tab-about" data-tab="about" aria-controls="pane-about">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.2M12 7.8h.01"/></svg>
         <span data-i="set.tab.about">Hakkında</span>
       </button>
@@ -1107,7 +1074,7 @@
       </button>
 
       <section class="set-pane" role="tabpanel" id="pane-general" data-pane="general" aria-labelledby="tab-general" hidden>
-        <h3 class="set-h" data-i="set.tab.general">Genel</h3>
+        <div class="sec-head"><svg class="sec-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><h2 data-i="set.tab.general">Genel</h2><span class="sec-rule"></span></div>
         <label class="field" for="s-lang">Dil / Language</label>
         <select id="s-lang"></select>
         <p class="hint" data-i="set.lang_hint">Arayüz dili. “Otomatik” sistem dilini izler.</p>
@@ -1116,13 +1083,13 @@
       </section>
 
       <section class="set-pane" role="tabpanel" id="pane-theme" data-pane="theme" aria-labelledby="tab-theme" hidden>
-        <h3 class="set-h" data-i="set.tab.theme">Tema</h3>
+        <div class="sec-head"><svg class="sec-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 0 0 16c1.2 0 1.8-.8 1.8-1.7 0-1.3-1-1.5-1-2.5s.8-1.6 1.8-1.6H17a3 3 0 0 0 3-3C20 6.7 16.4 4 12 4Z"/><circle cx="8.3" cy="11" r="1"/><circle cx="11.7" cy="7.8" r="1"/><circle cx="15.5" cy="9.3" r="1"/></svg><h2 data-i="set.tab.theme">Tema</h2><span class="sec-rule"></span></div>
         <p class="hint set-hint" data-i="set.theme_hint">Uygulamanın renk düzeni. “Sistem” bilgisayarının açık/koyu tercihini izler.</p>
         <div class="theme-list" id="theme-list" role="radiogroup" aria-labelledby="tab-theme"></div>
       </section>
 
       <section class="set-pane" role="tabpanel" id="pane-folder" data-pane="folder" aria-labelledby="tab-folder" hidden>
-        <h3 class="set-h" data-i="set.tab.folder">Kaynak yolu</h3>
+        <div class="sec-head"><svg class="sec-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h6l2 2h10v11H3Z"/></svg><h2 data-i="set.tab.folder">Kaynak yolu</h2><span class="sec-rule"></span></div>
         <label class="field" for="s-path" data-i="set.root_label">Kaynak klasörü</label>
         <input id="s-path" autocomplete="off" spellcheck="false" placeholder="Boş bırakırsanız varsayılan klasör kullanılır" data-i-ph="set.root_placeholder">
         <p class="hint" id="s-preview" aria-live="polite"></p>
@@ -1138,7 +1105,7 @@
       </section>
 
       <section class="set-pane" role="tabpanel" id="pane-about" data-pane="about" aria-labelledby="tab-about" hidden>
-        <h3 class="set-h" data-i="set.tab.about">Hakkında</h3>
+        <div class="sec-head"><svg class="sec-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.2M12 7.8h.01"/></svg><h2 data-i="set.tab.about">Hakkında</h2><span class="sec-rule"></span></div>
         <div class="about-brand">
           <svg class="about-logo" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M1.5 21.25h21"/>
@@ -2840,31 +2807,28 @@ $('#settings .set-nav').addEventListener('keydown', e => {
   e.preventDefault();
   selectSettingsTab(tabs[j].dataset.tab, true);
 });
-// Ayarlar penceresi: kenar çubuğundaki dişli ekranın ortasına gelip büyür, pencere onun içinden açılır; kapanırken tersi.
-// (Ders karosu → ders sayfası geçişiyle aynı View Transitions altyapısı; destek yoksa/hareket azaltılmışsa doğrudan açılır.)
+// Ayarlar penceresi: kenar çubuğundaki dişli pencere başlığındaki dişliye uçar (paylaşılan öğe geçişi); kapanırken geri döner.
+// Ders karosu → ders sayfası geçişiyle aynı View Transitions altyapısı; destek yoksa/hareket azaltılmışsa doğrudan açılır.
 function showSettingsDialog() {
   const dlg = $('#settings'), root = document.documentElement;
   if (dlg.open) return;
-  const finish = () => { dlg.classList.remove('vt-arriving'); root.classList.remove('vt-set-open'); };
   root.classList.add('vt-set-open');
-  dlg.classList.toggle('vt-open', canVT()); // pencere kapanana dek kalır (pop'un ikinci kez oynamasını engeller)
   transition(
-    () => { if (canVT()) dlg.classList.add('vt-arriving'); dlg.showModal(); $('#tab-' + lastSettingsTab).focus(); },
+    () => { dlg.showModal(); $('#tab-' + lastSettingsTab).focus(); },
     () => vtName($('#open-settings svg'), 'vt-gear'),
-    () => { vtName(dlg, 'vt-dialog'); vtName($('#set-gear'), 'vt-gear'); },
-    finish
+    () => vtName($('#set-gear'), 'vt-gear'),
+    () => root.classList.remove('vt-set-open')
   );
 }
 function closeSettingsDialog() {
   const dlg = $('#settings'), root = document.documentElement;
   if (!dlg.open) return;
-  const finish = () => { dlg.classList.remove('vt-closing', 'vt-open'); root.classList.remove('vt-set-close'); };
   root.classList.add('vt-set-close');
   transition(
     () => { dlg.close(); },
-    () => { dlg.classList.add('vt-closing'); vtName(dlg, 'vt-dialog'); vtName($('#set-gear'), 'vt-gear'); },
+    () => vtName($('#set-gear'), 'vt-gear'),
     () => vtName($('#open-settings svg'), 'vt-gear'),
-    finish
+    () => root.classList.remove('vt-set-close')
   );
 }
 async function openSettings(tab) {
@@ -2901,7 +2865,6 @@ async function saveSettings() {
     $('#s-error').textContent = e.message;
     return;
   }
-  $('#settings').classList.remove('vt-open');
   $('#settings').close();
   expanded.clear();
   store.set('expanded', []);
@@ -2928,7 +2891,6 @@ document.querySelector('.skip').addEventListener('click', e => { e.preventDefaul
 $('#s-save').onclick = saveSettings;
 $('#s-cancel').onclick = closeSettingsDialog;
 $('#settings').addEventListener('cancel', e => { e.preventDefault(); closeSettingsDialog(); }); // Esc de animasyonlu kapansın
-$('#settings').addEventListener('close', () => $('#settings').classList.remove('vt-open')); // hangi yolla kapanırsa kapansın sonraki açılış temiz başlasın
 // Pencerenin dışına (karartılmış alana) tıklayınca kapanır. Basış da dışarıda başlamalı: metin seçerken fareyi dışarıda bırakmak kapatmasın.
 (() => {
   const dlg = $('#settings');
