@@ -3133,6 +3133,10 @@ const W_ICONS = {
          '<path class="wi-rays" d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/>',
   partly: '<g class="wi-sun"><circle cx="9" cy="9" r="3"/><path d="M9 3.5V5M3.5 9H5M5.1 5.1l1 1M12.9 5.1l-1 1"/></g>' +
           '<path class="occlude wi-cloud" d="M9 19h8a3.5 3.5 0 0 0 .3-7 4.5 4.5 0 0 0-8.6 1.3A2.9 2.9 0 0 0 9 19Z"/>',
+  // Geceleri güneş yerine ay (is_day = 0)
+  clearNight: '<path d="M20 14.2A8 8 0 1 1 9.8 4a6.4 6.4 0 0 0 10.2 10.2Z"/>',
+  partlyNight: '<path d="M11.6 8.4A4.2 4.2 0 1 1 6.6 3.2a3.3 3.3 0 0 0 5 5.2Z"/>' +
+               '<path class="occlude wi-cloud" d="M9 19h8a3.5 3.5 0 0 0 .3-7 4.5 4.5 0 0 0-8.6 1.3A2.9 2.9 0 0 0 9 19Z"/>',
   cloud: '<path class="wi-cloud" d="M7 18h10a4 4 0 0 0 .4-8A5.5 5.5 0 0 0 6.8 11.6 3.2 3.2 0 0 0 7 18Z"/>',
   fog: '<path class="wi-fog" d="M4 8h16"/><path class="wi-fog" d="M6 12h12"/><path class="wi-fog" d="M4 16h16"/><path class="wi-fog" d="M7 20h10"/>',
   drizzle: W_CLOUD_HI + '<path class="wi-drop" style="--d:0s" d="M9 17.5v.6"/>' +
@@ -3143,9 +3147,9 @@ const W_ICONS = {
         '<path class="wi-flake" style="--d:1.2s" d="M15 16.5v3M13.5 18h3"/>',
   storm: W_CLOUD_HI + '<path class="wi-bolt" d="M12.5 15 10 19h3l-1.5 3.5"/>',
 };
-function weatherIcon(code) {
-  if (code === 0) return W_ICONS.clear;
-  if (code <= 2) return W_ICONS.partly;
+function weatherIcon(code, night = false) {
+  if (code === 0) return night ? W_ICONS.clearNight : W_ICONS.clear;
+  if (code <= 2) return night ? W_ICONS.partlyNight : W_ICONS.partly;
   if (code === 3) return W_ICONS.cloud;
   if (code <= 48) return W_ICONS.fog;
   if (code <= 57) return W_ICONS.drizzle;
@@ -3160,7 +3164,7 @@ const placeKey = () => weatherPlace ? `${weatherPlace.lat},${weatherPlace.lon}` 
 function showWeather(w) {
   $('#w-temp').textContent = `${w.temp}°`;
   $('#w-cond').textContent = t(WMO[w.code] || '—');
-  $('#w-icon').innerHTML = weatherIcon(w.nowCode ?? w.code); // ikon şu anki durum, yazı günün beklentisi
+  $('#w-icon').innerHTML = weatherIcon(w.nowCode ?? w.code, w.day === 0); // ikon şu anki durum, yazı günün beklentisi
   $('#w-max').textContent = `${w.max}°`;
   $('#w-min').textContent = `${w.min}°`;
   $('#w-range').hidden = w.min == null || w.max == null; // günün en yüksek / en düşük sıcaklığı (aynı istekten, ek ağ çağrısı yok)
@@ -3199,7 +3203,7 @@ async function loadWeather(force = false) {
   try {
     const { lat, lon } = weatherPlace;
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-      '&current=temperature_2m,apparent_temperature,weather_code&hourly=weather_code,precipitation_probability' +
+      '&current=temperature_2m,apparent_temperature,is_day,weather_code&hourly=weather_code,precipitation_probability' +
       '&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1';
     const j = await (await fetch(url)).json();
     // Günün kalan saatleri (şu andan 23:00'e); gece yarısına yakınsa tüm gün
@@ -3208,7 +3212,7 @@ async function loadWeather(force = false) {
     const w = {
       key: placeKey(), at: Date.now(),
       temp: Math.round(j.current.temperature_2m), nowCode: j.current.weather_code,
-      feel: Math.round(j.current.apparent_temperature),
+      feel: Math.round(j.current.apparent_temperature), day: j.current.is_day,
       pop: Math.max(0, ...rest.map(i => j.hourly.precipitation_probability[i] ?? 0)),
       code: dayCode(rest.map(i => j.hourly.weather_code[i]).filter(c => c != null), j.daily.weather_code[0]),
       min: Math.round(j.daily.temperature_2m_min[0]), max: Math.round(j.daily.temperature_2m_max[0]),
