@@ -151,7 +151,7 @@
   /* Dijital saat (kenar çubuğu, başlığın altında): SS:DD, ayraç her saniye hafifçe söner; köşeler çok hafif yuvarlak */
   .widgets { display: flex; gap: 6px; margin: 2px 12px 12px; }
   .clock {
-    flex: none; display: flex; align-items: center; justify-content: center; padding: .64em 10px 0; /* serif rakamların mürekkebi satır kutusunun üstüne yakın durur; optik olarak ortala */
+    flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 0 10px;
     background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
     font-size: 28px; line-height: 1; letter-spacing: -.5px; color: var(--text);
     font-variant-numeric: lining-nums tabular-nums; cursor: default; user-select: none;
@@ -196,6 +196,8 @@
   .weather .w-temp { font-size: 21px; line-height: 1; font-variant-numeric: lining-nums; transition: opacity .2s ease; }
   .weather .w-cond { max-width: 100%; margin-top: 5px; font-size: 12.5px; line-height: 1.2; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .weather.loading .w-temp { opacity: .4; }
+  .clock .clock-time { display: flex; align-items: center; line-height: .72; } /* serif rakam mürekkebi satır kutusunun üstüne yakın durur: satırı rakam yüksekliğine indir */
+  .clock .clock-date { font: 11px/1 var(--font); letter-spacing: 0; color: var(--muted); white-space: nowrap; }
   .clock .clock-sep { margin: 0 2px; position: relative; top: -3px; opacity: .6; } /* ayraç artık yanıp sönmez */
   @media (max-height: 640px) { .widgets { display: none; } } /* alçak pencerede ders listesi yer kazansın */
   .topbar .search { margin: 0; width: 240px; flex: none; }
@@ -914,6 +916,13 @@
   #toast .toast-act { margin-left: 14px; padding: 0 2px; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
   #toast .toast-act:hover { color: var(--highlight); }
   kbd { font: 12px var(--font); color: var(--muted); border: 1px solid var(--line-strong); border-radius: var(--r); padding: 1px 6px; background: var(--bg); white-space: nowrap; }
+  #dlg-title { display: flex; align-items: center; gap: 8px; }
+  #dlg-ic { width: 16px; height: 16px; flex: none; stroke: var(--muted); stroke-width: 1.3; stroke-linejoin: miter; stroke-linecap: square; }
+  #dlg.shared[open] { animation: fade var(--duration-fast) var(--ease-smooth-out); } /* simge uçan pencereler (yeni ders/klasör) yalnızca solar */
+  :root.vt-set-open::view-transition-group(vt-dlg) { animation-duration: var(--duration-slow); animation-timing-function: var(--ease-smooth-out); }
+  :root.vt-set-close::view-transition-group(vt-dlg) { animation-duration: var(--duration-fast); animation-timing-function: var(--ease-smooth-out); }
+  :root.vt-set-open::view-transition-old(vt-dlg), :root.vt-set-open::view-transition-new(vt-dlg),
+  :root.vt-set-close::view-transition-old(vt-dlg), :root.vt-set-close::view-transition-new(vt-dlg) { mix-blend-mode: normal; }
   #keys { width: min(460px, calc(100vw - 32px)); }
   #keys[open] { animation: fade var(--duration-fast) var(--ease-smooth-out); } /* ayarlar penceresi gibi: yalnızca solar, simge karodan uçar */
   .keys-head { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; }
@@ -959,7 +968,8 @@
   </div>
   <div class="widgets">
     <div class="clock" id="clock" aria-label="Saat" data-i-aria="nav.clock">
-      <span id="clock-h">00</span><span class="clock-sep">:</span><span id="clock-m">00</span>
+      <span class="clock-time"><span id="clock-h">00</span><span class="clock-sep">:</span><span id="clock-m">00</span></span>
+      <span class="clock-date" id="clock-date"></span>
     </div>
     <button class="weather" id="weather" title="Hava durumu için şehir seçin">
       <span class="w-top">
@@ -1067,7 +1077,7 @@
 
 <dialog id="dlg">
   <form method="dialog">
-    <p id="dlg-title"></p>
+    <p id="dlg-title"><svg id="dlg-ic" viewBox="0 0 24 24" aria-hidden="true" hidden></svg><span id="dlg-title-t"></span></p>
     <p class="hint" id="dlg-hint" hidden></p>
     <input id="dlg-input" autocomplete="off" spellcheck="false">
     <div class="actions">
@@ -1769,7 +1779,7 @@ function bookTile(f, index) {
 
 function newBook() {
   const book = h(`<div class="book book-new" tabindex="0" role="button" aria-label="${t('course.new')}" title="${t('course.new')}">+&nbsp; ${t('course.new')}</div>`);
-  book.onclick = () => newFolder('');
+  book.onclick = () => newFolder('', book);
   return book;
 }
 
@@ -1820,7 +1830,7 @@ function newCourseTile() {
   const tile = h(`<div class="tile tile-new" tabindex="0" role="button" aria-label="${t('course.new')}" title="${t('course.new')}">
     <div class="tile-name">${t('course.new')}</div>
     <svg class="shape" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 22v56M22 50h56"/></svg></div>`);
-  tile.onclick = () => newFolder('');
+  tile.onclick = () => newFolder('', tile);
   return tile;
 }
 
@@ -2485,9 +2495,12 @@ async function setColor(path, color) {
   } catch (e) { fail(e); }
 }
 
-function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false, selectStem = false }) {
+function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false, selectStem = false, icon = '', from = null }) {
   const dlg = $('#dlg'), input = $('#dlg-input'), okBtn = $('#dlg-ok');
-  $('#dlg-title').textContent = title;
+  $('#dlg-title-t').textContent = title;
+  $('#dlg-ic').innerHTML = icon;
+  $('#dlg-ic').hidden = !icon;
+  dlg.classList.toggle('shared', !!icon);
   input.setAttribute('aria-label', title);
   $('#dlg-hint').textContent = hint;
   $('#dlg-hint').hidden = !hint;
@@ -2496,7 +2509,13 @@ function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false,
   okBtn.textContent = ok;
   okBtn.className = 'btn ' + (danger ? 'danger' : 'primary');
   dlg.returnValue = '';
-  dlg.showModal();
+  // Simgeli pencereler (yeni ders/klasör) ayarlar penceresi gibi açılır: tetikleyicideki simge başlıktaki simgeye uçar
+  const src = icon && from && from.isConnected ? (from.querySelector('svg[viewBox="0 0 24 24"]') || null) : null;
+  const root = document.documentElement;
+  if (icon) {
+    root.classList.add('vt-set-open');
+    transition(() => dlg.showModal(), () => vtName(src, 'vt-dlg'), () => vtName(src && $('#dlg-ic'), 'vt-dlg'), () => root.classList.remove('vt-set-open'));
+  } else dlg.showModal();
   if (value !== null) {
     input.focus();
     const dot = value.lastIndexOf('.');
@@ -2510,7 +2529,12 @@ function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false,
       if (done) return;
       done = true;
       dlg.onclose = okBtn.onclick = cancelBtn.onclick = input.onkeydown = null;
-      if (dlg.open) dlg.close();
+      if (dlg.open) {
+        if (icon && src && src.isConnected) {
+          root.classList.add('vt-set-close');
+          transition(() => dlg.close(), () => vtName($('#dlg-ic'), 'vt-dlg'), () => vtName(src, 'vt-dlg'), () => root.classList.remove('vt-set-close'));
+        } else dlg.close();
+      }
       res(result);
     };
     okBtn.onclick = e => { e.preventDefault(); finish(value === null ? true : input.value.trim() || null); };
@@ -2521,8 +2545,9 @@ function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false,
 }
 
 /* ---------- işlemler ---------- */
-async function newFolder(dir) {
-  const name = await ask({ title: dir ? t('folder.new_in', { name: baseOf(dir) }) : t('course.new'), value: '', ok: t('dlg.create') });
+const IC_PLUS = '<path d="M12 5v14M5 12h14"/>', IC_FOLDER = '<path d="M3 6h6l2 2h10v11H3Z"/>';
+async function newFolder(dir, from) {
+  const name = await ask({ title: dir ? t('folder.new_in', { name: baseOf(dir) }) : t('course.new'), value: '', ok: t('dlg.create'), icon: dir ? IC_FOLDER : IC_PLUS, from });
   if (!name) return;
   try {
     const { path } = await api('/api/mkdir', { dir, name });
@@ -2541,8 +2566,8 @@ async function newFolder(dir) {
     go(path);
   } catch (e) { fail(e); }
 }
-$('#new-course').onclick = () => newFolder('');
-$('#new-folder').onclick = () => newFolder(cur);
+$('#new-course').onclick = e => newFolder('', e.currentTarget);
+$('#new-folder').onclick = e => newFolder(cur, e.currentTarget);
 
 function remap(path, from, to) {
   if (path === from) return to;
@@ -3072,7 +3097,8 @@ function renderClock() {
   const d = new Date();
   $('#clock-h').textContent = String(d.getHours()).padStart(2, '0');
   $('#clock-m').textContent = String(d.getMinutes()).padStart(2, '0');
-  $('#clock').title = d.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  $('#clock-date').textContent = d.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' });
+  $('#clock').title = d.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 renderClock();
 setInterval(renderClock, 1000);
