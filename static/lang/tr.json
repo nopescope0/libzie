@@ -222,6 +222,7 @@
  "weather.offline": "Bağlantı yok",
  "weather.service_error": "Hava durumu servisine ulaşılamadı",
  "weather.tooltip": "{place} · Şu an: {now}, {temp}° · Bugün en düşük {min}°, en yüksek {max}° · Şehri değiştirmek için tıklayın",
+ "weather.tooltip_more": "Hissedilen {feel}° · Yağış ihtimali %{pop}",
  "weather.unavailable": "Hava durumu alınamadı (internet bağlantısı gerekir) · Şehri değiştirmek için tıklayın",
  "wmo.0": "Açık",
  "wmo.1": "Az bulutlu",

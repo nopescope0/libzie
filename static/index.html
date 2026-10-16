@@ -3120,7 +3120,7 @@ document.addEventListener('visibilitychange', () => document.documentElement.cla
 
 /* ---------- hava durumu (Open-Meteo: ücretsiz, anahtar gerekmez) ---------- */
 // Konum tarayıcıdan istenmez; kullanıcı şehir adını yazar, servise yalnızca o şehrin koordinatları gider.
-// Son sonuç 30 dk önbellekte tutulur; internet yoksa son bilinen değer gösterilir.
+// Son sonuç 15 dk önbellekte tutulur (Open-Meteo 15 dakikada bir güncellenir); internet yoksa son bilinen değer gösterilir.
 const WMO = {
   0: 'wmo.0', 1: 'wmo.1', 2: 'wmo.2', 3: 'wmo.3', 45: 'wmo.45', 48: 'wmo.48', 51: 'wmo.51', 53: 'wmo.53', 55: 'wmo.55', 56: 'wmo.56', 57: 'wmo.57', 61: 'wmo.61', 63: 'wmo.63', 65: 'wmo.65', 66: 'wmo.66', 67: 'wmo.67', 71: 'wmo.71', 73: 'wmo.73', 75: 'wmo.75', 77: 'wmo.77', 80: 'wmo.80', 81: 'wmo.81', 82: 'wmo.82', 85: 'wmo.85', 86: 'wmo.86', 95: 'wmo.95', 96: 'wmo.96', 99: 'wmo.99',
 };
@@ -3160,12 +3160,26 @@ const placeKey = () => weatherPlace ? `${weatherPlace.lat},${weatherPlace.lon}` 
 function showWeather(w) {
   $('#w-temp').textContent = `${w.temp}°`;
   $('#w-cond').textContent = t(WMO[w.code] || '—');
-  $('#w-icon').innerHTML = weatherIcon(w.code);
+  $('#w-icon').innerHTML = weatherIcon(w.nowCode ?? w.code); // ikon şu anki durum, yazı günün beklentisi
   $('#w-max').textContent = `${w.max}°`;
   $('#w-min').textContent = `${w.min}°`;
   $('#w-range').hidden = w.min == null || w.max == null; // günün en yüksek / en düşük sıcaklığı (aynı istekten, ek ağ çağrısı yok)
   $('#weather').title = t('weather.tooltip',
-    { place: weatherPlace.name, now: t(WMO[w.nowCode] || '—'), temp: w.temp, min: w.min, max: w.max });
+    { place: weatherPlace.name, now: t(WMO[w.nowCode] || '—'), temp: w.temp, min: w.min, max: w.max })
+    + (w.feel != null ? ' · ' + t('weather.tooltip_more', { feel: w.feel, pop: w.pop ?? 0 }) : '');
+}
+// Günün beklenen durumu: günlük WMO kodu günün en şiddetlisini verir (tek saatlik sağanak "yağmurlu gün" yazdırır).
+// Bunun yerine günün kalan saatlerine bakılır: şiddetli (yağış/kar/fırtına, kod >= 51) en az 2 saat sürüyorsa en sık geçeni, yoksa en sık geçen sakin durumu seç.
+function dayCode(codes, fallback) {
+  if (!codes.length) return fallback;
+  const count = {};
+  codes.forEach(c => { count[c] = (count[c] || 0) + 1; });
+  const top = list => list.sort((a, b) => count[b] - count[a] || b - a)[0];
+  const all = Object.keys(count).map(Number);
+  const severe = all.filter(c => c >= 51), calm = all.filter(c => c < 51);
+  const sevHours = severe.reduce((n, c) => n + count[c], 0);
+  if (sevHours >= 2) return top(severe);
+  return calm.length ? top(calm) : top(severe);
 }
 async function loadWeather(force = false) {
   const box = $('#weather');
@@ -3178,19 +3192,25 @@ async function loadWeather(force = false) {
     return;
   }
   const cached = store.get('weather', null);
-  const fresh = cached && cached.key === placeKey() && Date.now() - cached.at < 30 * 60e3;
+  const fresh = cached && cached.key === placeKey() && Date.now() - cached.at < 15 * 60e3;
   if (cached && cached.key === placeKey()) showWeather(cached);
   if (fresh && !force) return;
   box.classList.add('loading');
   try {
     const { lat, lon } = weatherPlace;
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-      '&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1';
+      '&current=temperature_2m,apparent_temperature,weather_code&hourly=weather_code,precipitation_probability' +
+      '&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1';
     const j = await (await fetch(url)).json();
+    // Günün kalan saatleri (şu andan 23:00'e); gece yarısına yakınsa tüm gün
+    const hrs = j.hourly.time.map((x, i) => i).filter(i => j.hourly.time[i] >= j.current.time.slice(0, 13));
+    const rest = hrs.length >= 3 ? hrs : j.hourly.time.map((x, i) => i);
     const w = {
       key: placeKey(), at: Date.now(),
       temp: Math.round(j.current.temperature_2m), nowCode: j.current.weather_code,
-      code: j.daily.weather_code[0],
+      feel: Math.round(j.current.apparent_temperature),
+      pop: Math.max(0, ...rest.map(i => j.hourly.precipitation_probability[i] ?? 0)),
+      code: dayCode(rest.map(i => j.hourly.weather_code[i]).filter(c => c != null), j.daily.weather_code[0]),
       min: Math.round(j.daily.temperature_2m_min[0]), max: Math.round(j.daily.temperature_2m_max[0]),
     };
     store.set('weather', w);
@@ -3220,7 +3240,7 @@ $('#weather').onclick = async () => {
   } catch { toast(t('weather.service_error'), true); }
 };
 loadWeather();
-setInterval(loadWeather, 10 * 60e3); // önbellek 30 dk dolmadıkça istek atmaz
+setInterval(loadWeather, 5 * 60e3); // önbellek 15 dk dolmadıkça istek atmaz
 
 /* ---------- güncelleme ---------- */
 // Sunucu GitHub'daki son sürüme bakar (internete çıkan, isteğe bağlı ikinci istek); indirme ve yerine koyma da sunucuda yapılır.
