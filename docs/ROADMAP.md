@@ -16,7 +16,7 @@ Boyut tahmini: **S** (birkaç saat), **M** (bir iki gün), **L** (bir haftadan u
 - [ ] GitHub Actions'ta kurulum sihirbazı derlemesini doğrula; `libzie-kurulum.exe` ve taşınabilir sürümü temiz bir hesapta dene **(S)**
 - [ ] `v0.2.0` sürümü: Release açıklaması (Türkçe), kurulum yönergesi **(S)**
 - [ ] GitHub hesabında e-posta gizleme ve komut satırı push korumasını aç **(S)**
-- [ ] Repoyu public yap; ilk geri bildirim için üniversitedeki birkaç kişiye ver **(S)**
+- [ ] Repoyu public yap; ilk geri bildirim için birkaç kişiye ver **(S)**
 - [ ] README'ye kısa ekran kaydı (GIF): ders ekleme, sekmeli PDF, ikon seçme **(S)**
 - [ ] Actions sürüm uyarıları (Node 20 → güncel eylem sürümleri) **(S)**
 - [ ] `SmartScreen` uyarısı notu zaten README'de; ilerleyen sürümde kod imzalama seçeneklerini araştır (ücretsiz/ucuz yollar) **(M)**
@@ -37,7 +37,7 @@ Kaynak: ilk eleştiri turu (`.impeccable/critique/`) ve kendi kullanım notları
 
 ## 3. Orta vadeli (v0.5 – v1.0): kullanıcı tabanını genişletenler
 
-- [ ] **İngilizce arayüz:** metinleri sözlüğe taşı (`tr`/`en`), dil Ayarlar'dan seçilir; üniversitedeki yabancı öğrenciler ve açık kaynak katkıcılar için **(M)**
+- [ ] **İngilizce arayüz:** metinleri sözlüğe taşı (`tr`/`en`), dil Ayarlar'dan seçilir; yabancı kullanıcılar ve açık kaynak katkıcılar için **(M)**
 - [ ] **Açık tema:** `:root` değişkenleri zaten ayrı; koyu/açık/sistem seçimi, kontrastlar yeniden doğrulanır **(M)**
 - [ ] **macOS ve Linux:** sunucu zaten platform bağımsız (`open`/`reveal`); pywebview paketleri ve GitHub Actions'ta üç platformlu derleme **(L)**
 - [ ] **PDF içinde metin arama:** dosya adı yerine içerikte ara (indeks yerelde, `.silinenler` gibi gizli klasörde); büyük arşivlerde yavaşlamamalı **(L)**

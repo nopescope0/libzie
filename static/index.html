@@ -1303,7 +1303,7 @@ function searchResults() {
   const words = norm(query).split(/\s+/).filter(Boolean);
   const scoped = cur && !searchAll;
   const phrase = norm(query).trim();
-  // Sorgunun bitişik geçtiği dosyalar önce ("lecture 2" → "LECTURE 2", "EE 210 LECTURE 1"den önce gelir)
+  // Sorgunun bitişik geçtiği dosyalar önce ("lecture 2" → "LECTURE 2", "X LECTURE 1"den önce gelir)
   const rank = f => norm(f.name).includes(phrase) ? 0 : 1;
   return allFiles(scoped ? findFolder(cur) : tree).filter(f => { const n = norm(f.path); return words.every(w => n.includes(w)); })
     .sort((a, b) => rank(a) - rank(b) || byName(a, b));
