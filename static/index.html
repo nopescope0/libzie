@@ -497,6 +497,8 @@
   /* Animasyonlar */
   @keyframes rise { from { opacity: 0; transform: translateY(var(--distance-base)); filter: blur(var(--blur-medium)); } }
   @keyframes fade { from { opacity: 0; } }
+  /* Ayarlar penceresi yalnızca solar: ölçeklenen bir pencerede başlıktaki dişlinin hedef konumu animasyon sonunda kayar (dişli en sonda sola sıçrıyordu) */
+  #settings[open] { animation: fade var(--duration-fast) var(--ease-smooth-out); }
   @keyframes pop { from { opacity: 0; transform: scale(var(--scale-large)); } }
   @keyframes pop-menu { from { opacity: 0; transform: scale(var(--scale-medium)); } }
   @keyframes tab-in { from { opacity: 0; transform: translateX(calc(-1 * var(--distance-base))); } }

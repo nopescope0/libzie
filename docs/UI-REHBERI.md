@@ -61,6 +61,7 @@ Süreler yalnızca `:root` token'larından: `--duration-quick` 150 (kapanış, m
 - ❌ **İki katman aynı anda solarsa** (kök karşılıklı solma + pencere solması) sayfa içeriği pencerenin arkasından "yıkanır". Birini kapat.
 - Dönüş gibi hızlı hareketlerde sahne kare hızına göre kararır (dişlinin dişleri titreşir); dönüşü diş aralığının (60°) katlarıyla sınırla ve çok hızlandırma.
 - Sekme/gezinme ikonları: parçalar ayrı öğe (`.k`, `.d`, `.doc`, `.dot`), tek seferlik keyframe; hover, `:focus-visible` ve sekme seçilince (`.play`) oynar, `translate`/`scale` bireysel özellikleriyle (`transform-box: fill-box`), bulanıklık yok; sıçrama eğrisi (`--ease-bounce`) yalnızca belirmelerde.
+- ❌ **Paylaşılan öğenin hedefi ölçeklenen yüzeyin içindeyse:** geçiş hedef konumu başlangıçta (pencere %96 ölçekliyken) yakalar, animasyon bitince gerçek öğe sola/yukarı sıçrar. Ayarlar penceresi bu yüzden `pop` yerine yalnızca `fade` ile açılır.
 - Animasyonu **veri beklemeden** başlat (örn. `fetch` bitmeden pencereyi aç, alanları sonra doldur); gecikme "yavaş" hissettirir.
 
 ## 5. Sekmeli/ayar pencereleri için iskelet
