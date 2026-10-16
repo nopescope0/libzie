@@ -6,6 +6,17 @@
 <title>libzie</title>
 <meta name="description" content="libzie: ders notlarını ve PDF'leri derse göre düzenleyen yerel arşiv">
 <meta name="theme-color" content="#0e1a2b">
+<script>
+// Tema ilk boyamadan önce uygulanır (açılışta renk yanıp sönmesin). Ayrıntılar aşağıdaki "tema" bloğunda.
+(function () {
+  var p = 'auto';
+  try { p = JSON.parse(localStorage.getItem('theme') || '"auto"'); } catch (e) {}
+  if (p === 'auto' || typeof p !== 'string') p = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', p);
+})();
+</script>
+<style id="themes">/*THEMES*/</style>
+<script type="application/json" id="themes-data">/*THEMES_JSON*/</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eaf1fb' stroke-width='1.4'%3E%3Crect width='24' height='24' rx='5' fill='%230e1a2b' stroke='none'/%3E%3Cpath d='M2.5 20.5h19'/%3E%3Crect x='4' y='5' width='3' height='15'/%3E%3Crect x='9' y='10' width='3.5' height='10'/%3E%3Cpath d='M15 5v15h5.5v-5q0-3-3-3H15'/%3E%3Ccircle cx='10.75' cy='7.3' r='1.3' fill='%23ff8a3d' stroke='none'/%3E%3C/svg%3E">
 <style>
   /* Linux Libertine (SIL OFL): Windows'a kuruluysa local() ile, yoksa static/vendor/ içindeki OTF dosyalarından
@@ -70,20 +81,11 @@
     --scale-small: 0.98;
     --blur-small: 2px;          /* ikon/metin değişimi */
     --blur-medium: 3px;         /* sayfa kayması */
-    --bg: #0e1a2b;
-    --side: #0a1422;
-    --surface: #172a42;
-    --hover: #213a5a;
-    --line: #1d3350;
-    --line-strong: #36527a;
-    --shelf: #2a4263;   /* raf tahtası */
-    --text: #eaf1fb;
-    --muted: #a3b6cf;
-    --faint: #8aa0bd; /* küçük yazılar: zeminde ve kart yüzeyinde ≥4.5:1 */
-    --accent: #ff8a3d;
-    --highlight: #ff8a3d;
-    --danger: #c98080;
-    color-scheme: dark;
+    /* Renkler (--bg, --text, --accent ...) static/themes/*.json içindedir; sunucu CSS'e çevirip #themes içine gömer.
+       Aşağıdakiler temadan bağımsızdır: küçük resimlerin üstündeki cam düğmeler. */
+    --glass: rgba(10, 20, 34, .48);
+    --glass-hover: rgba(10, 20, 34, .72);
+    --glass-ink: rgba(238, 238, 238, .9);
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
@@ -96,19 +98,15 @@
   /* Başlık yazı tipi (serif) yalnızca başlıklarda; geri kalan her şey yumuşak gövde fontunda */
   h2, .brand, .greet .hi, .clock, .weather .w-temp, .dlg-head, .set-title, .set-h, .about-name { font-family: var(--font-head); }
   button { background: none; border: 0; cursor: pointer; }
-  /* Kaydırma çubukları: vurgu renginde (teal), uçlarda minimal oklar */
+  /* Kaydırma çubukları: vurgu renginde, uçlarda minimal oklar (ok görselleri tema CSS'inde, vurgu renginden üretilir) */
   ::-webkit-scrollbar { width: 12px; height: 12px; }
   ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255, 138, 61, .38); border-radius: var(--r); border: 3px solid transparent; background-clip: padding-box; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 138, 61, .62); background-clip: padding-box; }
-  ::-webkit-scrollbar-thumb:active { background: rgba(255, 138, 61, .85); background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--accent) 38%, transparent); border-radius: var(--r); border: 3px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--accent) 62%, transparent); background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:active { background: color-mix(in srgb, var(--accent) 85%, transparent); background-clip: padding-box; }
   ::-webkit-scrollbar-button:single-button { display: block; width: 12px; height: 12px; background-color: transparent; background-repeat: no-repeat; background-position: center; background-size: 10px; }
-  ::-webkit-scrollbar-button:single-button:hover { background-color: rgba(255, 138, 61, .14); }
-  ::-webkit-scrollbar-button:single-button:vertical:decrement { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2 6.5 5 3.5 8 6.5' fill='none' stroke='%23ff8a3d' stroke-opacity='.75' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
-  ::-webkit-scrollbar-button:single-button:vertical:increment { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2 3.5 5 6.5 8 3.5' fill='none' stroke='%23ff8a3d' stroke-opacity='.75' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
-  ::-webkit-scrollbar-button:single-button:horizontal:decrement { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M6.5 2 3.5 5 6.5 8' fill='none' stroke='%23ff8a3d' stroke-opacity='.75' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
-  ::-webkit-scrollbar-button:single-button:horizontal:increment { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M3.5 2 6.5 5 3.5 8' fill='none' stroke='%23ff8a3d' stroke-opacity='.75' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
-  @supports not selector(::-webkit-scrollbar) { * { scrollbar-color: rgba(255, 138, 61, .5) transparent; scrollbar-width: thin; } }
+  ::-webkit-scrollbar-button:single-button:hover { background-color: color-mix(in srgb, var(--accent) 14%, transparent); }
+  @supports not selector(::-webkit-scrollbar) { * { scrollbar-color: color-mix(in srgb, var(--accent) 50%, transparent) transparent; scrollbar-width: thin; } }
   svg { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 
   /* Kenar çubuğu */
@@ -236,7 +234,7 @@
   .node .chev svg { width: 12px; height: 12px; transition: transform var(--duration-quick) var(--ease-smooth-out); }
   .node .chev.open svg { transform: rotate(90deg); }
   .node .label { overflow: hidden; text-overflow: ellipsis; }
-  .drop { outline: 1px dashed var(--accent); outline-offset: -1px; background: rgba(255, 138, 61, .12) !important; }
+  .drop { outline: 1px dashed var(--accent); outline-offset: -1px; background: color-mix(in srgb, var(--accent) 12%, transparent) !important; }
 
   /* Ana alan */
   main { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
@@ -256,8 +254,8 @@
     border: 1px solid var(--line); color: var(--muted); white-space: nowrap;
   }
   .btn:hover { background: var(--hover); color: var(--text); }
-  .btn.primary { color: var(--bg); background: var(--highlight); border-color: var(--highlight); }
-  .btn.primary:hover { color: var(--bg); background: #ffa466; }
+  .btn.primary { color: var(--on-accent); background: var(--highlight); border-color: var(--highlight); }
+  .btn.primary:hover { color: var(--on-accent); background: var(--highlight-hover); }
 
   #content { flex: 1; overflow: auto; padding: 20px 28px 60px; }
   main.dropping #content { outline: 1px dashed var(--accent); outline-offset: -10px; border-radius: var(--r); }
@@ -279,11 +277,11 @@
     width: 38px; flex: none; text-align: center; font-size: 11px; font-weight: 600; letter-spacing: .4px;
     padding: 3px 0; border-radius: var(--r); text-transform: uppercase; background: var(--hover); color: var(--muted);
   }
-  .t-pdf { color: #d39a9a; background: rgba(211,154,154,.10); }
-  .t-slide { color: #d6b38a; background: rgba(214,179,138,.10); }
-  .t-doc { color: #93afd3; background: rgba(147,175,211,.10); }
-  .t-sheet { color: #95c2a2; background: rgba(149,194,162,.10); }
-  .t-img { color: #b8a3cf; background: rgba(184,163,207,.10); }
+  .t-pdf { color: var(--t-pdf); background: color-mix(in srgb, var(--t-pdf) 10%, transparent); }
+  .t-slide { color: var(--t-slide); background: color-mix(in srgb, var(--t-slide) 10%, transparent); }
+  .t-doc { color: var(--t-doc); background: color-mix(in srgb, var(--t-doc) 10%, transparent); }
+  .t-sheet { color: var(--t-sheet); background: color-mix(in srgb, var(--t-sheet) 10%, transparent); }
+  .t-img { color: var(--t-img); background: color-mix(in srgb, var(--t-img) 10%, transparent); }
 
   .dot { width: 9px; height: 9px; border-radius: var(--r); flex: none; background: var(--c, var(--line-strong)); }
   .node .dot { margin: 0 2px 0 2px; }
@@ -311,7 +309,7 @@
   #open-keys:not(:hover):not(:focus-visible) .kd, #open-keys:not(:hover):not(:focus-visible) .kspace { transition-delay: 0s; }
   .banner {
     display: flex; align-items: center; gap: 12px; margin: 12px 28px 0; padding: 9px 14px; border-radius: var(--r);
-    background: rgba(214,179,138,.08); border: 1px solid rgba(214,179,138,.25); color: #d6b38a; font-size: 13px;
+    background: color-mix(in srgb, var(--warn) 8%, transparent); border: 1px solid color-mix(in srgb, var(--warn) 25%, transparent); color: var(--warn); font-size: 13px;
   }
   .banner[hidden] { display: none; }
   .banner span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
@@ -361,6 +359,24 @@
   .set-pane { animation: set-in var(--duration-fast) var(--ease-smooth-out); }
   @keyframes set-in { from { opacity: 0; transform: translateY(var(--distance-micro)); } }
   .set-pane .field { margin-top: 2px; }
+  .set-hint { margin: -10px 0 18px; }
+  .theme-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 14px; }
+  .theme-card { display: grid; gap: 9px; padding: 10px; border-radius: var(--r); border: 1px solid var(--line); text-align: left; color: var(--muted);
+    transition: border-color var(--duration-fast) var(--ease-smooth-out), background var(--duration-fast) var(--ease-smooth-out); }
+  .theme-card:hover { background: var(--hover); color: var(--text); }
+  .theme-card[aria-checked="true"] { border-color: var(--accent); color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); }
+  .theme-name { display: flex; align-items: center; gap: 7px; font-size: 14px; }
+  .theme-name svg { width: 15px; height: 15px; color: var(--accent); opacity: 0; transition: opacity var(--duration-fast) var(--ease-smooth-out); }
+  .theme-card[aria-checked="true"] .theme-name svg { opacity: 1; }
+  .theme-prev { display: grid; grid-template-columns: 26% 1fr; height: 78px; background: var(--bg); border: 1px solid var(--line-strong); border-radius: var(--r); overflow: hidden; }
+  .theme-prev .tp-side { background: var(--side); border-right: 1px solid var(--line); }
+  .theme-prev .tp-main { display: grid; align-content: start; gap: 6px; padding: 9px; }
+  .theme-prev .tp-line { height: 6px; width: 62%; background: var(--text); }
+  .theme-prev .tp-line.m { width: 40%; background: var(--muted); }
+  .theme-prev .tp-card { height: 18px; background: var(--surface); border: 1px solid var(--line); }
+  .theme-prev .tp-acc { height: 7px; width: 28%; background: var(--highlight); }
+  .theme-split { display: grid; grid-template-columns: 1fr 1fr; height: 78px; border: 1px solid var(--line-strong); border-radius: var(--r); overflow: hidden; }
+  .theme-split .theme-prev { height: 100%; border: 0; border-radius: 0; grid-template-columns: 34% 1fr; }
   .set-empty { color: var(--faint); border: 1px dashed var(--line-strong); border-radius: var(--r); padding: 34px 20px; text-align: center; margin: 0; }
   .set-actions { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
   .set-actions .grow { flex: 1; }
@@ -706,8 +722,8 @@
   .thumb .cbadge {
     position: absolute; top: 6px; left: 6px; z-index: 1; display: block; max-width: calc(100% - 46px);
     padding: 4px 10px 4px 8px; border-radius: 3px;
-    font-size: 12px; font-weight: 400; letter-spacing: .1px; color: rgba(238, 238, 238, .9);
-    background: rgba(10, 20, 34, .48); box-shadow: none;
+    font-size: 12px; font-weight: 400; letter-spacing: .1px; color: var(--glass-ink);
+    background: var(--glass); box-shadow: none;
     -webkit-backdrop-filter: blur(8px) saturate(1.2); backdrop-filter: blur(8px) saturate(1.2);
   }
   .thumb .cbadge::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; vertical-align: 1px; background: var(--c); transition: opacity var(--duration-fast) var(--ease-in-out); }
@@ -758,8 +774,8 @@
   .tinfo small { color: var(--faint); font-size: 12px; }
   .tcard:hover .more { opacity: 1; }
   .tcard .more {
-    position: absolute; top: 34px; right: 6px; border-radius: 3px; color: rgba(238, 238, 238, .9);
-    background: rgba(10, 20, 34, .48); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    position: absolute; top: 34px; right: 6px; border-radius: 3px; color: var(--glass-ink);
+    background: var(--glass); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
     /* Üzerine gelince yukarıdan küçükten büyüyerek gelir; noktalar ortada toplu başlayıp yana açılır */
     transform: translateY(calc(-1 * var(--distance-micro))) scale(var(--scale-medium));
     transition: opacity var(--duration-fast) var(--ease-smooth-out), transform var(--duration-fast) var(--ease-smooth-out), background-color .15s ease, color .15s ease;
@@ -769,7 +785,7 @@
   .tcard .more svg circle:nth-child(1) { transform: translateX(7px) scale(.6); }
   .tcard .more svg circle:nth-child(3) { transform: translateX(-7px) scale(.6); }
   .tcard:hover .more svg circle, .tcard .more.on svg circle { transform: none; transition-delay: var(--duration-stagger); } /* gecikme yalnız girişte */
-  .tcard .more:hover { background: rgba(10, 20, 34, .72); color: var(--text); }
+  .tcard .more:hover { background: var(--glass-hover); color: var(--glass-ink); }
 
   /* --- Süreklilik: görünüm geçişleri (View Transitions) ---
      Ders karosu ⇄ ders sayfası: şekil (vt-shape) konum yolundaki ikona uçar; karo (vt-tile) içine girilir gibi
@@ -825,7 +841,7 @@
   /* Menü, iletişim kutusu, bildirim */
   .menu {
     position: fixed; z-index: 40; min-width: 180px; padding: 5px; border-radius: var(--r);
-    background: var(--surface); border: 1px solid var(--line-strong); box-shadow: 0 10px 30px rgba(10, 12, 16, .5);
+    background: var(--surface); border: 1px solid var(--line-strong); box-shadow: 0 10px 30px var(--shadow);
   }
   .menu button { display: block; width: 100%; text-align: left; padding: 7px 10px; border-radius: var(--r); color: var(--text); }
   .menu button:hover { background: var(--hover); }
@@ -834,7 +850,7 @@
     background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: var(--r);
     padding: 20px; width: min(380px, calc(100vw - 32px));
   }
-  dialog::backdrop { background: rgba(10, 12, 16, .6); }
+  dialog::backdrop { background: var(--scrim); }
   dialog p { margin: 0 0 14px; }
   dialog input {
     width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 10px; outline: none; margin-bottom: 16px;
@@ -846,7 +862,7 @@
   }
   dialog select:focus { border-color: var(--line-strong); }
   dialog .actions { display: flex; justify-content: flex-end; gap: 8px; }
-  dialog .btn.danger { color: var(--danger); border-color: rgba(201,128,128,.35); }
+  dialog .btn.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
   #toast {
     position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(var(--distance-base)); opacity: 0;
     background: var(--hover); border: 1px solid var(--line-strong); padding: 8px 14px; border-radius: var(--r);
@@ -873,7 +889,7 @@
   }
 
   /* Erişilebilirlik ve tipografi cilası */
-  .skip { position: absolute; left: 14px; top: -64px; z-index: 60; padding: 8px 18px; border-radius: 999px; background: var(--accent); color: var(--bg); transition: top .4s var(--ease-smooth-out); }
+  .skip { position: absolute; left: 14px; top: -64px; z-index: 60; padding: 8px 18px; border-radius: 999px; background: var(--accent); color: var(--on-accent); transition: top .4s var(--ease-smooth-out); }
   .skip:focus-visible { top: 14px; outline-offset: 3px; }
   #content:focus { outline: none; }
   h2, .greet .hi, .chead .ctitle, .tile-name { text-wrap: balance; }
@@ -1053,7 +1069,8 @@
 
       <section class="set-pane" role="tabpanel" id="pane-theme" data-pane="theme" aria-labelledby="tab-theme" hidden>
         <h3 class="set-h" data-i="set.tab.theme">Tema</h3>
-        <p class="set-empty" data-i="set.theme_soon">Tema seçenekleri yakında burada olacak.</p>
+        <p class="hint set-hint" data-i="set.theme_hint">Uygulamanın renk düzeni. “Sistem” bilgisayarının açık/koyu tercihini izler.</p>
+        <div class="theme-list" id="theme-list" role="radiogroup" aria-labelledby="tab-theme"></div>
       </section>
 
       <section class="set-pane" role="tabpanel" id="pane-folder" data-pane="folder" aria-labelledby="tab-folder" hidden>
@@ -3121,14 +3138,68 @@ function setLang(pref) {
   store.set('lang', langPref);
   lang = langPref === 'auto' ? detectLang() : langPref;
   applyI18n();
+  buildThemePane();
   render();
   loadWeather();
   updatePreview();
   showUpd();
   if ($('#u-auto').disabled) $('#u-auto').title = t('upd.auto_unavailable');
 }
+/* ---------- tema ---------- */
+// Temalar static/themes/*.json dosyalarındadır; sunucu hepsini CSS'e çevirip sayfaya gömer (renkler yalnızca CSS değişkenidir) ve
+// buraya yalnızca [{ id, scheme }] listesi gelir. Seçim: localStorage 'theme' = 'auto' (varsayılan, sistemin açık/koyu tercihi) | tema kimliği.
+// Etkin tema <html data-theme="..."> ile seçilir; ilk boyamadan önce <head> içindeki küçük betik de aynısını yapar.
+const THEMES = (() => { try { return JSON.parse($('#themes-data').textContent) || []; } catch { return []; } })();
+let themePref = (() => { const v = store.get('theme', 'auto'); return v === 'auto' || THEMES.some(x => x.id === v) ? v : 'auto'; })();
+const systemTheme = () => {
+  const want = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  return (THEMES.find(x => x.scheme === want) || THEMES[0] || { id: 'dark' }).id;
+};
+function applyTheme() {
+  const id = themePref === 'auto' ? systemTheme() : themePref;
+  document.documentElement.setAttribute('data-theme', id);
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta && bg) meta.content = bg;
+  document.querySelectorAll('#theme-list .theme-card').forEach(c => {
+    const on = c.dataset.id === themePref;
+    c.setAttribute('aria-checked', String(on));
+    c.tabIndex = on ? 0 : -1;
+  });
+}
+matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (themePref === 'auto') applyTheme(); });
+function setTheme(pref) { themePref = pref; store.set('theme', pref); applyTheme(); }
+const themePreview = id => `<span class="theme-prev" data-theme="${esc(id)}" aria-hidden="true"><i class="tp-side"></i><span class="tp-main"><i class="tp-line"></i><i class="tp-line m"></i><i class="tp-card"></i><i class="tp-acc"></i></span></span>`;
+const CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+function buildThemePane() {
+  const box = $('#theme-list');
+  box.innerHTML = '';
+  const dark = THEMES.find(x => x.scheme === 'dark') || THEMES[0], light = THEMES.find(x => x.scheme === 'light') || THEMES[0];
+  const cards = [['auto', t('theme.auto'), dark && light ? `<span class="theme-split">${themePreview(dark.id)}${themePreview(light.id)}</span>` : '']]
+    .concat(THEMES.map(x => [x.id, t('theme.' + x.id), themePreview(x.id)]));
+  for (const [id, name, prev] of cards) {
+    const b = h(`<button type="button" class="theme-card" role="radio" data-id="${esc(id)}">${prev}<span class="theme-name">${CHECK}${esc(name)}</span></button>`);
+    b.onclick = () => setTheme(id);
+    box.append(b);
+  }
+  applyTheme();
+}
+// Radyo grubu: ←/↑ ve →/↓ seçimi değiştirir
+$('#theme-list').addEventListener('keydown', e => {
+  const cards = [...document.querySelectorAll('#theme-list .theme-card')];
+  const i = cards.findIndex(c => c.dataset.id === themePref);
+  let j = -1;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % cards.length;
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + cards.length) % cards.length;
+  if (j < 0) return;
+  e.preventDefault();
+  setTheme(cards[j].dataset.id);
+  cards[j].focus();
+});
+
 buildLangSelect();
 applyI18n();
+buildThemePane();
 
 cur = pathFromHash();
 load();

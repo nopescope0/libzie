@@ -1,0 +1,28 @@
+{
+ "scheme": "light",
+ "vars": {
+  "--bg": "#f4f6fa",
+  "--side": "#e8ecf3",
+  "--surface": "#ffffff",
+  "--hover": "#dce4ef",
+  "--line": "#d5dce8",
+  "--line-strong": "#a9b5c7",
+  "--shelf": "#c4cedf",
+  "--text": "#13202f",
+  "--muted": "#46586f",
+  "--faint": "#5a6c84",
+  "--accent": "#b8500a",
+  "--highlight": "#ff8a3d",
+  "--highlight-hover": "#ff9b57",
+  "--on-accent": "#13202f",
+  "--danger": "#a8322f",
+  "--warn": "#8a5a12",
+  "--shadow": "rgba(30, 45, 70, .22)",
+  "--scrim": "rgba(20, 32, 50, .4)",
+  "--t-pdf": "#a83f3f",
+  "--t-slide": "#855d12",
+  "--t-doc": "#33609f",
+  "--t-sheet": "#2f7248",
+  "--t-img": "#6f4aa3"
+ }
+}

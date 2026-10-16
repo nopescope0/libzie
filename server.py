@@ -21,6 +21,7 @@ from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import guncelleme
 import i18n
+import temalar
 from i18n import AppError, err_json
 
 FROZEN = getattr(sys, "frozen", False)  # PyInstaller ile paketlenmiş uygulama
@@ -370,7 +371,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def send_index(self):
         """Uygulama sayfası: dil sözlükleri (static/lang/*.json) sayfaya gömülür, ek istek ve gecikme olmaz."""
-        page = (STATIC / "index.html").read_text(encoding="utf-8").replace("/*I18N*/", i18n.dict_json(), 1)
+        page = ((STATIC / "index.html").read_text(encoding="utf-8").replace("/*I18N*/", i18n.dict_json(), 1)
+                .replace("/*THEMES*/", temalar.css(), 1).replace("/*THEMES_JSON*/", json.dumps(temalar.meta(), separators=(",", ":")), 1))
         data = page.encode("utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")

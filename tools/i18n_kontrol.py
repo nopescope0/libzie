@@ -74,6 +74,12 @@ for lang, d in langs.items():
         ph = lambda x: set().union(*(set(PLACEHOLDER.findall(t)) for t in texts(x) if isinstance(t, str)))
         if ph(v) != ph(b):
             errors.append(f"{lang}.json {k}: yer tutucular {DEFAULT} ile uyuşmuyor: {sorted(ph(v))} ≠ {sorted(ph(b))}")
+# tema adları dinamik kurulur (t('theme.' + kimlik)): her tema dosyası için theme.<kimlik> gerekir
+for tf in sorted((ROOT / "static" / "themes").glob("*.json")):
+    add(f"theme.{tf.stem}", "tema dosyası")
+    if f"theme.{tf.stem}" not in base:
+        errors.append(f"{tf.name} teması için {DEFAULT}.json'da theme.{tf.stem} (görünen ad) yok")
+add("theme.auto", "tema seçici")
 for k in sorted(base - set(used)):
     warns.append(f"hiçbir yerde kullanılmıyor: {k}")
 

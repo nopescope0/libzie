@@ -31,14 +31,16 @@ Kaynak: ilk eleştiri turu (`.impeccable/critique/`) ve kendi kullanım notları
 - [ ] **Klavye odağı:** ders açılınca odak içeriğe taşınsın, sayfanın başına dönmesin **(S)**
 - [ ] **İlk açılış karşılaması:** boş arşivde 3 adımlık yönlendirme (ders ekle, dosya sürükle, ikon/renk seç) ve örnek ders **(S)**
 - [ ] **Dersi özelleştir:** renk ve ikon seçimini tek pencerede birleştir **(S)**
-- [ ] **Güncelleme bildirimi (isteğe bağlı):** GitHub Releases'e bakıp "yeni sürüm var" de; varsayılan kapalı, Ayarlar'dan açılır **(M)**
+- [x] **Güncelleme (isteğe bağlı):** Ayarlar → Hakkında'da sürüm bilgisi ve tek tıkla/otomatik güncelleme
 - [ ] **Yedek dışa aktarma:** dersi `.zip` olarak dışa aktar **(S)**
 - [ ] **Ayarlar penceresi:** klasör seçme penceresi (yolu elle yazmak yerine) **(S)**
 
 ## 3. Orta vadeli (v0.5 – v1.0): kullanıcı tabanını genişletenler
 
-- [ ] **İngilizce arayüz:** metinleri sözlüğe taşı (`tr`/`en`), dil Ayarlar'dan seçilir; yabancı kullanıcılar ve açık kaynak katkıcılar için **(M)**
-- [ ] **Açık tema:** `:root` değişkenleri zaten ayrı; koyu/açık/sistem seçimi, kontrastlar yeniden doğrulanır **(M)**
+- [x] **İngilizce arayüz:** kimlik anahtarlı dil dosyaları (`static/lang/tr.json`, `en.json`), dil Ayarlar'dan seçilir; yeni dil eklemek bir dosya eklemektir
+- [x] **Açık tema:** tema dosyaları (`static/themes/dark.json`, `light.json`), Ayarlar → Tema'dan koyu/açık/sistem seçimi; `tools/tema_kontrol.py` kontrastları doğrular
+- [ ] **Özel temalar:** kullanıcı kendi tema dosyasını `%APPDATA%\libzie	hemes\` klasörüne bırakıp Tema sekmesinden seçebilsin. Sunucu zaten doğruluyor (yalnızca izinli renk değişkenleri ve renk değerleri); yapılacaklar: ikinci tema klasörü, dosya adı çakışması/geçersiz tema uyarısı, görünen ad için tema dosyasına çok dilli `name` alanı, "temayı Gezgin'de aç" düğmesi, örnek tema şablonu ve README'de tema yazma rehberi **(M)**
+- [ ] **Daha fazla yerleşik tema:** yüksek kontrast, sıcak (sepya) ve renk körlüğüne uygun vurgu seçenekleri **(S)**
 - [ ] **macOS ve Linux:** sunucu zaten platform bağımsız (`open`/`reveal`); pywebview paketleri ve GitHub Actions'ta üç platformlu derleme **(L)**
 - [ ] **PDF içinde metin arama:** dosya adı yerine içerikte ara (indeks yerelde, `.silinenler` gibi gizli klasörde); büyük arşivlerde yavaşlamamalı **(L)**
 - [ ] **PDF'te kaldığın sayfayı hatırla:** şu an tarayıcının gömülü görüntüleyicisi sayfa bilgisi vermiyor; pdf.js ile kendi görüntüleyicimiz gerekir, kısayol tuşları da (Esc, F, Ctrl+K) PDF odaktayken çalışmaz sorununu çözer **(L)**
@@ -70,3 +72,4 @@ Kaynak: ilk eleştiri turu (`.impeccable/critique/`) ve kendi kullanım notları
 - **0.1.0:** masaüstü uygulaması (pywebview + PyInstaller), Belgeler/APPDATA veri yeri, tek örnek, GitHub Actions derlemesi, MIT lisansı
 - **0.1.1:** genel ders ikonları ve ikon seçici
 - **0.2.0 (hazırlanıyor):** kurulum sihirbazı ve taşınabilir sürüm
+- **0.1.3 sonrası:** uygulama içi güncelleme, güvenlik sertleştirmesi, İngilizce arayüz, sekmeli Ayarlar, koyu/açık tema
