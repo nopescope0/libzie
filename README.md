@@ -1,5 +1,11 @@
 # libzie
 
+[![Lisans: MIT](https://img.shields.io/badge/lisans-MIT-ff8a3d?style=flat-square&labelColor=0e1a2b)](LICENSE)
+[![Platform: Windows](https://img.shields.io/badge/platform-Windows-ff8a3d?style=flat-square&labelColor=0e1a2b)](#kurulum-windows-uygulaması)
+[![Python 3](https://img.shields.io/badge/python-3-ff8a3d?style=flat-square&labelColor=0e1a2b)](#kaynak-koddan-çalıştırma-geliştiriciler-için)
+[![Bağımlılık: yok](https://img.shields.io/badge/ba%C4%9F%C4%B1ml%C4%B1l%C4%B1k-yok-ff8a3d?style=flat-square&labelColor=0e1a2b)](#kaynak-koddan-çalıştırma-geliştiriciler-için)
+[![Çevrimdışı çalışır](https://img.shields.io/badge/%C3%A7evrimd%C4%B1%C5%9F%C4%B1-%C3%A7al%C4%B1%C5%9F%C4%B1r-ff8a3d?style=flat-square&labelColor=0e1a2b)](#gizlilik)
+
 Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarında yerel çalışan küçük bir arşiv. Dosyalar senin klasörlerinde durur; libzie onları ders karoları, küçük resimler ve sekmeli PDF görüntüleyiciyle gösterir. Hesap, bulut ya da veritabanı yok.
 
 > Arayüz Türkçedir. Şimdilik Windows için yazıldı.
@@ -9,6 +15,17 @@ Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarınd
 ![Ders sayfası: sekmeli dosya kartları ve PDF küçük resimleri](assets/ekran-ders.png)
 
 *Ekran görüntülerindeki dersler ve dosyalar örnek amaçlı uydurma verilerdir.*
+
+## İçindekiler
+
+- [Özellikler](#özellikler)
+- [Kurulum (Windows uygulaması)](#kurulum-windows-uygulaması)
+- [Kaynak koddan çalıştırma](#kaynak-koddan-çalıştırma-geliştiriciler-için)
+- [Ders klasörün](#ders-klasörün)
+- [Gizlilik](#gizlilik)
+- [Geliştirme](#geliştirme)
+- [Yol haritası](#yol-haritası)
+- [Lisans](#lisans)
 
 ## Özellikler
 
