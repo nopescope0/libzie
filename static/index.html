@@ -660,6 +660,7 @@
      "Yeni klasör": klasörün içinden bir belge yukarı doğru çıkar. Klasör gövdesi düğme zemininin rengiyle
      dolu olduğundan belgenin klasör içinde kalan kısmı görünmez.
      "Yükle": ok yukarı uçup kaybolur, aşağıdan yerine döner (döngü). */
+  #new-folder[hidden] { display: none; }
   #new-folder svg, #upload-btn svg { overflow: visible; }
   #new-folder svg .folder { fill: var(--bg); transition: fill .15s ease; }
   #new-folder:hover svg .folder { fill: var(--hover); }
@@ -1413,6 +1414,7 @@ window.addEventListener('hashchange', () => {
 /* ---------- çizim ---------- */
 function render() {
   if (!findFolder(cur)) cur = '';
+  $('#new-folder').hidden = !cur; // ana sayfada kök klasör = ders: kenar çubuğundaki + ve raftaki "Yeni ders" zaten var
   // açık klasörün üst klasörlerini genişlet
   let p = dirOf(cur);
   while (p) { expanded.add(p); p = dirOf(p); }
