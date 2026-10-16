@@ -219,6 +219,7 @@
  "weather.choose_city": "Hava durumu için şehir seçin",
  "weather.city_not_found": "Şehir bulunamadı",
  "weather.city_prompt": "Hava durumu için şehir",
+ "weather.other_city": "Başka şehir…",
  "weather.offline": "Bağlantı yok",
  "weather.service_error": "Hava durumu servisine ulaşılamadı",
  "weather.tooltip": "{place} · Şu an: {now}, {temp}° · Bugün en düşük {min}°, en yüksek {max}° · Şehri değiştirmek için tıklayın",

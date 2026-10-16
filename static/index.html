@@ -929,6 +929,8 @@
   #toast .toast-act { margin-left: 14px; padding: 0 2px; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
   #toast .toast-act:hover { color: var(--highlight); }
   kbd { font: 12px var(--font); color: var(--muted); border: 1px solid var(--line-strong); border-radius: var(--r); padding: 1px 6px; background: var(--bg); white-space: nowrap; }
+  #dlg select { width: 100%; }
+  #dlg-ic[hidden] { display: none; } /* svg öğelerinde hidden özniteliği tek başına işlemez */
   #dlg-title { display: flex; align-items: center; gap: 8px; }
   #dlg-ic { width: 16px; height: 16px; flex: none; stroke: var(--muted); stroke-width: 1.3; stroke-linejoin: miter; stroke-linecap: square; }
   #dlg.shared[open] { animation: fade var(--duration-fast) var(--ease-smooth-out); } /* simge uçan pencereler (yeni ders/klasör) yalnızca solar */
@@ -1102,6 +1104,7 @@
     <p id="dlg-title"><svg id="dlg-ic" viewBox="0 0 24 24" aria-hidden="true" hidden></svg><span id="dlg-title-t"></span></p>
     <p class="hint" id="dlg-hint" hidden></p>
     <input id="dlg-input" autocomplete="off" spellcheck="false">
+    <select id="dlg-select" hidden></select>
     <div class="actions">
       <button class="btn" id="dlg-cancel" value="cancel" formnovalidate data-i="dlg.cancel">Vazgeç</button>
       <button class="btn primary" id="dlg-ok" value="ok" data-i="dlg.ok">Tamam</button>
@@ -2518,7 +2521,7 @@ async function setColor(path, color) {
   } catch (e) { fail(e); }
 }
 
-function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false, selectStem = false, icon = '', from = null }) {
+function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false, selectStem = false, icon = '', from = null, options = null, selected = '' }) {
   const dlg = $('#dlg'), input = $('#dlg-input'), okBtn = $('#dlg-ok');
   $('#dlg-title-t').textContent = title;
   $('#dlg-ic').innerHTML = icon;
@@ -2527,8 +2530,11 @@ function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false,
   input.setAttribute('aria-label', title);
   $('#dlg-hint').textContent = hint;
   $('#dlg-hint').hidden = !hint;
-  input.hidden = value === null;
+  input.hidden = value === null || !!options;
   input.value = value ?? '';
+  const sel = $('#dlg-select');
+  sel.hidden = !options; // seçme kutusu: options = [[değer, etiket], ...]
+  if (options) { sel.innerHTML = options.map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join(''); sel.value = selected; sel.setAttribute('aria-label', title); }
   okBtn.textContent = ok;
   okBtn.className = 'btn ' + (danger ? 'danger' : 'primary');
   dlg.returnValue = '';
@@ -2539,7 +2545,8 @@ function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false,
     root.classList.add('vt-set-open');
     transition(() => dlg.showModal(), () => vtName(src, 'vt-dlg'), () => vtName(src && $('#dlg-ic'), 'vt-dlg'), () => root.classList.remove('vt-set-open'));
   } else dlg.showModal();
-  if (value !== null) {
+  if (options) sel.focus();
+  else if (value !== null) {
     input.focus();
     const dot = value.lastIndexOf('.');
     input.setSelectionRange(0, selectStem && dot > 0 ? dot : value.length);
@@ -2551,18 +2558,18 @@ function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false,
     const finish = result => {
       if (done) return;
       done = true;
-      dlg.onclose = okBtn.onclick = cancelBtn.onclick = input.onkeydown = null;
+      dlg.onclose = okBtn.onclick = cancelBtn.onclick = input.onkeydown = sel.onkeydown = null;
       if (dlg.open) {
         if (icon && src && src.isConnected) {
           root.classList.add('vt-set-close');
           transition(() => dlg.close(), () => vtName($('#dlg-ic'), 'vt-dlg'), () => vtName(src, 'vt-dlg'), () => root.classList.remove('vt-set-close'));
         } else dlg.close();
       }
-      res(result);
+      setTimeout(() => res(result)); // 'close' olayı sıraya girmiş olabilir; hemen ardından açılan ikinci pencere onu kendine almasın
     };
-    okBtn.onclick = e => { e.preventDefault(); finish(value === null ? true : input.value.trim() || null); };
+    okBtn.onclick = e => { e.preventDefault(); finish(options ? sel.value || null : value === null ? true : input.value.trim() || null); };
     cancelBtn.onclick = e => { e.preventDefault(); finish(null); };
-    input.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); okBtn.click(); } };
+    input.onkeydown = sel.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); okBtn.click(); } };
     dlg.onclose = () => finish(null);
   });
 }
@@ -3167,6 +3174,7 @@ function weatherIcon(code, night = false) {
   if (code >= 95) return W_ICONS.storm;
   return W_ICONS.cloud;
 }
+const TR_PROVINCES = 'Adana Adıyaman Afyonkarahisar Ağrı Aksaray Amasya Ankara Antalya Ardahan Artvin Aydın Balıkesir Bartın Batman Bayburt Bilecik Bingöl Bitlis Bolu Burdur Bursa Çanakkale Çankırı Çorum Denizli Diyarbakır Düzce Edirne Elazığ Erzincan Erzurum Eskişehir Gaziantep Giresun Gümüşhane Hakkari Hatay Iğdır Isparta İstanbul İzmir Kahramanmaraş Karabük Karaman Kars Kastamonu Kayseri Kırıkkale Kırklareli Kırşehir Kilis Kocaeli Konya Kütahya Malatya Manisa Mardin Mersin Muğla Muş Nevşehir Niğde Ordu Osmaniye Rize Sakarya Samsun Siirt Sinop Sivas Şanlıurfa Şırnak Tekirdağ Tokat Trabzon Tunceli Uşak Van Yalova Yozgat Zonguldak'.split(' ');
 let weatherPlace = store.get('weatherPlace', null); // { name, lat, lon }
 const placeKey = () => weatherPlace ? `${weatherPlace.lat},${weatherPlace.lon}` : '';
 
@@ -3245,13 +3253,25 @@ async function loadWeather(force = false) {
   }
 }
 $('#weather').onclick = async () => {
-  const name = await ask({ title: t('weather.city_prompt'), value: weatherPlace ? weatherPlace.name : '', ok: t('dlg.save') });
-  if (!name) return;
+  // Şehir bir seçme kutusundan seçilir (Türkiye'nin 81 ili); listede olmayan için "Başka şehir…" yazarak aramaya düşer
+  const OTHER = '__other';
+  const curCity = weatherPlace && TR_PROVINCES.includes(weatherPlace.name) ? weatherPlace.name : '';
+  const pick = await ask({
+    title: t('weather.city_prompt'), ok: t('dlg.save'), selected: curCity || (weatherPlace ? OTHER : 'İzmir'),
+    options: [...TR_PROVINCES.map(n => [n, n]), [OTHER, t('weather.other_city')]],
+  });
+  if (!pick) return;
+  let name = pick, country = 'TR';
+  if (pick === OTHER) {
+    name = await ask({ title: t('weather.city_prompt'), value: weatherPlace && !curCity ? weatherPlace.name : '', ok: t('dlg.save') });
+    if (!name) return;
+    country = '';
+  }
   try {
-    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=${lang}&format=json`;
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=${lang}&format=json${country ? '&countryCode=' + country : ''}`;
     const r = ((await (await fetch(url)).json()).results || [])[0];
     if (!r) return toast(t('weather.city_not_found'), true);
-    weatherPlace = { name: r.name, lat: r.latitude, lon: r.longitude };
+    weatherPlace = { name: country ? name : r.name, lat: r.latitude, lon: r.longitude }; // listeden seçilen il adı olduğu gibi kalır (Hatay → Antakya olmasın)
     store.set('weatherPlace', weatherPlace);
     loadWeather(true);
   } catch { toast(t('weather.service_error'), true); }

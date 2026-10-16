@@ -231,6 +231,7 @@
  "weather.choose_city": "Choose a city for the weather",
  "weather.city_not_found": "City not found",
  "weather.city_prompt": "City for the weather",
+ "weather.other_city": "Other city…",
  "weather.offline": "No connection",
  "weather.service_error": "Could not reach the weather service",
  "weather.tooltip": "{place} · Now: {now}, {temp}° · Today's low {min}°, high {max}° · Click to change the city",
