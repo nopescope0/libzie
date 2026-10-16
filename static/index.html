@@ -823,8 +823,8 @@
   :root.vt-set-close::view-transition-image-pair(vt-gear) { animation: vt-gear-spin-down var(--duration-medium) var(--ease-smooth-out) both; }
   @keyframes vt-gear-spin-up {
     0% { rotate: 0deg; animation-timing-function: cubic-bezier(.6, 0, 1, .5); }
-    50% { rotate: 900deg; animation-timing-function: var(--ease-smooth-out); }
-    100% { rotate: 1080deg; }
+    50% { rotate: 720deg; animation-timing-function: var(--ease-smooth-out); }
+    100% { rotate: 900deg; }
   }
   @keyframes vt-gear-spin-down { from { rotate: 0deg; } to { rotate: -720deg; } }
   @keyframes vt-fade-out { to { opacity: 0; } }
@@ -2926,6 +2926,17 @@ $('#s-save').onclick = saveSettings;
 $('#s-cancel').onclick = closeSettingsDialog;
 $('#settings').addEventListener('cancel', e => { e.preventDefault(); closeSettingsDialog(); }); // Esc de animasyonlu kapansın
 $('#settings').addEventListener('close', () => $('#settings').classList.remove('vt-open')); // hangi yolla kapanırsa kapansın sonraki açılış temiz başlasın
+// Pencerenin dışına (karartılmış alana) tıklayınca kapanır. Basış da dışarıda başlamalı: metin seçerken fareyi dışarıda bırakmak kapatmasın.
+(() => {
+  const dlg = $('#settings');
+  let downOutside = false;
+  const outside = e => {
+    const r = dlg.getBoundingClientRect();
+    return e.target === dlg && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom);
+  };
+  dlg.addEventListener('mousedown', e => { downOutside = outside(e); });
+  dlg.addEventListener('click', e => { if (downOutside && outside(e)) closeSettingsDialog(); downOutside = false; });
+})();
 $('#s-reveal').onclick = () => api('/api/reveal', { path: '' }).catch(e => { $('#s-error').textContent = e.message; });
 $('#s-lang').onchange = e => setLang(e.target.value);
 $('#g-tray').onchange = async e => {
