@@ -1,6 +1,7 @@
 {
  "_name": "English",
  "about.description": "A small archive that runs locally on your computer and organizes your lecture notes, slides and PDFs by course.",
+ "about.privacy": "Privacy: no data is collected. Your files stay on your computer; only the weather (city name, to Open-Meteo) and the update check (to GitHub) go online.",
  "about.license": "License: MIT",
  "action.delete": "Delete",
  "action.rename": "Rename",

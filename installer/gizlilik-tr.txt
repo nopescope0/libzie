@@ -1,0 +1,12 @@
+﻿Gizlilik
+
+libzie bilgisayarında yerel çalışır. Senden hiçbir veri toplamam: hesap, telemetri ya da reklam yoktur. Dosyaların ve ayarların bilgisayarında kalır.
+
+İnternete çıkan iki istek vardır, ikisi de isteğe bağlıdır:
+
+- Hava durumu: seçtiğin şehrin adı ve konumu Open-Meteo'ya gider. İstemezsen şehir seçme.
+- Sürüm denetimi / otomatik güncelleme: GitHub'a "son sürüm nedir?" diye sorulur. Ayarlar > Hakkında bölümünden otomatik güncellemeyi kapatabilirsin.
+
+Bu servisler ağ gereği IP adresini görür. Dosya içeriğin, dosya adların ya da ders adların hiçbir zaman gönderilmez.
+
+Ayrıntılar: https://github.com/nopescope0/libzie/blob/main/PRIVACY.md

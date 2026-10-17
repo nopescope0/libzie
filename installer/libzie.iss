@@ -27,8 +27,8 @@ WizardStyle=modern
 ArchitecturesInstallIn64BitMode=x64compatible
 
 [Languages]
-Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
-Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"; InfoBeforeFile: "gizlilik-tr.txt"
+Name: "english"; MessagesFile: "compiler:Default.isl"; InfoBeforeFile: "gizlilik-en.txt"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked

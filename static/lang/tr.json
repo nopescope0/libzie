@@ -1,6 +1,7 @@
 {
  "_name": "Türkçe",
  "about.description": "Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarında yerel çalışan küçük bir arşiv.",
+ "about.privacy": "Gizlilik: verilerini toplamam. Dosyaların bilgisayarında kalır; yalnızca hava durumu (şehir adı, Open-Meteo'ya) ve sürüm denetimi (GitHub'a) internete çıkar.",
  "about.license": "Lisans: MIT",
  "action.delete": "Sil",
  "action.rename": "Yeniden adlandır",

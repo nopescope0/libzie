@@ -82,7 +82,7 @@ Sunucu yalnızca `127.0.0.1`'e bağlıdır ve her istek, yalnızca senin hesabı
 
 ## Gizlilik
 
-Dosyaların bilgisayarından çıkmaz. Sunucu yalnızca `127.0.0.1`'e bağlıdır. Hava durumu açıksa şehir adın Open-Meteo'ya gider; istemezsen şehir girme. Sürüm denetimi yalnızca GitHub'a "son sürüm nedir" diye sorar, hiçbir kişisel veri göndermez.
+Dosyaların bilgisayarından çıkmaz. Sunucu yalnızca `127.0.0.1`'e bağlıdır. Hava durumu açıksa şehir adın Open-Meteo'ya gider; istemezsen şehir girme. Sürüm denetimi yalnızca GitHub'a "son sürüm nedir" diye sorar, hiçbir kişisel veri göndermez. Ayrıntılar için [PRIVACY.md](PRIVACY.md).
 
 ## Geliştirme
 

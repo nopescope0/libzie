@@ -426,7 +426,8 @@
   .about-ver { color: var(--muted); font-size: 13px; margin-top: 3px; }
   .about-ver b { color: var(--text); font-weight: 400; font-variant-numeric: tabular-nums lining-nums; }
   .about-desc { margin: 0 0 4px; }
-  .about-lic { margin: 16px 0 0; color: var(--faint); }
+  .about-priv { margin: 16px 0 0; }
+  .about-lic { margin: 8px 0 0; color: var(--faint); }
   .set-pane .upd { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 16px; }
   @media (max-width: 700px) {
     #settings { height: min(680px, calc(100vh - 24px)); }
@@ -1196,6 +1197,7 @@
             <button type="button" class="btn primary" id="u-apply" data-i="upd.apply" hidden>Şimdi güncelle</button>
           </div>
         </section>
+        <p class="hint about-priv" data-i="about.privacy">Gizlilik: verilerini toplamam. Dosyaların bilgisayarında kalır; yalnızca hava durumu (şehir adı, Open-Meteo'ya) ve sürüm denetimi (GitHub'a) internete çıkar.</p>
         <p class="hint about-lic" data-i="about.license">Lisans: MIT</p>
       </section>
     </div>

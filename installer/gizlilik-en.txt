@@ -1,0 +1,12 @@
+﻿Privacy
+
+libzie runs locally on your computer. I collect no data from you: no accounts, no telemetry, no ads. Your files and settings stay on your computer.
+
+Two requests leave your computer, both optional:
+
+- Weather: the name and location of the city you choose are sent to Open-Meteo. Don't pick a city if you don't want this.
+- Update check / auto-update: GitHub is asked "what is the latest version?". You can turn auto-update off in Settings > About.
+
+As with any network request, these services see your IP address. Your file contents, file names and course names are never sent.
+
+Details: https://github.com/nopescope0/libzie/blob/main/PRIVACY.md
