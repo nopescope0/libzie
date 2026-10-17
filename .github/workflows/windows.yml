@@ -65,9 +65,6 @@ jobs:
           New-Item -ItemType Directory -Force release | Out-Null
           Copy-Item dist-installer/libzie-setup.exe release/
           Copy-Item dist-portable/libzie.exe release/libzie-portable.exe
-          # Versions up to 0.1.6 look for the old (Turkish) file names when updating themselves; identical copies keep them updating
-          Copy-Item dist-installer/libzie-setup.exe release/libzie-kurulum.exe
-          Copy-Item dist-portable/libzie.exe release/libzie-tasinabilir.exe
           # SHA-256 digests so that downloaders can verify the files
           Get-ChildItem release/*.exe | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } | Set-Content -Encoding ascii release/SHA256SUMS.txt
 
@@ -92,6 +89,4 @@ jobs:
           files: |
             release/libzie-setup.exe
             release/libzie-portable.exe
-            release/libzie-kurulum.exe
-            release/libzie-tasinabilir.exe
             release/SHA256SUMS.txt

@@ -20,7 +20,6 @@ Size estimate: **S** (a few hours), **M** (a day or two), **L** (more than a wee
 - [ ] A short screen recording (GIF) in the README: adding a course, tabbed PDFs, picking an icon **(S)**
 - [ ] Actions version warnings (Node 20 → current action versions) **(S)**
 - [ ] The `SmartScreen` warning note is already in the README; research code-signing options (free/cheap ways) in a later release **(M)**
-- [ ] Remove the legacy release file names (`libzie-kurulum.exe`, `libzie-tasinabilir.exe`) from the workflow once nobody updates from 0.1.6 or older any more **(S)**
 
 ## 2. Near term (v0.2 – v0.4): making daily use easier
 
