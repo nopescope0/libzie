@@ -1,7 +1,7 @@
-"""libzie güncelleme: GitHub sürümlerini denetler; paketlenen Windows uygulamasında yeni sürümü indirip uygular.
+"""libzie updater: checks GitHub releases; in the packaged Windows app it downloads and applies the new version.
 
-Yalnızca Python standart kütüphanesini kullanır. İndirme adresi istemciden alınmaz: sunucu sürüm bilgisini
-her seferinde GitHub'dan kendisi okur, yalnızca bu deponun sürüm dosyalarını indirir.
+Uses only the Python standard library. The download address is never taken from the client: the server reads the release
+information from GitHub itself every time and downloads only this repository's release files.
 """
 import hashlib
 import json
@@ -19,26 +19,26 @@ from pathlib import Path
 import i18n
 from i18n import AppError
 
-VERSION = "0.1.3"  # GitHub Actions, sürüm etiketinden (v0.1.3 → 0.1.3) derleme sırasında bu satırı yeniden yazar
+VERSION = "0.1.3"  # GitHub Actions rewrites this line at build time from the release tag (v0.1.3 → 0.1.3)
 REPO = "nopescope0/libzie"
 FROZEN = getattr(sys, "frozen", False)
-# Yalnızca geliştirirken (paketlenmemiş çalışmada) deneme içindir: sahte bir sürüm sunucusuna yönlendirir, indirme adresi denetimi kapanır.
-# Paketlenen uygulamada bu ortam değişkeni yok sayılır.
-TEST_API = "" if FROZEN else os.environ.get("LIBZIE_GUNCELLEME_URL", "")
+# Only for trying things out during development (unpackaged runs): points at a fake release server, and the download address check is off.
+# In the packaged app this environment variable is ignored.
+TEST_API = "" if FROZEN else os.environ.get("LIBZIE_UPDATE_URL", "")
 API = TEST_API or f"https://api.github.com/repos/{REPO}/releases/latest"
-ASSETS = {"kurulum": "libzie-kurulum.exe", "tasinabilir": "libzie-tasinabilir.exe"}
+ASSETS = {"installer": "libzie-setup.exe", "portable": "libzie-portable.exe"}
 
-EXIT_HOOKS = []  # app.py: uygulama os._exit ile kapanmadan önce çalışır (tepsi simgesini kaldırır)
+EXIT_HOOKS = []  # app.py: run before the app closes with os._exit (removes the tray icon)
 _lock = threading.Lock()
 _state = {"phase": "idle", "done": 0, "total": 0, "error": "", "error_code": "", "error_vars": {}}  # idle | downloading | restarting | error
 
 
 class UpdateError(AppError):
-    """Kimlikli güncelleme hatası (UpdateError("upd.err.no_release")); metin static/lang/*.json içindedir."""
+    """Update error with an id (UpdateError("upd.err.no_release")); the text is in static/lang/*.json."""
 
 
 class _HttpsOnly(urllib.request.HTTPRedirectHandler):
-    """İndirme yönlendirmeleri (GitHub → CDN) yalnızca https'e gidebilir; düz http'ye düşürülemez."""
+    """Download redirects (GitHub → CDN) may only go to https; they cannot be downgraded to plain http."""
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         if not TEST_API and not newurl.lower().startswith("https://"):
@@ -50,10 +50,10 @@ _opener = urllib.request.build_opener(_HttpsOnly)
 
 
 def kind():
-    """kurulum: sihirbazla kurulmuş · tasinabilir: tek dosya exe · kaynak: python server.py (uygulama içinden güncellenmez)"""
+    """installer: installed with the wizard · portable: single-file exe · source: python server.py (not updated from within the app)"""
     if not FROZEN or sys.platform != "win32":
-        return "kaynak"
-    return "kurulum" if (Path(sys.executable).parent / "unins000.exe").exists() else "tasinabilir"
+        return "source"
+    return "installer" if (Path(sys.executable).parent / "unins000.exe").exists() else "portable"
 
 
 def parse_version(text):
@@ -87,8 +87,8 @@ def check():
         "latest": tag.lstrip("vV"),
         "available": parse_version(tag) > parse_version(VERSION),
         "kind": k,
-        # Bu kurulum türünün dosyası sürüme eklenmemişse (derleme sürüyor ya da başarısız) güncelleme sunulmaz
-        "downloadable": k == "kaynak" or ASSETS[k] in names,
+        # If this install type's file is not attached to the release (build in progress or failed) no update is offered
+        "downloadable": k == "source" or ASSETS[k] in names,
         "url": rel.get("html_url") or f"https://github.com/{REPO}/releases",
     }
 
@@ -104,14 +104,14 @@ def _set(**kw):
 
 
 def _clean_env():
-    """PyInstaller'ın tek dosya sürümü kendi geçici klasörünü ortam değişkenleriyle çocuk süreçlere taşır;
-    yeni libzie bunları devralırsa silinmiş klasörü arar. Başlatılan süreçlere geçirmeden önce temizlenir."""
+    """PyInstaller's single-file build passes its temporary folder to child processes through environment variables;
+    if the new libzie inherits them it looks for the deleted folder. They are removed before being passed to launched processes."""
     return {k: v for k, v in os.environ.items() if not k.startswith("_PYI") and k != "_MEIPASS2"}
 
 
 def _detached(console):
-    """Bu süreç kapansa da yaşayan süreç. Betik (cmd) için gizli bir konsol gerekir: konsolsuz çalışan cmd'de
-    `ping` beklemesi hemen biter ve yeniden deneme döngüsü uygulama kapanmadan tükenir."""
+    """A process that outlives this one. The script (cmd) needs a hidden console: in a console-less cmd the `ping` wait
+    ends immediately and the retry loop runs out before the app has closed."""
     flags = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
     flags |= getattr(subprocess, "CREATE_NO_WINDOW", 0) if console else getattr(subprocess, "DETACHED_PROCESS", 0)
     return {"creationflags": flags, "close_fds": True, "env": _clean_env()}
@@ -140,8 +140,8 @@ def _download(url, dest, size, digest):
 
 
 def _expected_digest(rel, asset):
-    """İndirilecek dosyanın beklenen SHA-256 özeti: GitHub'ın asset `digest` alanı, yoksa sürümdeki SHA256SUMS.txt.
-    İkisi de yoksa güncelleme yapılmaz (boyut/başlık denetimi tek başına yetmez)."""
+    """The expected SHA-256 digest of the file to download: GitHub's asset `digest` field, else SHA256SUMS.txt in the release.
+    If neither exists no update is made (a size/header check alone is not enough)."""
     digest = str(asset.get("digest") or "")
     if digest.startswith("sha256:") and re.fullmatch(r"[0-9a-fA-F]{64}", digest[7:]):
         return digest.lower()
@@ -162,7 +162,7 @@ def _expected_digest(rel, asset):
 
 def _can_write(folder):
     try:
-        probe = folder / ".libzie-yazma-denemesi"
+        probe = folder / ".libzie-write-test"
         probe.write_bytes(b"")
         probe.unlink()
         return True
@@ -177,7 +177,7 @@ set n=0
 set /a n+=1
 if %n% gtr 90 exit /b 1
 ping 127.0.0.1 -n 2 >nul
-move /y "%LIBZIE_YENI%" "%LIBZIE_EXE%" >nul 2>&1
+move /y "%LIBZIE_NEW%" "%LIBZIE_EXE%" >nul 2>&1
 if errorlevel 1 goto wait
 start "" "%LIBZIE_EXE%"
 (goto) 2>nul & del "%~f0"
@@ -198,22 +198,23 @@ def _run():
             raise UpdateError("upd.err.bad_url")
         digest = _expected_digest(rel, asset)
         exe = Path(sys.executable)
-        if k == "tasinabilir" and not _can_write(exe.parent):
+        if k == "portable" and not _can_write(exe.parent):
             raise UpdateError("upd.err.not_writable", dir=str(exe.parent))
-        for old in Path(tempfile.gettempdir()).glob("libzie-guncelleme-*"):  # önceki denemelerin artıkları
-            shutil.rmtree(old, ignore_errors=True)
-        work = Path(tempfile.mkdtemp(prefix="libzie-guncelleme-"))  # tahmin edilemez, yalnızca bu kullanıcıya açık klasör
+        for pattern in ("libzie-update-*", "libzie-guncelleme-*"):
+            for old in Path(tempfile.gettempdir()).glob(pattern):  # leftovers of earlier attempts
+                shutil.rmtree(old, ignore_errors=True)
+        work = Path(tempfile.mkdtemp(prefix="libzie-update-"))  # unpredictable, accessible only to this user
         dest = work / ASSETS[k]
         _download(url, dest, int(asset.get("size") or 0), digest)
 
-        if k == "kurulum":
-            # Sihirbaz çalışan libzie'yi kapatır, dosyaları yenileyip uygulamayı yeniden açar (libzie.iss: WizardSilent)
+        if k == "installer":
+            # The wizard closes the running libzie, refreshes the files and reopens the app (libzie.iss: WizardSilent)
             subprocess.Popen([str(dest), "/SILENT", "/CLOSEAPPLICATIONS", "/SUPPRESSMSGBOXES", "/NORESTART"], **_detached(False))
         else:
-            bat = work / "degistir.bat"
+            bat = work / "swap.bat"
             bat.write_text(_SWAP_BAT, encoding="ascii")
             env = _clean_env()
-            env.update(LIBZIE_YENI=str(dest).replace("/", "\\"), LIBZIE_EXE=str(exe).replace("/", "\\"))  # move eğik çizgiyi sevmez
+            env.update(LIBZIE_NEW=str(dest).replace("/", "\\"), LIBZIE_EXE=str(exe).replace("/", "\\"))  # move does not like forward slashes
             subprocess.Popen(["cmd", "/c", str(bat)], **{**_detached(True), "env": env})
         _set(phase="restarting")
         def _bye():
@@ -226,12 +227,12 @@ def _run():
         threading.Timer(1.5, _bye).start()
     except UpdateError as e:
         _set(phase="error", error=str(e), error_code=e.code, error_vars=e.vars)
-    except Exception as e:  # noqa: BLE001 — hata arayüze gösterilir
+    except Exception as e:  # noqa: BLE001 — the error is shown in the UI
         _set(phase="error", error=i18n.msg("upd.err.failed", error=str(e)), error_code="upd.err.failed", error_vars={"error": str(e)})
 
 
 def start_apply():
-    if kind() == "kaynak":
+    if kind() == "source":
         raise UpdateError("upd.err.from_source")
     with _lock:
         if _state["phase"] in ("downloading", "restarting"):

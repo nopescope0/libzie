@@ -6,7 +6,7 @@
 
 libzie bilgisayarında yerel çalışır. Geliştirici olarak senden hiçbir veri toplamam; hesap, analiz (telemetri) ya da reklam yoktur.
 
-**Bilgisayarında kalanlar:** ders dosyaların (varsayılan `Belgeler\libzie\kaynaklar`), ayarların (`%APPDATA%\libzie`), küçük resim önbelleği ve tarayıcı tarafındaki tercihlerin (tema, dil, açık sekmeler). Sunucu yalnızca `127.0.0.1` adresini dinler, ağdan erişilemez.
+**Bilgisayarında kalanlar:** ders dosyaların (varsayılan `Belgeler\libzie\materials`), ayarların (`%APPDATA%\libzie`), küçük resim önbelleği ve tarayıcı tarafındaki tercihlerin (tema, dil, açık sekmeler). Sunucu yalnızca `127.0.0.1` adresini dinler, ağdan erişilemez.
 
 **İnternete çıkan iki istek (ikisi de kapatılabilir):**
 
@@ -23,7 +23,7 @@ Sorular için: bu depoda bir issue aç.
 
 libzie runs locally on your computer. I, as the developer, collect no data from you: no accounts, no analytics (telemetry), no ads.
 
-**Stays on your computer:** your course files (by default `Documents\libzie\kaynaklar`), settings (`%APPDATA%\libzie`), the thumbnail cache and browser-side preferences (theme, language, open tabs). The server listens on `127.0.0.1` only and is not reachable from the network.
+**Stays on your computer:** your course files (by default `Documents\libzie\materials`), settings (`%APPDATA%\libzie`), the thumbnail cache and browser-side preferences (theme, language, open tabs). The server listens on `127.0.0.1` only and is not reachable from the network.
 
 **Two requests that leave your computer (both optional):**
 

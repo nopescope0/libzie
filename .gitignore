@@ -1,8 +1,10 @@
+materials/
 kaynaklar/
+settings.json
 ayarlar.json
 __pycache__/
 
-# Kişisel / üretilen dosyalar
+# Personal / generated files
 .claude/
 .taste-skill/
 handoff.md
@@ -41,5 +43,5 @@ dist-portable/
 build-portable/
 release/
 
-# Yerel demo başlatıcı (repoda tutulmaz)
+# Local demo launcher (not kept in the repo)
 baslat.bat

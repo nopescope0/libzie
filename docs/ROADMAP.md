@@ -1,76 +1,77 @@
-# libzie yol haritası
+# libzie roadmap
 
-Son güncelleme: 2026-10-15. Önceliklendirme kesin değildir; kullanıcı geri bildirimine göre değişir.
-Boyut tahmini: **S** (birkaç saat), **M** (bir iki gün), **L** (bir haftadan uzun).
+Last updated: 2026-10-17. The prioritization is not final; it changes with user feedback.
+Size estimate: **S** (a few hours), **M** (a day or two), **L** (more than a week).
 
-## İlkeler (yol haritası bunlara uymayanı eklemez)
+## Principles (the roadmap adds nothing that breaks these)
 
-1. **Dosyaya ulaşmak her şeyden önemli:** ders → doğru sayfaya giden yolu kısaltmayan özellik eklenmez.
-2. **Tek arşiv, çift defter yok:** kullanıcıyı klasörlerin dışında veri tutmaya zorlayan özellik yok. Klasör yapısı gerçek kaynaktır.
-3. **Yerel ve özel:** çevrimdışı çalışır; internete çıkan her şey isteğe bağlı ve açıkça belli olur. Hesap, bulut, izleme yok.
-4. **Uzun oturumlara uygun:** sakin arayüz; hareket durumu açıklar, süslemez.
-5. **Kolay ayakta tutulur:** kaynak koddan çalışırken bağımlılık ve derleme adımı yok (paketleme yalnızca Windows uygulaması için).
+1. **Reaching the file beats everything:** no feature is added that does not shorten the path course → the right page.
+2. **One archive, no double bookkeeping:** no feature that forces the user to keep data outside the folders. The folder structure is the real source.
+3. **Local and private:** works offline; everything that goes online is optional and clearly visible. No accounts, no cloud, no tracking.
+4. **Suited to long sessions:** a calm interface; motion explains state, it does not decorate.
+5. **Easy to keep running:** when running from source there are no dependencies or build steps (packaging is only for the Windows app).
 
-## 1. Yayına hazırlık (şimdi)
+## 1. Release preparation (now)
 
-- [ ] GitHub Actions'ta kurulum sihirbazı derlemesini doğrula; `libzie-kurulum.exe` ve taşınabilir sürümü temiz bir hesapta dene **(S)**
-- [ ] `v0.2.0` sürümü: Release açıklaması (Türkçe), kurulum yönergesi **(S)**
-- [ ] GitHub hesabında e-posta gizleme ve komut satırı push korumasını aç **(S)**
-- [ ] Repoyu public yap; ilk geri bildirim için birkaç kişiye ver **(S)**
-- [ ] README'ye kısa ekran kaydı (GIF): ders ekleme, sekmeli PDF, ikon seçme **(S)**
-- [ ] Actions sürüm uyarıları (Node 20 → güncel eylem sürümleri) **(S)**
-- [ ] `SmartScreen` uyarısı notu zaten README'de; ilerleyen sürümde kod imzalama seçeneklerini araştır (ücretsiz/ucuz yollar) **(M)**
+- [ ] Verify the setup wizard build in GitHub Actions; try `libzie-setup.exe` and the portable version on a clean account **(S)**
+- [ ] `v0.2.0` release: release notes, installation instructions **(S)**
+- [ ] Turn on email privacy and command-line push protection on the GitHub account **(S)**
+- [ ] Hand it to a few people for first feedback **(S)**
+- [ ] A short screen recording (GIF) in the README: adding a course, tabbed PDFs, picking an icon **(S)**
+- [ ] Actions version warnings (Node 20 → current action versions) **(S)**
+- [ ] The `SmartScreen` warning note is already in the README; research code-signing options (free/cheap ways) in a later release **(M)**
+- [ ] Remove the legacy release file names (`libzie-kurulum.exe`, `libzie-tasinabilir.exe`) from the workflow once nobody updates from 0.1.6 or older any more **(S)**
 
-## 2. Yakın vadeli (v0.2 – v0.4): günlük kullanımı rahatlatanlar
+## 2. Near term (v0.2 – v0.4): making daily use easier
 
-Kaynak: ilk eleştiri turu (`.impeccable/critique/`) ve kendi kullanım notları.
+Source: the first critique round (`.impeccable/critique/`) and my own usage notes.
 
-- [ ] **Çok dosyalı derslerde düzen:** 30–40 dosyalı derslerde türe göre gruplama (slayt, not, sınav), sıralama ve süzgeç; sınav haftasında "hepsini bir bakışta gör" **(M)**
-- [ ] **Silinenler görünümü:** `.silinenler` şu an yalnızca "Geri al" bildirimi ve Gezgin ile ulaşılabiliyor; uygulama içinde listeleme, geri yükleme, kalıcı silme **(M)**
-- [ ] **Sekmeler arası klavye:** `Ctrl+Tab`, `Ctrl+W`, `Ctrl+1..9` **(S)**
-- [ ] **Klavye odağı:** ders açılınca odak içeriğe taşınsın, sayfanın başına dönmesin **(S)**
-- [ ] **İlk açılış karşılaması:** boş arşivde 3 adımlık yönlendirme (ders ekle, dosya sürükle, ikon/renk seç) ve örnek ders **(S)**
-- [ ] **Dersi özelleştir:** renk ve ikon seçimini tek pencerede birleştir **(S)**
-- [x] **Güncelleme (isteğe bağlı):** Ayarlar → Hakkında'da sürüm bilgisi ve tek tıkla/otomatik güncelleme
-- [ ] **Windows açılışında başlat (isteğe bağlı):** tepsi simgesiyle birlikte pencere açmadan arka planda başlasın; Ayarlar → Genel'de seçenek **(S)**
-- [ ] **Yedek dışa aktarma:** dersi `.zip` olarak dışa aktar **(S)**
-- [ ] **Ayarlar penceresi:** klasör seçme penceresi (yolu elle yazmak yerine) **(S)**
+- [ ] **Layout for courses with many files:** grouping by type (slides, notes, exams), sorting and a filter for courses with 30–40 files; "see everything at a glance" in exam week **(M)**
+- [ ] **A view of the trash:** `.trash` can currently only be reached through the "Undo" toast and Explorer; listing, restoring and permanent deletion inside the app **(M)**
+- [ ] **Keyboard between tabs:** `Ctrl+Tab`, `Ctrl+W`, `Ctrl+1..9` **(S)**
+- [ ] **Keyboard focus:** when a course opens, focus should move into the content, not return to the top of the page **(S)**
+- [ ] **First-run welcome:** a 3-step guide in an empty archive (add a course, drag files, pick an icon/color) and a sample course **(S)**
+- [ ] **Customize a course:** merge the color and icon choice into one window **(S)**
+- [x] **Update (optional):** version information and one-click/automatic update in Settings → About
+- [ ] **Start with Windows (optional):** start in the background without opening a window, together with the tray icon; an option in Settings → General **(S)**
+- [ ] **Backup export:** export a course as a `.zip` **(S)**
+- [ ] **Settings window:** a folder picker (instead of typing the path by hand) **(S)**
 
-## 3. Orta vadeli (v0.5 – v1.0): kullanıcı tabanını genişletenler
+## 3. Medium term (v0.5 – v1.0): widening the user base
 
-- [x] **İngilizce arayüz:** kimlik anahtarlı dil dosyaları (`static/lang/tr.json`, `en.json`), dil Ayarlar'dan seçilir; yeni dil eklemek bir dosya eklemektir
-- [x] **Açık tema:** tema dosyaları (`static/themes/navy.json`, `light.json`), Ayarlar → Tema'dan koyu/açık/sistem seçimi; `tools/tema_kontrol.py` kontrastları doğrular
-- [ ] **Özel temalar:** kullanıcı kendi tema dosyasını `%APPDATA%\libzie	hemes\` klasörüne bırakıp Tema sekmesinden seçebilsin. Sunucu zaten doğruluyor (yalnızca izinli renk değişkenleri ve renk değerleri); yapılacaklar: ikinci tema klasörü, dosya adı çakışması/geçersiz tema uyarısı, görünen ad için tema dosyasına çok dilli `name` alanı, "temayı Gezgin'de aç" düğmesi, örnek tema şablonu ve README'de tema yazma rehberi **(M)**
-- [ ] **Daha fazla yerleşik tema:** yüksek kontrast, sıcak (sepya) ve renk körlüğüne uygun vurgu seçenekleri **(S)**
-- [ ] **macOS ve Linux:** sunucu zaten platform bağımsız (`open`/`reveal`); pywebview paketleri ve GitHub Actions'ta üç platformlu derleme **(L)**
-- [ ] **PDF içinde metin arama:** dosya adı yerine içerikte ara (indeks yerelde, `.silinenler` gibi gizli klasörde); büyük arşivlerde yavaşlamamalı **(L)**
-- [ ] **PDF'te kaldığın sayfayı hatırla:** şu an tarayıcının gömülü görüntüleyicisi sayfa bilgisi vermiyor; pdf.js ile kendi görüntüleyicimiz gerekir, kısayol tuşları da (Esc, F, Ctrl+K) PDF odaktayken çalışmaz sorununu çözer **(L)**
-- [ ] **Etiketler / dönem düzeni:** "2026 Güz" gibi gruplama; klasör yapısını bozmadan yalnızca görünüm katmanı **(M)**
-- [ ] **Sınav modu:** bir dersin tüm vize/final/ödev dosyalarını tek sayfada topla **(M)**
+- [x] **English interface:** id-keyed language files (`static/lang/tr.json`, `en.json`), the language is chosen in Settings; adding a language means adding a file
+- [x] **Light theme:** theme files (`static/themes/navy.json`, `light.json`), dark/light/system choice in Settings → Theme; `tools/theme_check.py` verifies the contrast
+- [ ] **Custom themes:** the user drops their own theme file into the `%APPDATA%\libzie\themes\` folder and picks it in the Theme tab. The server already validates (only allowed color variables and color values); to do: a second theme folder, a warning for file-name clashes/invalid themes, a multilingual `name` field in the theme file for the display name, an "open themes in Explorer" button, a sample theme template and a theme-writing guide in the README **(M)**
+- [ ] **More built-in themes:** high contrast, warm (sepia) and color-blind-friendly accent options **(S)**
+- [ ] **macOS and Linux:** the server is already platform independent (`open`/`reveal`); pywebview packages and a three-platform build in GitHub Actions **(L)**
+- [ ] **Searching inside PDFs:** search the content instead of the file name (the index is local, in a hidden folder like `.trash`); must not slow down on big archives **(L)**
+- [ ] **Remember the page you stopped at in a PDF:** the browser's embedded viewer does not expose page information; we would need our own pdf.js viewer, which would also fix the problem that keyboard shortcuts (Esc, F, Ctrl+K) do not work while the PDF has focus **(L)**
+- [ ] **Tags / term layout:** grouping such as "2026 Fall"; only a view layer, without breaking the folder structure **(M)**
+- [ ] **Exam mode:** gather all midterm/final/homework files of a course on one page **(M)**
 
-## 4. Teknik borç ve kalite
+## 4. Technical debt and quality
 
-- [ ] **Otomatik testler:** `server.py` API'si için (yükleme, taşıma, silme, geri yükleme, ikon, güvenlik: yol dışına çıkma) standart kütüphane `unittest` ile; CI'da her push'ta çalışsın **(M)**
-- [ ] **Satır sonu ve kodlama tutarlılığı:** `.gitattributes` var; CI'da CRLF/LF denetimi **(S)**
-- [ ] **`index.html` büyüklüğü (~2500+ satır):** derleme adımı eklemeden ES modülleriyle bölmeyi değerlendir (`static/js/*.js`); önce ölçü: bölmek gerçekten bakım kolaylığı sağlıyor mu **(L)**
-- [ ] **Hata günlüğü:** uygulamada sorun olunca "günlüğü kopyala" düğmesi (GitHub issue açmayı kolaylaştırır) **(S)**
-- [ ] **Python sürümü uyumu:** 3.10–3.14 arası CI matrisi **(S)**
-- [ ] **Erişilebilirlik gözden geçirmesi:** ekran okuyucuyla gerçek deneme, yüksek kontrast, `prefers-reduced-motion` testleri **(M)**
-- [ ] **Performans:** 5000+ dosyalı arşivde `/api/tree` ve küçük resimler; artımlı yükleme ve daha akıllı küçük resim önbelleği **(M)**
+- [ ] **Automated tests:** for the `server.py` API (upload, move, delete, restore, icon, security: escaping the root) with the standard library `unittest`; run on every push in CI **(M)**
+- [ ] **Line ending and encoding consistency:** `.gitattributes` exists; a CRLF/LF check in CI **(S)**
+- [ ] **The size of `index.html` (~3500 lines):** consider splitting it with ES modules without adding a build step (`static/js/*.js`); measure first: does splitting really make maintenance easier **(L)**
+- [ ] **Error log:** a "copy the log" button when something goes wrong in the app (makes opening a GitHub issue easier) **(S)**
+- [ ] **Python version compatibility:** a CI matrix for 3.10–3.14 **(S)**
+- [ ] **Accessibility review:** a real trial with a screen reader, high contrast, `prefers-reduced-motion` tests **(M)**
+- [ ] **Performance:** `/api/tree` and thumbnails with an archive of 5000+ files; incremental loading and a smarter thumbnail cache **(M)**
 
-## 5. Fikirler (karar verilmedi)
+## 5. Ideas (undecided)
 
-- Dosya başına kısa not / yer imi (klasör dışında veri tutmama ilkesi nedeniyle yanında `.libzie` yan dosyası gerekir; tartışılmalı)
-- Ders başına haftalık program / sınav tarihi geri sayımı
-- Tarayıcı eklentisi ya da "buraya kaydet" kısayolu (indirilen PDF'i doğru derse atmak)
-- Notability / GoodNotes yedek klasörleri için hazır ayar şablonları
-- Hava durumu yerine isteğe bağlı başka bir küçük araç (Pomodoro sayacı)
-- Mobil/tablet düzeni (şu an hedef değil; ilke: tek masaüstü bilgisayar)
+- A short note / bookmark per file (because of the principle of not keeping data outside the folders it would need a `.libzie` sidecar file next to it; to be discussed)
+- A weekly schedule / exam-date countdown per course
+- A browser extension or a "save here" shortcut (put a downloaded PDF into the right course)
+- Ready-made settings templates for Notability / GoodNotes backup folders
+- Another optional small tool instead of the weather (a Pomodoro timer)
+- A mobile/tablet layout (not a goal now; principle: one desktop computer)
 
-## Yapılanlar (özet)
+## Done (summary)
 
-- **0.0.1:** ilk Windows sürümü (yerel sunucu, ders karoları, sekmeli PDF, küçük resimler, arama, Geri al, klavye erişimi)
-- **0.1.0:** masaüstü uygulaması (pywebview + PyInstaller), Belgeler/APPDATA veri yeri, tek örnek, GitHub Actions derlemesi, MIT lisansı
-- **0.1.1:** genel ders ikonları ve ikon seçici
-- **0.2.0 (hazırlanıyor):** kurulum sihirbazı ve taşınabilir sürüm
-- **0.1.3 sonrası:** uygulama içi güncelleme, güvenlik sertleştirmesi, İngilizce arayüz, sekmeli Ayarlar, koyu/açık tema
+- **0.0.1:** first Windows version (local server, course tiles, tabbed PDFs, thumbnails, search, Undo, keyboard access)
+- **0.1.0:** desktop app (pywebview + PyInstaller), Documents/APPDATA data location, single instance, GitHub Actions build, MIT license
+- **0.1.1:** general course icons and the icon picker
+- **0.1.2 – 0.1.6:** setup wizard and portable version, in-app update, security hardening, English interface, tabbed Settings, dark/light theme, system tray, weather box
+- **Next:** the project's code, file names and documents were translated into English (the README stays Turkish); data names on disk were renamed (`materials`, `settings.json`, …) with automatic migration

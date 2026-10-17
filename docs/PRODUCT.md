@@ -8,7 +8,7 @@ web
 
 ## Users
 
-University students (Turkish-speaking), each running their own copy on their own Windows computer, opened in a desktop browser or as a desktop app. Every installation is a personal tool for one person: no shared data between users, no sharing features, no accounts.
+University students (Turkish- and English-speaking), each running their own copy on their own Windows computer, opened in a desktop browser or as a desktop app. Every installation is a personal tool for one person: no shared data between users, no sharing features, no accounts.
 
 The jobs, in priority order:
 
@@ -29,24 +29,24 @@ The filesystem is the database. A course is just a folder (locally, or a cloud-s
 ## Operating Context
 
 - Launched locally (Python server on `127.0.0.1:8765`, opened in a desktop browser) or, for end users, as the packaged Windows desktop app (installer or portable exe).
-- Optional: students who take notes on a tablet (e.g. Notability with auto-backup to Google Drive) can point libzie's content folder at the synced Drive folder (Ayarlar). Nothing depends on this setup.
+- Optional: students who take notes on a tablet (e.g. Notability with auto-backup to Google Drive) can point libzie's content folder at the synced Drive folder (Settings). Nothing depends on this setup.
 - Typical session: open a course, scan thumbnails, open several PDFs as tabs, read with the sidebar collapsed; occasionally upload, rename, move or delete files.
 
 ## Capabilities and Constraints
 
-- Courses and nested folders; per-course color and shape; drag-and-drop upload (including whole folders) and moving; rename; soft delete into `.silinenler`.
+- Courses and nested folders; per-course color and shape; drag-and-drop upload (including whole folders) and moving; rename; soft delete into `.trash`.
 - In-page PDF/image viewer with persistent tabs; other types (pptx, docx…) open in the default Windows program.
-- PDF first-page thumbnails (pdf.js, cached in the browser); Turkish-aware search; "recently opened".
+- PDF first-page thumbnails (pdf.js, cached in the browser); Turkish-aware search (diacritics are folded); "recently opened".
 - Small home widgets: clock and weather (Open-Meteo, city typed by the user).
 - Technical: Python standard library server + one vanilla HTML/CSS/JS file; no dependencies, no build step; vendored assets (pdf.js, Linux Libertine/Biolinum fonts) so it works offline. The only outbound network call is the optional weather widget; browser geolocation is intentionally not used.
-- UI language is Turkish.
+- The UI is available in Turkish and English (id-keyed language files in `static/lang/`); the language follows the system and can be changed in Settings.
 - Not needed: multi-user features, sharing, sync of its own, mobile/tablet layouts (one desktop computer per installation).
 
 ## Brand Commitments
 
 - Name: **libzie**, lowercase.
 - Logo: three leaning books on a shelf spelling "lib", the "i" book's dot in the accent color.
-- Voice: short, plain Turkish; friendly but not chatty (e.g. "İyi akşamlar", "Şehir seç", "Silindi").
+- Voice: short, plain language in both Turkish and English; friendly but not chatty (e.g. "İyi akşamlar" / "Good evening", "Şehir seç" / "Choose a city").
 
 ## Evidence on Hand
 

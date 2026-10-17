@@ -1,7 +1,7 @@
-"""libzie — ders kaynaklarını (PDF, slayt vb.) yerel olarak düzenlemek için küçük bir sunucu.
+"""libzie — a small local server for organizing course materials (PDFs, slides, etc.).
 
-Yalnızca Python standart kütüphanesini kullanır. Dosyalar `kaynaklar/` klasöründe tutulur;
-klasör yapısı doğrudan diskteki klasör yapısıdır (Gezgin'den de eklenebilir).
+Uses only the Python standard library. Files live in the `materials/` folder;
+the folder structure is exactly the structure on disk (files can also be added from Explorer).
 """
 import hmac
 import json
@@ -19,21 +19,21 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
-import guncelleme
 import i18n
-import temalar
+import themes
+import updater
 from i18n import AppError, err_json
 
-FROZEN = getattr(sys, "frozen", False)  # PyInstaller ile paketlenmiş uygulama
+FROZEN = getattr(sys, "frozen", False)  # application packaged with PyInstaller
 BASE = Path(__file__).resolve().parent
 STATIC = Path(getattr(sys, "_MEIPASS", BASE)) / "static"
 HOST = "127.0.0.1"
 PORT = int(os.environ.get("PORT", 8765))
-PORT_TRIES = 1 if "PORT" in os.environ else 11  # PORT verilmediyse 8765'ten başlayıp ilk boş portu kullan
+PORT_TRIES = 1 if "PORT" in os.environ else 11  # if PORT is not given, start at 8765 and use the first free port
 
 
 def documents_dir():
-    """Kullanıcının Belgeler klasörü (OneDrive'a yönlendirilmiş olabilir); bulunamazsa ~/Documents."""
+    """The user's Documents folder (may be redirected to OneDrive); falls back to ~/Documents."""
     if sys.platform == "win32":
         try:
             import ctypes
@@ -42,23 +42,42 @@ def documents_dir():
             guid = ctypes.create_string_buffer(uuid.UUID("FDD39AD0-238F-46AF-ADB4-6C85480369C7").bytes_le, 16)  # FOLDERID_Documents
             if ctypes.windll.shell32.SHGetKnownFolderPath(guid, 0, None, ctypes.byref(buf)) == 0 and buf.value:
                 return Path(buf.value)
-        except Exception:  # noqa: BLE001 — yedek yol yeter
+        except Exception:  # noqa: BLE001 — the fallback path is enough
             pass
     return Path.home() / "Documents"
 
 
+def legacy(new, old):
+    """Data written by older (Turkish-named) versions: if `old` exists and `new` does not, the packaged app renames it
+    once; from source (a developer may have another instance running) the old name is simply kept in use."""
+    if new.exists() or not old.exists():
+        return new
+    if FROZEN:
+        try:
+            old.rename(new)
+            return new
+        except OSError:
+            pass
+    return old
+
+
 if FROZEN:
-    # Paketlenmiş uygulamada veri uygulama klasörünün dışında durur: güncelleme/silme dersleri götürmez.
-    DEFAULT_ROOT = documents_dir() / "libzie" / "kaynaklar"
-    SETTINGS_FILE = Path(os.environ.get("APPDATA") or Path.home()) / "libzie" / "ayarlar.json"
+    # In the packaged app the data lives outside the app folder: updating/uninstalling does not take the courses along.
+    DEFAULT_ROOT = legacy(documents_dir() / "libzie" / "materials", documents_dir() / "libzie" / "kaynaklar")
+    _data = Path(os.environ.get("APPDATA") or Path.home()) / "libzie"
+    SETTINGS_FILE = legacy(_data / "settings.json", _data / "ayarlar.json")
 else:
-    DEFAULT_ROOT = BASE / "kaynaklar"
-    SETTINGS_FILE = BASE / "ayarlar.json"
-# Oturum anahtarı: yalnızca bu Windows kullanıcısının okuyabildiği profil klasöründe durur. Uygulama/tarayıcı adresi
-# `/?k=<anahtar>` ile açar, sunucu bunu oturum çerezinde (HttpOnly, SameSite=Strict, porta özgü ad) saklar; anahtarsız hiçbir
-# istek işlenmez. Anahtar her sunucu başlangıcında yenilenir (start()); açık libzie'ye ikinci bir başlatma, çalışan örneğin
-# dosyaya yazdığı güncel anahtarı okuyup bağlanır ve bağlanmadan önce örneğin anahtarı bildiğini kanıtlamasını ister (is_libzie).
-SESSION_FILE = Path(os.environ.get("LIBZIE_OTURUM_DOSYASI") or Path(os.environ.get("APPDATA") or Path.home()) / "libzie" / "oturum.key")
+    DEFAULT_ROOT = legacy(BASE / "materials", BASE / "kaynaklar")
+    SETTINGS_FILE = legacy(BASE / "settings.json", BASE / "ayarlar.json")
+# Older settings keys (Turkish) are read under their new names; they are written back with the new names.
+LEGACY_KEYS = {"kaynak_klasoru": "materials_dir", "arka_planda": "run_in_background", "otomatik_guncelleme": "auto_update",
+               "son_otomatik_deneme": "last_auto_attempt", "dil": "lang", "tray_ipucu": "tray_hint_shown"}
+# Session key: kept only in the profile folder, which only this Windows user can read. The app/browser opens the address
+# `/?k=<key>`, the server stores it in a session cookie (HttpOnly, SameSite=Strict, port-specific name); no request is
+# processed without the key. The key is renewed at every server start (start()); a second launch connecting to an open
+# libzie reads the current key the running instance wrote to the file and, before connecting, asks the instance to prove
+# it knows the key (is_libzie).
+SESSION_FILE = Path(os.environ.get("LIBZIE_SESSION_FILE") or Path(os.environ.get("APPDATA") or Path.home()) / "libzie" / "session.key")
 
 
 def read_token():
@@ -76,11 +95,11 @@ def new_token():
     return t
 
 
-TOKEN = read_token()  # çalışan bir örneğe bağlanmak için; yeni sunucu açılırken yenilenir
+TOKEN = read_token()  # for connecting to a running instance; renewed when a new server starts
 
 
 def same(a, b):
-    """Sabit zamanlı karşılaştırma; ASCII dışı girdide bile hata vermez."""
+    """Constant-time comparison; does not fail even on non-ASCII input."""
     return hmac.compare_digest(str(a).encode("utf-8", "replace"), str(b).encode("utf-8", "replace"))
 
 
@@ -88,26 +107,26 @@ def proof(nonce):
     return hmac.new(TOKEN.encode(), nonce.encode("utf-8", "replace"), "sha256").hexdigest() if TOKEN and nonce else ""
 
 
-# Uygulamanın kendi sayfası için içerik politikası: eval yok (pdf.js CVE-2024-4367 gibi font/eval tabanlı saldırıları keser),
-# başka sitelerden betik/çerçeve yok, dışarıya yalnızca hava durumu servisi.
+# Content policy for the app's own page: no eval (cuts font/eval based attacks like pdf.js CVE-2024-4367),
+# no scripts/frames from other sites, and the only outbound destination is the weather service.
 CSP_APP = ("default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
            "font-src 'self' data:; media-src 'self'; connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com; "
            "frame-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
-# Kullanıcı dosyaları (PDF hariç) betik çalıştıramayan bir kum havuzunda sunulur: içine HTML/SVG düşse bile uygulamanın API'sine erişemez.
+# User files (except PDF) are served in a sandbox that cannot run scripts: even if HTML/SVG lands in the folder it cannot reach the app's API.
 CSP_USER_FILE = "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data:"
-# "Varsayılan uygulamada aç" yalnızca bu uzantılara izin verir; çalıştırılabilir/betik türleri hiçbir zaman doğrudan açılmaz
+# "Open in default app" only allows these extensions; executable/script types are never opened directly
 OPEN_OK = {"pdf", "png", "jpg", "jpeg", "gif", "webp", "bmp", "tif", "tiff", "heic", "txt", "md", "rtf", "csv", "tsv",
            "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp", "pages", "numbers", "key", "epub", "djvu",
            "mp4", "m4v", "mov", "mkv", "webm", "avi", "mp3", "wav", "m4a", "flac", "ogg", "zip", "7z", "rar"}
 RESERVED = {"con", "prn", "aux", "nul", *(f"com{i}" for i in range(1, 10)), *(f"lpt{i}" for i in range(1, 10))}
 MAX_JSON = 1 << 20
-# Arşive yüklenen/yeniden adlandırılan dosyalar çift tıkla çalışabilen türde olamaz (indirme-bırakma noktası olmasın)
+# Files uploaded to / renamed within the archive cannot be of a double-click-executable type (so it is not a drop point for malware)
 BLOCKED_EXT = {"exe", "com", "scr", "bat", "cmd", "msi", "msp", "ps1", "psm1", "vbs", "vbe", "wsf", "wsh", "hta", "lnk", "url",
                "pif", "cpl", "reg", "scf", "inf", "dll", "sys", "msc", "gadget", "appref-ms"}
 
 
 def protected_dirs():
-    """Yazılamayan konumlar: sistem klasörleri, Başlangıç klasörleri, libzie'nin kendi kurulumu ve ayarları."""
+    """Locations that cannot be written to: system folders, Startup folders, libzie's own installation and settings."""
     env = os.environ.get
     out = []
     for var in ("WINDIR", "SystemRoot", "ProgramFiles", "ProgramFiles(x86)", "ProgramW6432", "ProgramData"):
@@ -134,23 +153,29 @@ def check_ext(name):
     if Path(name).suffix.lower().lstrip(".") in BLOCKED_EXT:
         raise AppError("err.ext_blocked")
 
-# Masaüstü uygulaması (app.py): pencere kapanınca arka planda kalma ve ikinci başlatmada pencereyi öne getirme
-DESKTOP = False        # app.py tepsiyi başarıyla kurunca True olur
-DESKTOP_HOOKS = {}     # {"show": pencereyi göster}
+# Desktop app (app.py): staying in the background when the window closes and bringing the window forward on a second launch
+DESKTOP = False        # becomes True when app.py has set up the tray successfully
+DESKTOP_HOOKS = {}     # {"show": show the window}
 
 
 def tray_enabled():
-    """Pencereyi kapatınca arka planda (sistem tepsisinde) çalışmaya devam et (varsayılan açık)."""
-    return bool(read_settings().get("arka_planda", True))
+    """Keep running in the background (system tray) when the window is closed (on by default)."""
+    return bool(read_settings().get("run_in_background", True))
 
 
-ENV_ROOT = os.environ.get("KAYNAK_KLASORU", "")  # ayarlanmışsa arayüzden değiştirilemez
+ENV_ROOT = os.environ.get("LIBZIE_MATERIALS_DIR", "")  # if set, it cannot be changed from the UI
 
 
 def read_settings():
     try:
         data = json.loads(SETTINGS_FILE.read_text(encoding="utf-8-sig"))
-        return data if isinstance(data, dict) else {}
+        if not isinstance(data, dict):
+            return {}
+        for old, new in LEGACY_KEYS.items():
+            if old in data and new not in data:
+                data[new] = data[old]
+            data.pop(old, None)
+        return data
     except (OSError, ValueError):
         return {}
 
@@ -161,14 +186,14 @@ def write_settings(settings):
 
 
 def parse_dir(text):
-    """Kullanıcının yazdığı yolu Path'e çevirir ("Yol olarak kopyala" tırnakları dahil)."""
+    """Turns the path the user typed into a Path (including the quotes from "Copy as path")."""
     return Path(os.path.expandvars(text.strip().strip("\"'"))).expanduser()
 
 
 def pick_root():
-    """Kaynak klasörü: KAYNAK_KLASORU ortam değişkeni > ayarlar.json > ./kaynaklar.
-    Ayarlı klasör yoksa (ör. Drive kapalı) varsayılana dönülür ve uyarı verilir."""
-    custom = ENV_ROOT or str(read_settings().get("kaynak_klasoru") or "")
+    """Materials folder: LIBZIE_MATERIALS_DIR environment variable > settings.json > ./materials.
+    If the configured folder is missing (e.g. Drive not mounted) the default is used and a warning is returned."""
+    custom = ENV_ROOT or str(read_settings().get("materials_dir") or "")
     warning = None
     if custom.strip():
         p = parse_dir(custom)
@@ -180,12 +205,15 @@ def pick_root():
 
 
 ROOT = TRASH = COLOR_FILE = ICON_FILE = None
-ROOT_WARNING = None  # (kimlik, değişkenler) ya da None
+ROOT_WARNING = None  # (id, variables) or None
 
 
 def set_root(root, warning=None):
     global ROOT, TRASH, COLOR_FILE, ICON_FILE, ROOT_WARNING
-    ROOT, TRASH, COLOR_FILE, ICON_FILE = root, root / ".silinenler", root / ".renkler.json", root / ".ikonlar.json"
+    ROOT = root
+    TRASH = legacy(root / ".trash", root / ".silinenler")
+    COLOR_FILE = legacy(root / ".colors.json", root / ".renkler.json")
+    ICON_FILE = legacy(root / ".icons.json", root / ".ikonlar.json")
     ROOT_WARNING = warning
 
 
@@ -193,7 +221,7 @@ set_root(*pick_root())
 
 
 def safe(rel_path):
-    """Göreli yolu kaynaklar/ altında mutlak yola çevirir; dışarı çıkmaya izin vermez."""
+    """Turns a relative path into an absolute one under the materials folder; refuses to leave it."""
     p = (ROOT / (rel_path or "")).resolve()
     if p != ROOT and ROOT not in p.parents:
         raise AppError("err.bad_path")
@@ -236,7 +264,7 @@ def save_colors(colors):
 
 
 def load_icons():
-    """Derslerin seçili ikonları ({ders adı: ikon kimliği}); seçilmemişse arayüz sıraya göre varsayılanı verir."""
+    """The chosen icons of the courses ({course name: icon id}); if none is chosen the UI picks a default by order."""
     try:
         data = json.loads(ICON_FILE.read_text(encoding="utf-8"))
         return data if isinstance(data, dict) else {}
@@ -249,7 +277,7 @@ def save_icons(icons):
 
 
 def move_course_meta(old, new):
-    """Dersin rengi ve ikonu, ders yeniden adlandırılınca/taşınınca/silinince kayıt dosyalarında da güncellenir (new=None: sil)."""
+    """A course's color and icon are updated in the record files too when the course is renamed/moved/deleted (new=None: delete)."""
     for load, save in ((load_colors, save_colors), (load_icons, save_icons)):
         data = load()
         value = data.pop(old, None)
@@ -317,7 +345,7 @@ class Handler(BaseHTTPRequestHandler):
         return {f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}"}
 
     def deny(self, code, key):
-        text = " / ".join(dict.fromkeys(i18n.msg(key, lang) for lang in (i18n.DEFAULT, "en")))  # "Türkçe / English"
+        text = " / ".join(dict.fromkeys(i18n.msg(key, lang) for lang in (i18n.DEFAULT, "tr")))  # "English / Türkçe"
         data = f"<!doctype html><meta charset=utf-8><title>libzie</title><p>{text}</p>".encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -327,7 +355,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def cookie_name(self):
-        return f"libzie_k_{self.server.server_address[1]}"  # çerezler port ayırmaz: örnekler birbirinin çerezini ezmesin
+        return f"libzie_k_{self.server.server_address[1]}"  # cookies do not separate ports: instances must not overwrite each other's cookie
 
     def has_token(self):
         name = self.cookie_name()
@@ -338,8 +366,8 @@ class Handler(BaseHTTPRequestHandler):
         return False
 
     def guard(self, post):
-        """İstek bu uygulamanın kendi sayfasından mı geliyor? Değilse yanıtı verir ve False döner.
-        Host denetimi DNS rebinding'i, Sec-Fetch-Site/Origin ve özel başlık başka sitelerden gelen istekleri (CSRF) keser."""
+        """Does the request come from this app's own page? If not, sends the response and returns False.
+        The Host check stops DNS rebinding; Sec-Fetch-Site/Origin and the custom header stop requests from other sites (CSRF)."""
         if self.headers.get("Host", "") not in self.hosts():
             self.deny(403, "http.bad_request")
             return False
@@ -355,7 +383,7 @@ class Handler(BaseHTTPRequestHandler):
         return True
 
     def authorized(self, path, query):
-        """Oturum anahtarı: `/?k=...` ile gelinirse çerez verilip temiz adrese yönlendirilir; çerezsiz istek 401 alır."""
+        """Session key: if `/?k=...` arrives a cookie is set and the client is redirected to the clean address; a request without the cookie gets 401."""
         if path == "/" and TOKEN and same((query.get("k") or [""])[0], TOKEN):
             self.send_response(302)
             self.send_header("Set-Cookie", f"{self.cookie_name()}={TOKEN}; Path=/; HttpOnly; SameSite=Strict")
@@ -380,9 +408,9 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def send_index(self):
-        """Uygulama sayfası: dil sözlükleri (static/lang/*.json) sayfaya gömülür, ek istek ve gecikme olmaz."""
+        """App page: the language dictionaries (static/lang/*.json) are embedded in the page, so there is no extra request or delay."""
         page = ((STATIC / "index.html").read_text(encoding="utf-8").replace("/*I18N*/", i18n.dict_json(), 1)
-                .replace("/*THEMES*/", temalar.css(), 1).replace("/*THEMES_JSON*/", json.dumps(temalar.meta(), separators=(",", ":")), 1))
+                .replace("/*THEMES*/", themes.css(), 1).replace("/*THEMES_JSON*/", json.dumps(themes.meta(), separators=(",", ":")), 1))
         data = page.encode("utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -399,7 +427,7 @@ class Handler(BaseHTTPRequestHandler):
     def send_file(self, p, cache="no-cache", user=False):
         if not p.is_file():
             return self.send_error(404)
-        if p.suffix == ".js":  # Windows kayıt defteri .js'i bazen text/plain verir; worker için gerekli
+        if p.suffix == ".js":  # the Windows registry sometimes gives .js as text/plain; the worker needs the right type
             ctype = "text/javascript; charset=utf-8"
         else:
             ctype = mimetypes.guess_type(p.name)[0] or "application/octet-stream"
@@ -407,7 +435,7 @@ class Handler(BaseHTTPRequestHandler):
                 ctype += "; charset=utf-8"
         size = p.stat().st_size
         start, end, status = 0, size - 1, 200
-        # Tek aralıklı "Range" desteği: pdf.js ve tarayıcının PDF görüntüleyicisi büyük dosyaları parça parça okuyabilsin
+        # Single-range "Range" support: so pdf.js and the browser's PDF viewer can read big files in chunks
         rng = self.headers.get("Range", "")
         if rng.startswith("bytes=") and "," not in rng:
             try:
@@ -438,13 +466,13 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Cross-Origin-Resource-Policy", "same-origin")
         self.send_header("Referrer-Policy", "no-referrer")
         if user:
-            if p.suffix.lower() != ".pdf":  # Chrome'un PDF görüntüleyicisi kum havuzu ilkesiyle çalışmaz; PDF'te betik sayfaya erişemez
+            if p.suffix.lower() != ".pdf":  # Chrome's PDF viewer does not work under the sandbox policy; scripts in a PDF cannot reach the page
                 self.send_header("Content-Security-Policy", CSP_USER_FILE)
         elif p == STATIC / "index.html":
             self.send_header("Content-Security-Policy", CSP_APP)
             self.send_header("X-Frame-Options", "DENY")
         elif p.suffix == ".js":
-            self.send_header("Content-Security-Policy", "script-src 'self'")  # pdf.js çalışanında da eval yok
+            self.send_header("Content-Security-Policy", "script-src 'self'")  # no eval in the pdf.js worker either
         self.end_headers()
         with open(p, "rb") as f:
             f.seek(start)
@@ -463,8 +491,8 @@ class Handler(BaseHTTPRequestHandler):
             if not self.guard(False):
                 return
             if path == "/api/ping":
-                # Başka bir libzie örneği çalışıyor mu diye bakmak için (anahtarsız). Gelen rastgele sayıya anahtarla HMAC döner:
-                # istemci, anahtarı göndermeden önce karşıdakinin gerçekten bu kullanıcının libzie'si olduğunu doğrulayabilir.
+                # For checking whether another libzie instance is running (no key needed). It answers the random number with an
+                # HMAC under the key: before sending the key the client can verify the other side really is this user's libzie.
                 nonce = (parse_qs(u.query).get("n") or [""])[0][:64]
                 return self.send_json({"app": "libzie", "proof": proof(nonce)})
             if not self.authorized(path, parse_qs(u.query)):
@@ -483,18 +511,18 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json({
                     "root": str(ROOT),
                     "default": str(DEFAULT_ROOT.resolve()),
-                    "configured": ENV_ROOT or str(read_settings().get("kaynak_klasoru") or ""),
+                    "configured": ENV_ROOT or str(read_settings().get("materials_dir") or ""),
                     "locked": bool(ENV_ROOT),
-                    "version": guncelleme.VERSION,
-                    "update_kind": guncelleme.kind(),
-                    "auto_update": bool(read_settings().get("otomatik_guncelleme")),
+                    "version": updater.VERSION,
+                    "update_kind": updater.kind(),
+                    "auto_update": bool(read_settings().get("auto_update")),
                     "desktop": DESKTOP,
                     "tray": tray_enabled(),
                 })
             if path == "/api/update/check":
-                return self.send_json(guncelleme.check())
+                return self.send_json(updater.check())
             if path == "/api/update/status":
-                return self.send_json(guncelleme.status())
+                return self.send_json(updater.status())
             if path.startswith("/files/"):
                 return self.send_file(safe(path[len("/files/"):]), user=True)
             if path.startswith("/vendor/"):
@@ -503,7 +531,7 @@ class Handler(BaseHTTPRequestHandler):
                     raise AppError("err.bad_path")
                 return self.send_file(STATIC / "vendor" / name, cache="public, max-age=86400")
             if path == "/api/preview":
-                # Ayarlar'da yol yazılırken: "bu klasörde N ders, M dosya var" (yalnızca okur)
+                # While typing a path in Settings: "this folder has N courses, M files" (read-only)
                 text = (parse_qs(urlparse(self.path).query).get("path") or [""])[0]
                 folder = parse_dir(text) if text.strip() else DEFAULT_ROOT
                 try:
@@ -530,7 +558,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_error(403)
         except (ConnectionAbortedError, BrokenPipeError, ConnectionResetError):
             pass
-        except Exception as e:  # noqa: BLE001 — hatayı arayüze ilet
+        except Exception as e:  # noqa: BLE001 — pass the error on to the UI
             self.send_json(err_json(e), 400)
 
     def do_POST(self):
@@ -583,7 +611,7 @@ class Handler(BaseHTTPRequestHandler):
                 dst = dst_dir / clean_name(body.get("name") or src.name)
                 check_write(dst_dir)
                 if dst.suffix.lower() != src.suffix.lower():
-                    check_ext(dst.name)  # yeniden adlandırarak yürütülebilir türe çevirmek de engellenir
+                    check_ext(dst.name)  # renaming a file into an executable type is blocked too
                 if src == ROOT or not src.exists():
                     raise AppError("err.not_found")
                 if src.is_dir() and (dst_dir == src or src in dst_dir.parents):
@@ -597,15 +625,15 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json({"path": rel(dst)})
 
             if u.path == "/api/settings/general":
-                # Genel sekmesi: arka planda çalışma ve arayüz dili (tepsi menüsü dili bilsin diye sunucuda da tutulur)
+                # General tab: background running and UI language (also kept on the server so the tray menu knows the language)
                 settings = read_settings()
                 if "tray" in body:
-                    settings["arka_planda"] = bool(body["tray"])
+                    settings["run_in_background"] = bool(body["tray"])
                 if "lang" in body:
                     lang = str(body["lang"])
                     if lang != "auto" and lang not in i18n.dictionary():
                         raise AppError("err.bad_request")
-                    settings["dil"] = lang
+                    settings["lang"] = lang
                 write_settings(settings)
                 return self.send_json({"tray": tray_enabled()})
 
@@ -617,35 +645,35 @@ class Handler(BaseHTTPRequestHandler):
 
             if u.path == "/api/update/settings":
                 settings = read_settings()
-                settings["otomatik_guncelleme"] = bool(body.get("auto"))
+                settings["auto_update"] = bool(body.get("auto"))
                 write_settings(settings)
-                return self.send_json({"auto": settings["otomatik_guncelleme"]})
+                return self.send_json({"auto": settings["auto_update"]})
 
             if u.path == "/api/update/apply":
                 if body.get("auto"):
-                    # Açılışta otomatik güncelleme her sürümü yalnızca bir kez dener: başarısız olursa her açılışta döngüye girmez
-                    latest = guncelleme.check()["latest"]
+                    # Automatic update on startup tries each version only once: if it fails it does not loop on every launch
+                    latest = updater.check()["latest"]
                     settings = read_settings()
-                    if settings.get("son_otomatik_deneme") == latest:
-                        raise guncelleme.UpdateError("upd.err.auto_tried")
-                    settings["son_otomatik_deneme"] = latest
+                    if settings.get("last_auto_attempt") == latest:
+                        raise updater.UpdateError("upd.err.auto_tried")
+                    settings["last_auto_attempt"] = latest
                     write_settings(settings)
-                guncelleme.start_apply()
+                updater.start_apply()
                 return self.send_json({"ok": True})
 
             if u.path == "/api/settings":
                 if ENV_ROOT:
                     raise AppError("err.root_locked")
-                text = str(body.get("kaynak_klasoru") or "").strip()
+                text = str(body.get("materials_dir") or "").strip()
                 settings = read_settings()
                 if text:
                     p = parse_dir(text)
                     if not p.is_dir():
                         raise AppError("err.folder_missing", path=str(p))
-                    settings["kaynak_klasoru"] = str(p.resolve())
+                    settings["materials_dir"] = str(p.resolve())
                     new_root = p.resolve()
                 else:
-                    settings.pop("kaynak_klasoru", None)
+                    settings.pop("materials_dir", None)
                     DEFAULT_ROOT.mkdir(parents=True, exist_ok=True)
                     new_root = DEFAULT_ROOT.resolve()
                 write_settings(settings)
@@ -693,7 +721,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json({"ok": True, "trash": trashed.name})
 
             if u.path == "/api/restore":
-                # "Geri al": .silinenler içindeki öğeyi eski yoluna döndürür (ad çakışırsa " (2)" eklenir)
+                # "Undo": moves the item in the trash folder back to its old path (" (2)" is appended on a name clash)
                 src = TRASH / clean_name(body["trash"])
                 if not src.exists():
                     raise AppError("err.not_found")
@@ -715,13 +743,13 @@ class Handler(BaseHTTPRequestHandler):
             self.send_error(404)
         except (ConnectionAbortedError, BrokenPipeError, ConnectionResetError):
             pass
-        except Exception as e:  # noqa: BLE001 — hatayı arayüze ilet
+        except Exception as e:  # noqa: BLE001 — pass the error on to the UI
             self.send_json(err_json(e), 400)
 
 
 class Server(ThreadingHTTPServer):
-    """Windows'ta SO_REUSEADDR başka bir programın aynı porta ortak bağlanıp bağlantıları çalmasına izin verir;
-    SO_EXCLUSIVEADDRUSE bunu engeller (port doluysa bağlanma OSError verir ve sıradaki port denenir)."""
+    """On Windows, SO_REUSEADDR lets another program bind the same port and steal connections;
+    SO_EXCLUSIVEADDRUSE prevents that (if the port is taken, binding raises OSError and the next port is tried)."""
     allow_reuse_address = False
 
     def server_bind(self):
@@ -731,8 +759,8 @@ class Server(ThreadingHTTPServer):
 
 
 def is_libzie(port):
-    """Bu portta bu kullanıcının libzie'si mi çalışıyor? Anahtarı bildiğini HMAC ile kanıtlamayan dinleyiciye güvenilmez
-    (aksi halde başka bir hesap portu işgal edip adresle birlikte oturum anahtarını alabilirdi)."""
+    """Is this user's libzie running on this port? A listener that does not prove with HMAC that it knows the key is not trusted
+    (otherwise another account could occupy the port and receive the session key along with the address)."""
     if not TOKEN:
         return False
     nonce = secrets.token_hex(16)
@@ -745,7 +773,7 @@ def is_libzie(port):
 
 
 def request_show(url):
-    """Başka bir libzie masaüstü uygulaması zaten çalışıyorsa (pencere gizli olabilir) onu öne getirir. Başarılıysa True."""
+    """If another libzie desktop app is already running (its window may be hidden), brings it to the front. True on success."""
     port = url.rsplit(":", 1)[1]
     req = urllib.request.Request(f"{url}/api/desktop/show", data=b"{}", method="POST", headers={
         "Content-Type": "application/json", "X-Libzie": "1", "Origin": url, "Cookie": f"libzie_k_{port}={TOKEN}"})
@@ -757,20 +785,20 @@ def request_show(url):
 
 
 def ui_lang():
-    """Tepsi menüsü dili: kullanıcının libzie'de seçtiği dil, 'otomatik' ise Windows'un arayüz dili."""
-    import tepsi
-    pref = str(read_settings().get("dil") or "auto")
-    return pref if pref in i18n.dictionary() else tepsi.system_lang()
+    """Tray menu language: the language the user chose in libzie, or the Windows UI language if it is 'auto'."""
+    import tray
+    pref = str(read_settings().get("lang") or "auto")
+    return pref if pref in i18n.dictionary() else tray.system_lang()
 
 
 def launch_url(url):
-    """Uygulama penceresinin/tarayıcının açacağı adres: oturum anahtarını bir kez taşır, sunucu çerez verip adresi temizler."""
+    """The address the app window/browser opens: carries the session key once; the server sets a cookie and cleans the address."""
     return f"{url}/?k={TOKEN}"
 
 
 def start():
-    """Çalışan libzie varsa ona bağlanır, yoksa boş ilk portta sunucu açar. (url, sunucu|None) döner;
-    sunucu yalnızca bu süreç açtıysa vardır (çağıran serve_forever'dan ve kapatmaktan sorumlu)."""
+    """Connects to a running libzie if there is one, otherwise starts a server on the first free port. Returns (url, server|None);
+    the server exists only if this process started it (the caller is responsible for serve_forever and shutting down)."""
     for port in range(PORT, PORT + PORT_TRIES):
         if is_libzie(port):
             return f"http://{HOST}:{port}", None
@@ -779,24 +807,24 @@ def start():
         except OSError:
             continue
         global TOKEN
-        TOKEN = new_token()  # her başlangıçta yeni anahtar: ele geçirilmiş eski anahtar işe yaramaz
+        TOKEN = new_token()  # new key at every start: a captured old key is useless
         return f"http://{HOST}:{port}", srv
-    raise SystemExit(f"{PORT} portundan başlayan portlar dolu; PORT ortam değişkeniyle başka bir port seçin.")
+    raise SystemExit(f"The ports starting at {PORT} are all in use; pick another port with the PORT environment variable.")
 
 
 def main():
     url, server = start()
     if server is None:
-        print(f"libzie zaten çalışıyor: {url}")
+        print(f"libzie is already running: {url}")
         if "--no-browser" not in sys.argv:
             webbrowser.open(launch_url(url))
         return
-    print(f"libzie çalışıyor: {url}")
-    print(f"Dosyalar: {ROOT}")
+    print(f"libzie is running: {url}")
+    print(f"Files: {ROOT}")
     if ROOT_WARNING:
-        print(f"UYARI: {i18n.msg(ROOT_WARNING[0], **ROOT_WARNING[1])}")
-    print("Kapatmak için bu pencereyi kapatın veya Ctrl+C'ye basın.")
-    print(f"Tarayıcıda açmak için (bu adres sana özel, paylaşma): {launch_url(url)}")
+        print(f"WARNING: {i18n.msg(ROOT_WARNING[0], **ROOT_WARNING[1])}")
+    print("To stop, close this window or press Ctrl+C.")
+    print(f"To open in the browser (this address is private to you, do not share it): {launch_url(url)}")
     if "--no-browser" not in sys.argv:
         webbrowser.open(launch_url(url))
     try:

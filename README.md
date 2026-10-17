@@ -10,9 +10,9 @@ Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarınd
 
 > Arayüz Türkçe ve İngilizcedir (dil Ayarlar'dan seçilir, varsayılan olarak sistem dilini izler). Şimdilik Windows için yazıldı.
 
-![Ana sayfa: dersler rafta kitaplar olarak](assets/ekran-ana-sayfa.png)
+![Ana sayfa: dersler rafta kitaplar olarak](assets/screenshot-home.png)
 
-![Ders sayfası: sekmeli dosya kartları ve PDF küçük resimleri](assets/ekran-ders.png)
+![Ders sayfası: sekmeli dosya kartları ve PDF küçük resimleri](assets/screenshot-course.png)
 
 *Ekran görüntülerindeki dersler ve dosyalar örnek amaçlı uydurma verilerdir.*
 
@@ -42,10 +42,10 @@ Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarınd
 
 ## Kurulum (Windows uygulaması)
 
-1. [Releases](https://github.com/nopescope0/libzie/releases) sayfasından en son sürümdeki **libzie-kurulum.exe** dosyasını indir.
+1. [Releases](https://github.com/nopescope0/libzie/releases) sayfasından en son sürümdeki **libzie-setup.exe** dosyasını indir.
 2. Çalıştır ve sihirbazı izle (yönetici izni gerekmez, kullanıcıya özel kurulur). Başlat menüsüne kısayol eklenir, istersen masaüstüne de.
 
-Kurulum istemiyorsan **libzie-tasinabilir.exe** tek dosya olarak da var: istediğin klasöre koyup çalıştır (açılışı biraz daha yavaştır).
+Kurulum istemiyorsan **libzie-portable.exe** tek dosya olarak da var: istediğin klasöre koyup çalıştır (açılışı biraz daha yavaştır).
 
 İlk açılışta Windows "bilgisayarınızı korudu" uyarısı verebilir: uygulama imzasız olduğu için normaldir. **Daha fazla bilgi → Yine de çalıştır**'a tıkla.
 
@@ -53,7 +53,7 @@ Kurulum istemiyorsan **libzie-tasinabilir.exe** tek dosya olarak da var: istedi�
 
 Yeni sürüm yayınlandığında **Ayarlar → Hakkında** sekmesinde mevcut ve yeni sürüm numarası görünür; **Şimdi güncelle**'ye basınca libzie yeni sürümü indirir, kendini yenileyip yeniden açılır (kurulum sürümü sihirbazı sessizce çalıştırır, taşınabilir sürüm kendi exe'sinin yerine geçer). **Yeni sürümü açılışta otomatik yükle** kutusunu işaretlersen libzie her açılışta bakar ve yeni sürüm varsa kendiliğinden günceller. Dersleriniz ve ayarlarınız güncellemeden etkilenmez. Kaynak koddan çalışırken uygulama içi güncelleme yoktur; `git pull` kullan.
 
-Dersler `Belgeler\libzie\kaynaklar` klasöründe, ayarlar `%APPDATA%\libzie` içinde tutulur; uygulama klasörünü silsen ya da güncellesen de verilerin kalır. Başka bir klasör kullanmak istersen uygulamada **Ayarlar**'dan seç. Uygulama Windows'taki Edge WebView2 bileşenini kullanır (Windows 10/11'de genellikle hazır gelir).
+Dersler `Belgeler\libzie\materials` klasöründe, ayarlar `%APPDATA%\libzie` içinde tutulur; uygulama klasörünü silsen ya da güncellesen de verilerin kalır. Başka bir klasör kullanmak istersen uygulamada **Ayarlar**'dan seç. Uygulama Windows'taki Edge WebView2 bileşenini kullanır (Windows 10/11'de genellikle hazır gelir).
 
 ## Kaynak koddan çalıştırma (geliştiriciler için)
 
@@ -65,7 +65,7 @@ cd libzie
 python server.py
 ```
 
-Tarayıcıda `http://127.0.0.1:8765` açılır. Sunucu yalnızca kendi bilgisayarına bağlanır, ağdan erişilemez. Bu yolda dersler proje içindeki `kaynaklar/` klasöründe durur.
+Tarayıcıda `http://127.0.0.1:8765` açılır. Sunucu yalnızca kendi bilgisayarına bağlanır, ağdan erişilemez. Bu yolda dersler proje içindeki `materials/` klasöründe durur.
 
 Seçenekler:
 
@@ -74,7 +74,7 @@ Seçenekler:
 
 ## Ders klasörün
 
-Kaynak koddan çalıştırırken dosyalar varsayılan olarak `kaynaklar/` klasöründe tutulur (git'e girmez); uygulamada `Belgeler\libzie\kaynaklar`. Başka bir klasör kullanmak istersen uygulamada **Ayarlar**'dan seç, örneğin not aldığın uygulamanın Google Drive yedek klasörü. Bu, `ayarlar.json` dosyasına yazılır (örnek: `ayarlar.ornek.json`). `KAYNAK_KLASORU` ortam değişkeni de aynı işi yapar ve Ayarlar penceresini kilitler.
+Kaynak koddan çalıştırırken dosyalar varsayılan olarak `materials/` klasöründe tutulur (git'e girmez); uygulamada `Belgeler\libzie\materials`. Başka bir klasör kullanmak istersen uygulamada **Ayarlar**'dan seç, örneğin not aldığın uygulamanın Google Drive yedek klasörü. Bu, `settings.json` dosyasına yazılır (örnek: `settings.example.json`). `LIBZIE_MATERIALS_DIR` ortam değişkeni de aynı işi yapar ve Ayarlar penceresini kilitler.
 
 ## Güvenlik
 

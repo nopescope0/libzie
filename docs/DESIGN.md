@@ -1,6 +1,6 @@
 ---
 name: libzie
-description: Koyu, sakin ve düz renk bloklu kişisel bir ders arşivi; rafta duran kitaplar gibi her şey bulunduğu yerde.
+description: A dark, calm personal course archive made of flat color blocks; like books on a shelf, everything stays where it is.
 colors:
   shelf-night: "#0e1a2b"
   shelf-side: "#0a1422"
@@ -149,7 +149,7 @@ components:
 
 ## Overview
 
-**Creative North Star: "Çalışma Rafı"**
+**Creative North Star: "The Study Shelf"**
 
 libzie is a quiet shelf in a dim room. Everything sits where it belongs, flat and at arm's reach: courses are solid colored blocks standing side by side like book spines, files are cards laid out beneath them, and the interface itself recedes to a calm charcoal so the documents are the only bright things. The brand logo — three books leaning on a shelf spelling "lib" — is the whole system in miniature: upright, tidy, slightly relaxed.
 
@@ -204,7 +204,7 @@ A deep navy ground with one warm orange accent; the saturated palette exists onl
 - **Title** (400, 26px, 1.1, -0.4px): course names on tiles (22px on narrow widths; 21px on small subfolder tiles).
 - **Body** (400, 15px, 1.5): navigation, buttons, file names. Prose lines are short; there are no long paragraphs.
 - **Label** (400, 12.5px, 1.35): file size and date, hints. Never uppercase, never tracked out. The one exception is the file-type badge (600, 11px, uppercase, .4px tracking), a three-letter extension rather than a word.
-- **Widget numerals** (serif, 400): 36px clock, 24px temperature. **Sidebar title** (sans, 17px): the "Dersler" label. **Tile summary** (sans, 19px; 15.5px on small tiles): the two-line hover text. **Course chip** (sans, 11.5px, 500).
+- **Widget numerals** (serif, 400): 36px clock, 24px temperature. **Sidebar title** (sans, 17px): the "Courses" label. **Tile summary** (sans, 19px; 15.5px on small tiles): the two-line hover text. **Course chip** (sans, 11.5px, 500).
 
 ### Named Rules
 **The Serif-For-Headings Rule.** The serif is for headings, the logotype, the clock and the temperature. Names, labels and body copy use the sans; a serif at small size looked harsh and was removed from them.
@@ -235,7 +235,7 @@ Almost square. Interface corners are **2px**; the clock and weather widgets use 
 
 ### Buttons
 - **Shape:** 2px corners, 6px 12px padding, 1px border.
-- **Primary:** Lamp Orange fill with Shelf Night text ("Yükle"). Hover lightens to #ffa466.
+- **Primary:** Lamp Orange fill with Shelf Night text ("Upload"). Hover lightens to #ffa466.
 - **Secondary (default):** transparent with a Hairline border and Muted Ink text; hover fills Shelf Hover and brightens the text. Icon buttons are 26px squares with the same hover.
 - **Signature motion:** icons animate on hover to say what the button does — the upload arrow flies up and re-enters, the new-folder document slides out of the folder.
 
@@ -245,7 +245,7 @@ Almost square. Interface corners are **2px**; the clock and weather widgets use 
 - **Active context:** the same color paints the active sidebar row (a triangle slides in on hover, then fills on selection), the active tab and the breadcrumb icon. Navigating a tile morphs its shape into the breadcrumb icon.
 
 ### File cards and rows
-- **Card:** Shelf Surface, square, 4:3 thumbnail (first PDF page rendered with pdf.js, cached) over name + size · date. The course badge is a frosted chip in the top-left (swatch + name); on hover it turns into the course's outline shape and the image zooms 7% — there is no highlight color change. The chip is omitted on a course page (every file there shares the course) and shown in search results and "Son açılanlar", where files come from several courses.
+- **Card:** Shelf Surface, square, 4:3 thumbnail (first PDF page rendered with pdf.js, cached) over name + size · date. The course badge is a frosted chip in the top-left (swatch + name); on hover it turns into the course's outline shape and the image zooms 7% — there is no highlight color change. The chip is omitted on a course page (every file there shares the course) and shown in search results and "Recently opened", where files come from several courses.
 - **Row:** the list-view equivalent with a type badge, name, course chip, size and date.
 
 ### Inputs / Fields
@@ -259,16 +259,16 @@ Almost square. Interface corners are **2px**; the clock and weather widgets use 
 - **Keyboard:** every tile, card, row, sidebar row and tab is a focus stop (Tab); Enter or Space opens it, arrow keys move between neighbours, F2 renames, Delete deletes. The focus ring is 2px Lamp Orange with a 2px offset (inside the block and in the tile's ink color on tiles), and the ⋯ button appears on focus as well as hover.
 
 ### Home widgets
-- **Clock and weather:** 4px corners, Shelf Surface fill, serif numerals. The clock separator is static; the weather icon is a line drawing that animates only on hover or keyboard focus (rays rotate, rain falls), and infinite loops pause while the tab is hidden. With no city set the weather widget shows a quiet "Hava durumu ekle" action instead of a placeholder. Both are small; they must never outweigh the course tiles.
+- **Clock and weather:** 4px corners, Shelf Surface fill, serif numerals. The clock separator is static; the weather icon is a line drawing that animates only on hover or keyboard focus (rays rotate, rain falls), and infinite loops pause while the tab is hidden. With no city set the weather widget shows a quiet "Add weather" action instead of a placeholder. Both are small; they must never outweigh the course tiles.
 
 ### Menus, dialogs and toasts
-- Floating layers use Shelf Surface, a Hairline Strong border and the floating shadow; menus open from the cursor in 250ms with a 0.97 scale, dialogs scale from 0.96. The toast sits bottom-center and carries an optional 2px Lamp Orange progress line; delete and move add an underlined "Geri al" action that stays for 7 seconds.
+- Floating layers use Shelf Surface, a Hairline Strong border and the floating shadow; menus open from the cursor in 250ms with a 0.97 scale, dialogs scale from 0.96. The toast sits bottom-center and carries an optional 2px Lamp Orange progress line; delete and move add an underlined "Undo" action that stays for 7 seconds.
 
-## Raf (Motif)
+## The Shelf (Motif)
 
-The one idea that runs through the system: a course is a **book on a shelf**. On the home page the courses stand on a 14px shelf board (`--shelf`): each book is a 168px-wide block with a spine (the course's vivid color, vertical serif title, 52px) and a cover (the darkened tile color, file count, the course's outline shape). Height follows the file count (190-300px). Pointing at a book pulls it 8px up off the shelf. "Devam et" cards are folder tabs: a trapezoid tab in the course color (the file tag, e.g. "Lecture 3") on a surface block. On a course page the header is a 22px spine block in the course color beside a 64px serif title, and each file is a page with the same trapezoid tab above its thumbnail. Hover reveals and focus rings follow the earlier rules; the shelf and tabs are flat, with no shadows or gradients.
+The one idea that runs through the system: a course is a **book on a shelf**. On the home page the courses stand on a 14px shelf board (`--shelf`): each book is a 168px-wide block with a spine (the course's vivid color, vertical serif title, 52px) and a cover (the darkened tile color, file count, the course's outline shape). Height follows the file count (190-300px). Pointing at a book pulls it 8px up off the shelf. "Continue" cards are folder tabs: a trapezoid tab in the course color (the file tag, e.g. "Lecture 3") on a surface block. On a course page the header is a 22px spine block in the course color beside a 64px serif title, and each file is a page with the same trapezoid tab above its thumbnail. Hover reveals and focus rings follow the earlier rules; the shelf and tabs are flat, with no shadows or gradients.
 
-**Engineering ornament.** The per-course outline shapes are engineering symbols, assigned by alphabetical position: gear, IC chip, resistor, capacitor, inductor, transistor, diode, op-amp, sine wave. Two inline-SVG decorations carry the theme in the page itself: a meshing gear pair (12 and 8 teeth, the small one turning 1.5x as fast in the opposite direction so the teeth stay meshed) beside the home greeting and the course title; pointing at that block accelerates them at constant acceleration to 140°/s in 1.5s, and leaving it coasts them down to a stop over 2.3s (the same curves as the "Hareket — Raf ve Dişliler" frame in Figma; never a standing loop, still under reduced motion); and a faint PCB (traces with 45° bends, a chip, a resistor, solder pads, a ground symbol) in the bottom-right of the main area, 55% opacity, behind the content, hidden while a file is open and below 900px. Section rules end in a small solder-pad ring. All of it is stroke-only in `--line-strong` with the accent on a few pads; none of it may sit under text that needs contrast.
+**Engineering ornament.** The per-course outline shapes are engineering symbols, assigned by alphabetical position: gear, IC chip, resistor, capacitor, inductor, transistor, diode, op-amp, sine wave. Two inline-SVG decorations carry the theme in the page itself: a meshing gear pair (12 and 8 teeth, the small one turning 1.5x as fast in the opposite direction so the teeth stay meshed) beside the home greeting and the course title; pointing at that block accelerates them at constant acceleration to 140°/s in 1.5s, and leaving it coasts them down to a stop over 2.3s (the same curves as the "Motion — Shelf and Gears" frame in Figma; never a standing loop, still under reduced motion); and a faint PCB (traces with 45° bends, a chip, a resistor, solder pads, a ground symbol) in the bottom-right of the main area, 55% opacity, behind the content, hidden while a file is open and below 900px. Section rules end in a small solder-pad ring. All of it is stroke-only in `--line-strong` with the accent on a few pads; none of it may sit under text that needs contrast.
 
 ## Do's and Don'ts
 

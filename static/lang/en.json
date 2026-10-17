@@ -21,7 +21,7 @@
  },
  "course.new": "New course",
  "course.none": "No courses yet",
- "delete.hint": "Files aren't permanently deleted; they're moved to the .silinenler folder. You can restore them with “Undo” in the notification or from File Explorer.",
+ "delete.hint": "Files aren't permanently deleted; they're moved to the .trash folder. You can restore them with “Undo” in the notification or from File Explorer.",
  "delete.title_file": "Delete “{name}”?",
  "delete.title_folder": "Delete the folder “{name}” and everything in it?",
  "dlg.cancel": "Cancel",

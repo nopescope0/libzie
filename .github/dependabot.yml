@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Tam commit'e sabitlenmiş action'ları güncel tutar
+  # Keeps the actions pinned to a full commit up to date
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

@@ -12,7 +12,7 @@
  "count.folders": "{n} klasör",
  "course.new": "Yeni ders",
  "course.none": "Henüz ders yok",
- "delete.hint": "Dosyalar silinmez, .silinenler klasörüne taşınır; bildirimdeki “Geri al” ya da Gezgin'den geri alabilirsin.",
+ "delete.hint": "Dosyalar silinmez, .trash klasörüne taşınır; bildirimdeki “Geri al” ya da Gezgin'den geri alabilirsin.",
  "delete.title_file": "“{name}” silinsin mi?",
  "delete.title_folder": "“{name}” klasörü ve içindekiler silinsin mi?",
  "dlg.cancel": "Vazgeç",

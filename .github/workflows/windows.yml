@@ -1,11 +1,11 @@
-name: Windows uygulaması
+name: Windows app
 
 on:
   workflow_dispatch:
   push:
     tags: ["v*"]
 
-# Derleme işi yalnızca okur; sürüm yayınlama yetkisi (yazma) sadece aşağıdaki "yayinla" işinde var.
+# The build job only reads; the permission to publish a release (write) exists only in the "publish" job below.
 permissions:
   contents: read
 
@@ -13,44 +13,44 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      # Üçüncü taraf ve resmi action'lar etiket yerine tam commit'e sabitlenir (etiketler sonradan kaydırılabilir)
+      # Third-party and official actions are pinned to a full commit instead of a tag (tags can be moved later)
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
-      - name: Bağımlılıkları kur
+      - name: Install dependencies
         run: pip install pywebview==6.2.1 pyinstaller==6.22.3
 
-      - name: Sürüm numarasını yaz
+      - name: Write the version number
         env:
-          REF_NAME: ${{ github.ref_name }}  # etiket adı betiğe doğrudan gömülmez (komut enjeksiyonunu önler)
+          REF_NAME: ${{ github.ref_name }}  # the tag name is not embedded in the script directly (prevents command injection)
         run: |
-          # Uygulama içi güncelleme denetimi bu numarayı etiketle karşılaştırır (v0.1.3 → 0.1.3)
+          # The in-app update check compares this number with the tag (v0.1.3 → 0.1.3)
           $v = $env:REF_NAME.TrimStart("v")
           if ($v -match '^\d+(\.\d+)*$') {
-            $t = [IO.File]::ReadAllText("guncelleme.py")
+            $t = [IO.File]::ReadAllText("updater.py")
             $t = [regex]::Replace($t, '(?m)^VERSION = ".*"', "VERSION = `"$v`"")
-            [IO.File]::WriteAllText("guncelleme.py", $t, (New-Object Text.UTF8Encoding $false))
-            if (-not (Select-String -Path guncelleme.py -Pattern "^VERSION = `"$([regex]::Escape($v))`"" -Quiet)) { throw "guncelleme.py sürümü yazılamadı" }
+            [IO.File]::WriteAllText("updater.py", $t, (New-Object Text.UTF8Encoding $false))
+            if (-not (Select-String -Path updater.py -Pattern "^VERSION = `"$([regex]::Escape($v))`"" -Quiet)) { throw "updater.py version could not be written" }
           }
 
-      # Kurulum sihirbazı için klasör çıktısı (hızlı açılır), taşınabilir sürüm için tek dosya
-      - name: Derle (klasör, kurulum için)
+      # A folder output for the setup wizard (opens fast), a single file for the portable version
+      - name: Build (folder, for the installer)
         run: pyinstaller --noconfirm --windowed --onedir --name libzie --icon assets/icon.ico --add-data "static;static" app.py
-      - name: Derle (tek dosya, taşınabilir)
+      - name: Build (single file, portable)
         run: pyinstaller --noconfirm --windowed --onefile --name libzie --icon assets/icon.ico --add-data "static;static" --distpath dist-portable --workpath build-portable app.py
 
-      - name: Çıktıları denetle
+      - name: Check the outputs
         run: |
-          if (-not (Test-Path dist/libzie/libzie.exe)) { throw "dist/libzie/libzie.exe yok" }
-          if (-not (Test-Path dist/libzie/_internal/static/index.html)) { throw "static/index.html pakete girmemiş" }
+          if (-not (Test-Path dist/libzie/libzie.exe)) { throw "dist/libzie/libzie.exe is missing" }
+          if (-not (Test-Path dist/libzie/_internal/static/index.html)) { throw "static/index.html did not get into the package" }
           $mb = [math]::Round((Get-Item dist-portable/libzie.exe).Length / 1MB, 1)
-          Write-Host "taşınabilir libzie.exe: $mb MB"
-          if ($mb -lt 5) { throw "libzie.exe beklenenden çok küçük; static/vendor paketlenmemiş olabilir" }
+          Write-Host "portable libzie.exe: $mb MB"
+          if ($mb -lt 5) { throw "libzie.exe is much smaller than expected; static/vendor may not have been packaged" }
 
-      - name: Kurulum sihirbazını derle (Inno Setup)
+      - name: Build the setup wizard (Inno Setup)
         env:
           REF_NAME: ${{ github.ref_name }}
         run: |
@@ -58,14 +58,17 @@ jobs:
           $v = $env:REF_NAME.TrimStart("v")
           if (-not ($v -match '^\d+(\.\d+)*$')) { $v = "0.0.0" }
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$v" installer/libzie.iss
-          if (-not (Test-Path dist-installer/libzie-kurulum.exe)) { throw "libzie-kurulum.exe oluşmadı" }
+          if (-not (Test-Path dist-installer/libzie-setup.exe)) { throw "libzie-setup.exe was not created" }
 
-      - name: Dosyaları topla
+      - name: Collect the files
         run: |
           New-Item -ItemType Directory -Force release | Out-Null
-          Copy-Item dist-installer/libzie-kurulum.exe release/
+          Copy-Item dist-installer/libzie-setup.exe release/
+          Copy-Item dist-portable/libzie.exe release/libzie-portable.exe
+          # Versions up to 0.1.6 look for the old (Turkish) file names when updating themselves; identical copies keep them updating
+          Copy-Item dist-installer/libzie-setup.exe release/libzie-kurulum.exe
           Copy-Item dist-portable/libzie.exe release/libzie-tasinabilir.exe
-          # İndirenlerin dosyayı doğrulayabilmesi için SHA-256 özetleri
+          # SHA-256 digests so that downloaders can verify the files
           Get-ChildItem release/*.exe | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } | Set-Content -Encoding ascii release/SHA256SUMS.txt
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -73,7 +76,7 @@ jobs:
           name: libzie-windows
           path: release/*
 
-  yayinla:
+  publish:
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
@@ -87,6 +90,8 @@ jobs:
       - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           files: |
+            release/libzie-setup.exe
+            release/libzie-portable.exe
             release/libzie-kurulum.exe
             release/libzie-tasinabilir.exe
             release/SHA256SUMS.txt

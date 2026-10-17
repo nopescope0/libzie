@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>libzie</title>
-<meta name="description" content="libzie: ders notlarını ve PDF'leri derse göre düzenleyen yerel arşiv">
+<meta name="description" content="libzie: a local archive that organizes your lecture notes and PDFs by course">
 <meta name="theme-color" content="#0e1a2b">
 <script>
-// Tema ilk boyamadan önce uygulanır (açılışta renk yanıp sönmesin). Ayrıntılar aşağıdaki "tema" bloğunda.
+// The theme is applied before the first paint (so the colors do not flash on startup). Details in the "theme" block below.
 (function () {
   var p = 'auto';
   try { p = JSON.parse(localStorage.getItem('theme') || '"auto"'); } catch (e) {}
-  if (p === 'auto' || typeof p !== 'string') p = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'navy'; // koyu şemalı varsayılan tema
+  if (p === 'auto' || typeof p !== 'string') p = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'navy'; // dark-scheme default theme
   document.documentElement.setAttribute('data-theme', p);
 })();
 </script>
@@ -19,8 +19,8 @@
 <script type="application/json" id="themes-data">/*THEMES_JSON*/</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eaf1fb' stroke-width='1.4'%3E%3Crect width='24' height='24' rx='5' fill='%230e1a2b' stroke='none'/%3E%3Cpath d='M2.5 20.5h19'/%3E%3Crect x='4' y='5' width='3' height='15'/%3E%3Crect x='9' y='10' width='3.5' height='10'/%3E%3Cpath d='M15 5v15h5.5v-5q0-3-3-3H15'/%3E%3Ccircle cx='10.75' cy='7.3' r='1.3' fill='%23ff8a3d' stroke='none'/%3E%3C/svg%3E">
 <style>
-  /* Linux Libertine (SIL OFL): Windows'a kuruluysa local() ile, yoksa static/vendor/ içindeki OTF dosyalarından
-     yüklenir. İkisi de yoksa Georgia'ya düşülür. */
+  /* Linux Libertine (SIL OFL): loaded with local() if installed on Windows, otherwise from the OTF files in static/vendor/.
+        If neither exists it falls back to Georgia. */
   @font-face {
     font-family: "Linux Libertine";
     src: local("Linux Libertine O"), local("LinLibertineO"), local("Linux Libertine"),
@@ -39,7 +39,7 @@
          url("/vendor/LinLibertine_RB.otf") format("opentype");
     font-weight: 600 700; font-style: normal; font-display: swap;
   }
-  /* Linux Biolinum (Libertine'in eş sans-serif'i, aynı paket/lisans): ders adları ve gövde yazıları */
+  /* Linux Biolinum (Libertine's sans-serif companion, same package/license): course names and body text */
   @font-face {
     font-family: "Linux Biolinum";
     src: local("Linux Biolinum O"), local("LinBiolinumO"), url("/vendor/LinBiolinum_R.otf") format("opentype");
@@ -56,34 +56,34 @@
     font-weight: 600 700; font-style: normal; font-display: swap;
   }
   :root {
-    --font-head: "Linux Libertine", "Linux Libertine O", Georgia, "Times New Roman", serif; /* başlıklar */
-    --font: "Linux Biolinum", "Linux Biolinum O", "Segoe UI", system-ui, sans-serif;       /* gövde, ders adları */
-    --r: 2px;   /* tasarım dili: keskin köşeler */
-    --gap: 5px; /* karolar arasındaki koyu boşluk */
-    /* Hareket tokenları (transitions.dev ölçeği). Değerleri kullanım amacına göre seç: açılış kapanıştan
-       yavaş, üzerine gelme girişi hızlı, sıralı gecikme öğe başına 40ms ve toplamda ~300ms'yi geçmez. */
-    --duration-stagger: 40ms;   /* öğe başına sıralı gecikme */
-    --duration-micro: 80ms;     /* niyet gecikmesi */
-    --duration-quick: 150ms;    /* pencere/menü kapanışı, metin değişimi */
-    --duration-fast: 250ms;     /* ikon değişimi, menü/pencere açılışı, sekme, sayfa kayması */
-    --duration-medium: 350ms;   /* panel kapanışı, bildirim kapanışı */
-    --duration-slow: 400ms;     /* panel açılışı */
-    --duration-very-slow: 500ms;/* vurgu anları, metin gösterimi */
-    --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1); /* açılış/kapanış, kayma, konum değişimi */
-    --ease-in-out: ease-in-out; /* ikon/metin değişimi */
+    --font-head: "Linux Libertine", "Linux Libertine O", Georgia, "Times New Roman", serif; /* headings */
+    --font: "Linux Biolinum", "Linux Biolinum O", "Segoe UI", system-ui, sans-serif;       /* body text, course names */
+    --r: 2px;   /* design language: sharp corners */
+    --gap: 5px; /* the dark gap between tiles */
+    /* Motion tokens (transitions.dev scale). Pick values by what the motion does: opens are slower
+          than closes, hover-ins are fast, the stagger is 40ms per item and never exceeds ~300ms in total. */
+    --duration-stagger: 40ms;   /* stagger delay per item */
+    --duration-micro: 80ms;     /* intent delay */
+    --duration-quick: 150ms;    /* window/menu close, text change */
+    --duration-fast: 250ms;     /* icon swap, menu/window open, tab, page slide */
+    --duration-medium: 350ms;   /* panel close, toast close */
+    --duration-slow: 400ms;     /* panel open */
+    --duration-very-slow: 500ms;/* emphasis moments, text reveal */
+    --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1); /* open/close, slide, position change */
+    --ease-in-out: ease-in-out; /* icon/text swap */
     --ease-out: ease-out;
-    --ease-bounce: cubic-bezier(0.34, 1.36, 0.64, 1); /* küçük öğenin belirmesi (yalnızca girişlerde) */
-    --ease-linear: linear;      /* titreşim, döngü */
+    --ease-bounce: cubic-bezier(0.34, 1.36, 0.64, 1); /* a small item appearing (entrances only) */
+    --ease-linear: linear;      /* vibration, loops */
     --distance-micro: 4px;
-    --distance-base: 8px;       /* sayfa kayması */
+    --distance-base: 8px;       /* page slide */
     --distance-medium: 12px;
-    --scale-large: 0.96;        /* pencere */
-    --scale-medium: 0.97;       /* açılır menü */
+    --scale-large: 0.96;        /* window */
+    --scale-medium: 0.97;       /* dropdown menu */
     --scale-small: 0.98;
-    --blur-small: 2px;          /* ikon/metin değişimi */
-    --blur-medium: 3px;         /* sayfa kayması */
-    /* Renkler (--bg, --text, --accent ...) static/themes/*.json içindedir; sunucu CSS'e çevirip #themes içine gömer.
-       Aşağıdakiler temadan bağımsızdır: küçük resimlerin üstündeki cam düğmeler. */
+    --blur-small: 2px;          /* icon/text swap */
+    --blur-medium: 3px;         /* page slide */
+    /* The colors (--bg, --text, --accent ...) are in static/themes/*.json; the server turns them into CSS and embeds it in #themes.
+              The ones below are theme-independent: the glass buttons on top of thumbnails. */
     --glass: rgba(10, 20, 34, .48);
     --glass-hover: rgba(10, 20, 34, .72);
     --glass-ink: rgba(238, 238, 238, .9);
@@ -96,10 +96,10 @@
     display: flex; overflow: hidden;
   }
   button, input, select { font: inherit; color: inherit; }
-  /* Başlık yazı tipi (serif) yalnızca başlıklarda; geri kalan her şey yumuşak gövde fontunda */
+  /* The heading font (serif) is only for headings; everything else uses the soft body font */
   h2, .brand, .greet .hi, .clock, .weather .w-temp, .dlg-head, .set-title, .set-h, .about-name { font-family: var(--font-head); }
   button { background: none; border: 0; cursor: pointer; }
-  /* Kaydırma çubukları: vurgu renginde, uçlarda minimal oklar (ok görselleri tema CSS'inde, vurgu renginden üretilir) */
+  /* Scrollbars: in the accent color, minimal arrows at the ends (the arrow images are in the theme CSS, generated from the accent color) */
   ::-webkit-scrollbar { width: 12px; height: 12px; }
   ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
   ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--accent) 38%, transparent); border-radius: var(--r); border: 3px solid transparent; background-clip: padding-box; }
@@ -110,7 +110,7 @@
   @supports not selector(::-webkit-scrollbar) { * { scrollbar-color: color-mix(in srgb, var(--accent) 50%, transparent) transparent; scrollbar-width: thin; } }
   svg { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* Kenar çubuğu */
+  /* Sidebar */
   :root { --side-w: 260px; }
   aside {
     width: var(--side-w); flex: none; background: var(--side); border-right: 1px solid var(--line);
@@ -118,8 +118,8 @@
     transition: width var(--duration-slow) var(--ease-smooth-out), border-color var(--duration-slow);
   }
   aside { position: relative; }
-  aside > * { min-width: calc(var(--side-w) - 1px); } /* daralırken içerik sıkışmaz, kırpılır */
-  /* Kenar çubuğu boyunca sarmal PCB izleri (JS çizer): içeriğin arkasında, çok soluk */
+  aside > * { min-width: calc(var(--side-w) - 1px); } /* the content is clipped, not squeezed, while it narrows */
+  /* Helical PCB traces along the sidebar (drawn by JS): behind the content, very faint */
   aside > *:not(#side-pcb) { position: relative; z-index: 1; }
   #side-pcb { position: absolute; left: 0; top: 0; width: 260px; height: 100%; min-width: 0; z-index: 0; pointer-events: none; opacity: .5; fill: none; stroke: var(--line-strong); stroke-width: 1.1; stroke-linejoin: round; }
   #side-pcb .pad { stroke: var(--accent); stroke-opacity: .75; }
@@ -127,15 +127,15 @@
   #side-pcb path.b { stroke: var(--accent); }
   #side-pcb path.fr { stroke-opacity: .9; }
   #side-pcb path.bk { stroke-opacity: .32; stroke-width: 1; }
-  body.side-collapsed aside { width: 0; border-right-color: transparent; transition-duration: var(--duration-medium); } /* kapanış açılıştan hızlı */
+  body.side-collapsed aside { width: 0; border-right-color: transparent; transition-duration: var(--duration-medium); } /* closing is faster than opening */
   .brand { display: flex; align-items: center; gap: 10px; padding: 14px 18px 12px; font-size: 26px; line-height: 1.1; font-weight: 400; letter-spacing: -.4px; color: var(--text); cursor: default; }
   .brand svg.brand-logo { width: 30px; height: 30px; stroke: var(--text); stroke-width: 1.3; stroke-linejoin: miter; stroke-linecap: square; }
-  .brand .logo-dot { fill: var(--accent); stroke: none; } /* çizgisiz dolu yuvarlak: gerçek bir "i" noktası gibi */
-  /* Yan kitapların eğimi (alt köşeleri etrafında, SVG birimleriyle); animasyon bunu ezebilsin diye CSS'te */
+  .brand .logo-dot { fill: var(--accent); stroke: none; } /* a stroke-less filled circle: like a real "i" dot */
+  /* The tilt of the side books (around their bottom corners, in SVG units); in CSS so the animation can override it */
   .brand .logo-l { transform-origin: 4.5px 21px; transform: rotate(8deg); }
   .brand .logo-b { transform-origin: 15.5px 21px; transform: rotate(-8deg); }
-  /* Başlığın üzerine gelince: kitaplar dik konuma doğrulur, sonra yerlerine devrilir (hafif fazla eğilip oturur);
-     "b" biraz geç devrilir, domino gibi */
+  /* On hover over the title: the books straighten up, then topple back into place (leaning slightly too far before settling);
+          "b" topples a little later, like dominoes */
   @keyframes topple-l { 0% { transform: rotate(8deg); } 30% { transform: rotate(0deg); } 72% { transform: rotate(9.5deg); } 100% { transform: rotate(8deg); } }
   @keyframes topple-b { 0% { transform: rotate(-8deg); } 30% { transform: rotate(0deg); } 72% { transform: rotate(-9.5deg); } 100% { transform: rotate(-8deg); } }
   .brand:hover .logo-l { animation: topple-l .9s cubic-bezier(.4, 0, .3, 1); }
@@ -148,15 +148,15 @@
   .search input:focus { border-color: var(--line-strong); }
   .search input::placeholder { color: var(--faint); }
   .search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--faint); }
-  /* Dijital saat (kenar çubuğu, başlığın altında): SS:DD, ayraç her saniye hafifçe söner; köşeler çok hafif yuvarlak */
-  .widgets { display: flex; gap: 6px; margin: 2px 12px 12px; width: 236px; min-width: 0; } /* aside > * min-width'i kenar boşluklarıyla taşıyordu; kenar çubuğu genişliği 260 - 2x12 */
+  /* Digital clock (sidebar, below the title): HH:MM, the separator fades slightly every second; very slightly rounded corners */
+  .widgets { display: flex; gap: 6px; margin: 2px 12px 12px; width: 236px; min-width: 0; } /* aside > * min-width made it overflow by the margins; sidebar width 260 - 2x12 */
   .clock {
     flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 0 10px;
     background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
     font-size: 28px; line-height: 1; letter-spacing: -.5px; color: var(--text);
     font-variant-numeric: lining-nums tabular-nums; cursor: default; user-select: none;
   }
-  /* Hava durumu: sıcaklık + günün beklenen durumu; tıklayınca şehir değişir */
+  /* Weather: temperature + the day's expected condition; clicking changes the city */
   .weather {
     flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
     padding: 8px 10px; text-align: left; color: var(--text);
@@ -166,8 +166,8 @@
   .weather .w-top { display: flex; align-items: center; gap: 6px; }
   .weather svg.w-icon { width: 21px; height: 21px; stroke: var(--text); stroke-width: 1.4; }
   .weather svg.w-icon:empty { display: none; }
-  .weather svg.w-icon .occlude { fill: var(--surface); } /* güneşin önündeki bulut güneşi örtsün */
-  /* Hava ikonu animasyonları: küçük ve yavaş, sürekli */
+  .weather svg.w-icon .occlude { fill: var(--surface); } /* the cloud in front of the sun should cover the sun */
+  /* Weather icon animations: small, slow, continuous */
   @keyframes wi-spin { to { transform: rotate(360deg); } }
   @keyframes wi-glow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
   @keyframes wi-drift { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(1px); } }
@@ -176,7 +176,7 @@
   @keyframes wi-fall { 0% { transform: translate(0, -2px); opacity: 0; } 25% { opacity: 1; } 100% { transform: translate(-1px, 3px); opacity: 0; } }
   @keyframes wi-snow { 0% { transform: translateY(-2px) rotate(0deg); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(3px) rotate(90deg); opacity: 0; } }
   @keyframes wi-flash { 0%, 84%, 100% { opacity: 1; } 87% { opacity: .15; } 90% { opacity: 1; } 93% { opacity: .2; } }
-  /* Hava ikonu döngüleri yalnızca üzerine gelince/odaklanınca oynar; dururken ikon sabittir */
+  /* Weather icon loops play only on hover/focus; at rest the icon is static */
   .weather:is(:hover, :focus-visible) .w-icon .wi-rays { transform-box: fill-box; transform-origin: center; animation: wi-spin 24s linear infinite; }
   .w-icon .wi-rays, .w-icon .wi-sun { transform-box: fill-box; transform-origin: center; }
   .weather:is(:hover, :focus-visible) .w-icon .wi-sun { animation: wi-glow 4s ease-in-out infinite; }
@@ -188,9 +188,9 @@
   .w-icon .wi-flake { transform-box: fill-box; transform-origin: center; }
   .weather:is(:hover, :focus-visible) .w-icon .wi-flake { animation: wi-snow 2.4s linear infinite; animation-delay: var(--d); }
   .weather:is(:hover, :focus-visible) .w-icon .wi-bolt { animation: wi-flash 3.5s linear infinite; }
-  /* Sayfa arka plandayken (sekme gizli) sonsuz animasyonlar durur */
+  /* While the page is in the background (tab hidden) infinite animations stop */
   .paused *, .paused *::before, .paused *::after { animation-play-state: paused !important; }
-  /* Hareketi azalt: ikonlar sabit ve tam görünür (düşen parçalar opaklık 0'dan başladığı için gerekli) */
+  /* Reduced motion: icons are static and fully visible (needed because falling parts start at opacity 0) */
   @media (prefers-reduced-motion: reduce) { .w-icon * { animation: none !important; opacity: 1 !important; } }
   .weather .w-top { width: 100%; }
   .weather .w-range { margin-left: auto; display: flex; flex-direction: column; gap: 3px; align-items: flex-end; font-size: 12px; line-height: 1; color: var(--muted); font-variant-numeric: lining-nums tabular-nums; }
@@ -208,10 +208,10 @@
   .weather .w-temp { font-size: 21px; line-height: 1; font-variant-numeric: lining-nums; transition: opacity .2s ease; }
   .weather .w-cond { max-width: 100%; margin-top: 5px; font-size: 12.5px; line-height: 1.2; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .weather.loading .w-temp { opacity: .4; }
-  .clock .clock-time { display: flex; align-items: center; line-height: .72; } /* serif rakam mürekkebi satır kutusunun üstüne yakın durur: satırı rakam yüksekliğine indir */
+  .clock .clock-time { display: flex; align-items: center; line-height: .72; } /* the ink of serif digits sits near the top of the line box: reduce the line to the digit height */
   .clock .clock-date { font: 11px/1 var(--font); letter-spacing: 0; color: var(--muted); white-space: nowrap; }
-  .clock .clock-sep { margin: 0 2px; position: relative; top: -3px; opacity: .6; } /* ayraç artık yanıp sönmez */
-  @media (max-height: 640px) { .widgets { display: none; } } /* alçak pencerede ders listesi yer kazansın */
+  .clock .clock-sep { margin: 0 2px; position: relative; top: -3px; opacity: .6; } /* the separator no longer blinks */
+  @media (max-height: 640px) { .widgets { display: none; } } /* on a short window the course list gains the space */
   .topbar .search { margin: 0; width: 240px; flex: none; }
   .topbar .search input { background: var(--surface); }
 
@@ -232,8 +232,8 @@
   .node.active { background: var(--hover); color: var(--text); }
   .node.active .dot { background: var(--ink, var(--c)); }
   .node.active .chev { color: inherit; }
-  /* Ders listesi: üzerine gelince soldan dersin renginde bir üçgen çıkar; seçilince üçgen satır boyunca
-     ilerleyip satırı o renkle doldurur. Aynı 5 köşeli çokgen ara durumlar arasında yumuşakça biçim değiştirir. */
+  /* Course list: on hover a triangle in the course color comes out from the left; when selected the triangle
+          travels along the row and fills it with that color. The same 5-point polygon morphs smoothly between the states. */
   #tree .node { position: relative; isolation: isolate; }
   #tree .node::before {
     content: ""; position: absolute; inset: 0; z-index: -1; border-radius: var(--r);
@@ -251,7 +251,7 @@
   .node .label { overflow: hidden; text-overflow: ellipsis; }
   .drop { outline: 1px dashed var(--accent); outline-offset: -1px; background: color-mix(in srgb, var(--accent) 12%, transparent) !important; }
 
-  /* Ana alan */
+  /* Main area */
   main { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
   .topbar {
     display: flex; align-items: center; gap: 12px; padding: 14px 28px; border-bottom: 1px solid var(--line); min-height: 56px;
@@ -309,8 +309,8 @@
 
   .side-foot { padding: 8px; border-top: 1px solid var(--line); }
   .side-foot .node { width: 100%; padding: 7px 8px; gap: 8px; }
-  /* Alt düğmeler: Ayarlar dişlisi bir diş (60°) döner, Kısayollar'da tuşlar sırayla kalkar ve boşluk çubuğu basılır.
-     Hover/odakta ≤250ms, çıkışta gecikme yok; basınca ikon hafifçe küçülür. */
+  /* Bottom buttons: the Settings gear turns one tooth (60°); in Shortcuts the keys rise in turn and the space bar is pressed.
+          Hover/focus ≤250ms, no delay on exit; the icon shrinks slightly when pressed. */
   .side-foot .node:hover { background: transparent; }
   .side-foot .node svg { transform-origin: 50% 50%; transition: transform var(--duration-fast) var(--ease-smooth-out); }
   #open-settings:hover svg, #open-settings:focus-visible svg { transform: rotate(60deg); }
@@ -352,8 +352,8 @@
   .upd .row-btns { display: flex; gap: 8px; margin-top: 12px; }
   .upd .row-btns .btn[hidden] { display: none; }
 
-  /* Ayarlar: solda dikey sekmeler (kenar çubuğu düğmeleriyle aynı .node), sağda içerik. Bileşenler mevcut sistemden: .node, .sec-head,
-     .btn, .hint, .field, 2px köşe, düz bloklar, 5px boşluk; ayrıntı: docs/UI-REHBERI.md */
+  /* Settings: vertical tabs on the left (the same .node as the sidebar buttons), content on the right. Components from the existing system: .node, .sec-head,
+          .btn, .hint, .field, 2px corners, flat blocks, 5px gaps; details: docs/UI-GUIDE.md */
   #settings { padding: 0; width: min(880px, calc(100vw - 32px)); height: min(640px, calc(100vh - 48px)); overflow: hidden; }
   .set { display: grid; grid-template-columns: 220px minmax(0, 1fr); width: 100%; height: 100%; margin: 0; }
   .set-nav { display: flex; flex-direction: column; gap: 2px; padding: 24px 8px; background: var(--side); border-right: 1px solid var(--line); overflow-y: auto; }
@@ -361,7 +361,7 @@
   .set-title svg { width: 16px; height: 16px; stroke: var(--muted); stroke-width: 1.3; stroke-linejoin: miter; stroke-linecap: square; }
   .set-tab { width: 100%; padding: 7px 8px; gap: 8px; text-align: left; }
   .set-tab[aria-selected="true"] { background: var(--hover); color: var(--text); }
-  /* Sekme ikonları: hover/odakta ve sekme seçilince (.play) bir kez oynar; kısa, dönüşümlü (translate/scale), bulanıklık yok */
+  /* Tab icons: play once on hover/focus and when the tab is selected (.play); short, alternating (translate/scale), no blur */
   .set-tab { --tb: var(--side); }
   .set-tab:hover, .set-tab[aria-selected="true"] { --tb: var(--hover); }
   .ti * { transform-box: fill-box; transform-origin: center; }
@@ -390,7 +390,7 @@
   @keyframes set-in { from { opacity: 0; transform: translateY(var(--distance-micro)); } }
   .set-pane .field { margin-top: 2px; }
   .set-hint { margin: 0 0 16px; }
-  /* Tema kartları: düz blok (dolgu değişmez); üzerine gelince önizleme hafifçe yakınlaşır, seçili olanın önizleme çerçevesi vurgu rengindedir */
+  /* Theme cards: flat block (the fill does not change); on hover the preview zooms in slightly, the selected one's preview frame is in the accent color */
   .theme-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: var(--gap); }
   .theme-card { display: grid; gap: 8px; padding: 10px; background: var(--bg); border-radius: var(--r); text-align: left; color: var(--muted); }
   .theme-card:hover, .theme-card[aria-checked="true"] { color: var(--text); }
@@ -442,26 +442,26 @@
   .empty p { margin: 6px 0; }
   .empty .btn { margin-top: 14px; }
 
-  /* Görüntüleyici */
-  /* Sekmeler */
+  /* Viewer */
+  /* Tabs */
   .tabbar { display: flex; align-items: stretch; flex: none; padding: 0 8px 0 12px; border-bottom: 1px solid var(--line); }
   .tabbar[hidden] { display: none; }
   .tabs { display: flex; align-items: stretch; flex: 1; min-width: 0; overflow-x: auto; }
-  /* Sekme şeridinde ince, oksuz çubuk (oklar sekmelere yer açsın) */
+  /* A thin, arrowless bar in the tab strip (so the arrows leave room for the tabs) */
   .tabs::-webkit-scrollbar { height: 8px; }
   .tabs::-webkit-scrollbar-thumb { border-width: 2px; }
   .tabs::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
   .tabbar > .side-toggle { align-self: center; margin-right: 8px; flex: none; }
   .tabtools { display: flex; align-items: center; gap: 2px; padding-left: 8px; }
   .icon-btn[hidden] { display: none; }
-  #tabbar:not([hidden]) + .topbar .side-toggle { display: none; } /* sekme çubuğu açıkken tek bir kenar çubuğu düğmesi */
-  .viewing .topbar { display: none; } /* PDF açıkken yukarıdaki gezinti çubuğu yer kaplamasın */
+  #tabbar:not([hidden]) + .topbar .side-toggle { display: none; } /* only one sidebar button while the tab bar is open */
+  .viewing .topbar { display: none; } /* the navigation bar above must not take space while a PDF is open */
   .tab {
     display: flex; align-items: center; gap: 8px; flex: 0 1 auto; min-width: 96px; max-width: 230px; height: 34px;
     padding: 0 6px 0 12px; color: var(--muted); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent;
   }
   .tab:hover { color: var(--text); background: var(--surface); }
-  /* Etkin sekme dersin düz rengiyle dolar */
+  /* The active tab is filled with the course's flat color */
   .tab.active { color: var(--ink, var(--text)); background: var(--tile, var(--surface)); border-bottom-color: transparent; }
   .tab.active .dot { background: var(--ink, var(--c)); }
   .tab.active .tclose { color: inherit; }
@@ -476,8 +476,8 @@
   .tab.drop-r { box-shadow: inset -2px 0 0 var(--accent); }
   #viewer { flex: 1; display: flex; flex-direction: column; min-height: 0; }
   #viewer { position: relative; background: var(--bg); }
-  /* Tam ekran düğmeleri: üzerine gelince köşe okları açılır (çıkışta kapanır); çıkış düğmesi tam ekrana geçerken
-     bulanıklıktan çıkıp belirir ve ikonu "genişlet"ten "küçült"e dönüşür (icon swap). Süre/eğri hareket tokenlarından. */
+  /* Full-screen buttons: on hover the corner arrows open (and close on exit); the exit button appears from a blur when
+          entering full screen and its icon turns from "expand" to "collapse" (icon swap). Durations/curves from the motion tokens. */
   :root { --icon-swap-dur: var(--duration-fast); --icon-swap-blur: var(--blur-small); --icon-swap-start-scale: .25; --icon-swap-ease: var(--ease-in-out); }
   .fs-ic path { transition: transform var(--duration-fast) var(--ease-smooth-out); }
   .fs-ic path:nth-child(1) { --x: -1; --y: -1; }
@@ -502,24 +502,24 @@
   #fs-exit .t-icon { grid-area: 1 / 1; display: grid; place-items: center; transition: opacity var(--icon-swap-dur) var(--icon-swap-ease), filter var(--icon-swap-dur) var(--icon-swap-ease), transform var(--icon-swap-dur) var(--icon-swap-ease); }
   #fs-exit .t-icon[data-icon="a"], #viewer:fullscreen #fs-exit .t-icon[data-icon="b"] { opacity: 1; filter: blur(0); transform: scale(1); }
   #fs-exit .t-icon[data-icon="b"], #viewer:fullscreen #fs-exit .t-icon[data-icon="a"] { opacity: 0; filter: blur(var(--icon-swap-blur)); transform: scale(var(--icon-swap-start-scale)); }
-  #viewer:fullscreen #fs-exit .t-icon { transition-delay: var(--duration-quick); } /* düğme belirdikten sonra ikon döner */
+  #viewer:fullscreen #fs-exit .t-icon { transition-delay: var(--duration-quick); } /* the icon turns after the button has appeared */
   @media (prefers-reduced-motion: reduce) { #fs-exit, #fs-exit .t-icon, .fs-ic path { transition: none !important; } }
   #viewer[hidden] { display: none; }
   #frames { flex: 1; position: relative; min-height: 0; }
   #frames iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: var(--bg); }
   .viewing #content, .viewing #banner { display: none; }
 
-  /* Animasyonlar */
+  /* Animations */
   @keyframes rise { from { opacity: 0; transform: translateY(var(--distance-base)); filter: blur(var(--blur-medium)); } }
   @keyframes fade { from { opacity: 0; } }
-  /* Ayarlar penceresi yalnızca solar: ölçeklenen bir pencerede başlıktaki dişlinin hedef konumu animasyon sonunda kayar (dişli en sonda sola sıçrıyordu) */
+  /* The Settings window only fades: in a scaling window the target position of the gear in the title shifts at the end of the animation (the gear jumped left at the very end) */
   #settings[open] { animation: fade var(--duration-fast) var(--ease-smooth-out); }
   @keyframes pop { from { opacity: 0; transform: scale(var(--scale-large)); } }
   @keyframes pop-menu { from { opacity: 0; transform: scale(var(--scale-medium)); } }
   @keyframes tab-in { from { opacity: 0; transform: translateX(calc(-1 * var(--distance-base))); } }
-  :root { --ease: var(--ease-smooth-out); } /* eski ad; tüm var(--ease) kullanımları tokena bağlı */
+  :root { --ease: var(--ease-smooth-out); } /* old name; all var(--ease) uses are bound to a token */
 
-  /* Klasörler arası gezinti: içerik, bölümler ve ilk birkaç öğe sırayla belirir */
+  /* Navigation between folders: the content, sections and the first few items appear in turn */
   #content.enter > * { animation: rise var(--duration-fast) var(--ease-smooth-out) both; }
   #content.enter > :nth-child(2) { animation-delay: var(--duration-stagger); }
   #content.enter > :nth-child(3) { animation-delay: calc(var(--duration-stagger) * 2); }
@@ -529,9 +529,9 @@
   #content.enter :is(.list, .thumbs, .tiles, .shelf, .resume) > :nth-child(3) { animation-delay: calc(var(--duration-stagger) * 2); }
   #content.enter :is(.list, .thumbs, .tiles, .shelf, .resume) > :nth-child(4) { animation-delay: calc(var(--duration-stagger) * 3); }
   #content.enter :is(.list, .thumbs, .tiles, .shelf, .resume) > :nth-child(5) { animation-delay: calc(var(--duration-stagger) * 4); }
-  #content.enter :is(.list, .thumbs, .tiles, .shelf, .resume) > :nth-child(n+6) { animation-delay: calc(var(--duration-stagger) * 5); } /* toplam ≤200ms */
+  #content.enter :is(.list, .thumbs, .tiles, .shelf, .resume) > :nth-child(n+6) { animation-delay: calc(var(--duration-stagger) * 5); } /* total ≤200ms */
 
-  /* Görüntüleyici ve sekmeler */
+  /* Viewer and tabs */
   #viewer:not([hidden]) { animation: fade var(--duration-fast) var(--ease-in-out); }
   .tabbar:not([hidden]) { animation: fade var(--duration-fast) var(--ease-in-out); }
   .tab {
@@ -543,7 +543,7 @@
   #frames iframe { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity var(--duration-fast) var(--ease-in-out), visibility 0s var(--duration-fast); }
   #frames iframe.on { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity var(--duration-fast) var(--ease-in-out); }
 
-  /* Menüler, pencereler, üzerine gelme */
+  /* Menus, windows, hover */
   .menu { animation: pop-menu var(--duration-fast) var(--ease-smooth-out); transform-origin: top left; }
   dialog[open] { animation: pop var(--duration-fast) var(--ease-smooth-out); transform-origin: center top; }
   dialog[open]::backdrop { animation: fade var(--duration-fast) var(--ease-smooth-out); }
@@ -553,9 +553,9 @@
   }
   .dot { transition: background-color .25s ease; }
 
-  /* Ders karoları: düz renk zemin, sol üstte ad, ortada ince çizgili şekil; üzerine gelince açıklama + ok */
+  /* Course tiles: flat color background, name at the top left, a thin-line shape in the middle; on hover a description + arrow */
   .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--gap); margin-bottom: 8px; }
-  /* Ders içindeki alt klasörler: daha küçük, yatay karolar */
+  /* Subfolders inside a course: smaller, horizontal tiles */
   .tiles.small { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
   .tiles.small .tile { aspect-ratio: 4 / 3; padding: 12px 14px; }
   .tiles.small .tile-name { font-size: 21px; }
@@ -591,7 +591,7 @@
   .tile-new:hover svg.shape { opacity: .9; transform: rotate(90deg); }
   @media (max-width: 760px) { .tile-name { font-size: 22px; } .tile-desc { font-size: 16px; } }
 
-  /* Raf: dersler rafta duran kitaplar. Yükseklik dosya sayısına göre; üzerine gelince kitap raftan çekilir. */
+  /* Shelf: courses are books standing on a shelf. The height depends on the file count; on hover the book is pulled off the shelf. */
   .shelf { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 28px 10px; padding: 0 12px; border-bottom: 14px solid var(--shelf); margin-bottom: 8px; }
   .book { position: relative; width: 168px; display: flex; flex: none; cursor: pointer; transition: transform var(--duration-fast) var(--ease-smooth-out); }
   .book:hover, .book:focus-visible { transform: translateY(-8px); }
@@ -610,7 +610,7 @@
   .book.vt-leaving { transform: none !important; }
   .book.vt-leaving svg.shape { opacity: .72 !important; transform: none !important; filter: none !important; transition: none !important; }
   .book.vt-leaving .more { opacity: 0 !important; transition: none !important; }
-  /* Devam et: klasör sekmeli kartlar */
+  /* Continue: cards with a folder tab */
   .resume { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 344px)); gap: 16px; }
   .rcard { position: relative; display: flex; flex-direction: column; min-width: 0; cursor: pointer; }
   .rtab { width: 126px; height: 30px; padding: 6px 18px 0; clip-path: polygon(0 100%, 11% 0, 89% 0, 100% 100%); }
@@ -621,7 +621,7 @@
   .rcard:hover .more, .rcard:focus-within .more { opacity: 1; }
   .rcard.drop { background: transparent !important; }
   .book:focus-visible, .rcard:focus-visible { outline-offset: 4px; }
-  /* Ders sayfası başlığı: dersin renginde bir kitap sırtı + büyük ad */
+  /* Course page header: a book spine in the course color + a large name */
   .chead { display: flex; align-items: flex-start; gap: 22px; margin: 4px 0 34px; }
   .chead .cspine { width: 22px; height: 92px; flex: none; background: var(--c, var(--line-strong)); }
   .chead .ctitle { font-family: var(--font-head); font-size: 64px; line-height: 1; letter-spacing: -2px; color: var(--text); overflow-wrap: anywhere; }
@@ -629,18 +629,18 @@
   .chead + .sec-head { margin-top: 0; }
   @media (max-width: 760px) { .chead .ctitle { font-size: 44px; } .greet .hi { font-size: 48px; } }
 
-  /* Mühendislik süsleri: tümü satır içi SVG, ince çizgi dili; dişliler yalnızca üzerine gelince döner */
+  /* Engineering ornaments: all inline SVG, thin-line language; the gears turn only on hover */
   .gears { position: absolute; right: 8px; top: -6px; width: 190px; height: 112px; pointer-events: none; fill: none; stroke: var(--line-strong); stroke-width: 1.3; stroke-linejoin: round; }
-  .gears .g-a, .gears .g-b { pointer-events: all; } /* yalnızca dişlilerin üzerine gelince dönerler */
-  .gears .g-a { stroke: var(--accent); }  /* dönüş JS'te (spinGears): üzerine gelince ivmelenir, bırakınca yavaşlar */
+  .gears .g-a, .gears .g-b { pointer-events: all; } /* they turn only when hovering over the gears */
+  .gears .g-a { stroke: var(--accent); }  /* rotation is in JS (spinGears): accelerates on hover, slows down on release */
   .greet { position: relative; }
   .chead { position: relative; }
   .chead .gears { top: 0; right: 0; }
-  /* Dişlilerin soluna uzanan roket: üzerine gelince motorları ateşlenir (dişlilerden bağımsız) */
+  /* The rocket extending to the left of the gears: its engines fire on hover (independent of the gears) */
   .schem { position: absolute; left: 0; top: -6px; width: 0; height: auto; aspect-ratio: 540 / 112; transform: translateY(calc(56px - 50%)); pointer-events: none; fill: none; stroke: var(--line-strong); stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
-  /* Dinlenirken ateş yok; üzerine gelince (--thrust > 0) her motordan üç katmanlı alev dili püskürür:
-     dışta uzun, ortada kısa, içte çekirdek; her biri kendi hızında boyuna titrer, bütün alev yalpalar, kıvılcımlar savrulur */
-  .schem > path:not(.spark) { pointer-events: all; } /* gövde parçaları (orbiter, tank, roket) üzerine gelince motorlar ateşlenir */
+  /* No fire at rest; on hover (--thrust > 0) a three-layer flame tongue shoots from each engine:
+          long on the outside, short in the middle, a core inside; each flickers lengthwise at its own speed, the whole flame sways, sparks fly */
+  .schem > path:not(.spark) { pointer-events: all; } /* body parts (orbiter, tank, rocket): the engines fire on hover */
   .schem .flame { stroke: var(--accent); transform-box: view-box; transform: scaleX(calc(.15 + .85 * var(--thrust, 0))); opacity: min(1, calc(var(--thrust, 0) * 2.5)); }
   .schem .f1, .schem .f1 path { transform-origin: 362px 37px; }
   .schem .f2, .schem .f2 path { transform-origin: 432px 85px; }
@@ -666,13 +666,13 @@
   .viewing #circuit { display: none; }
   main > #content { position: relative; z-index: 1; }
   .sec-head .sec-rule { position: relative; }
-  .sec-head .sec-rule::after { content: ""; position: absolute; right: 0; top: -4px; width: 9px; height: 9px; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--bg); } /* PCB ucundaki lehim noktası */
+  .sec-head .sec-rule::after { content: ""; position: absolute; right: 0; top: -4px; width: 9px; height: 9px; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--bg); } /* the solder pad at the end of the PCB trace */
   @media (max-width: 900px) { #circuit, .gears { display: none; } }
 
-  /* Üst çubuk düğmeleri.
-     "Yeni klasör": klasörün içinden bir belge yukarı doğru çıkar. Klasör gövdesi düğme zemininin rengiyle
-     dolu olduğundan belgenin klasör içinde kalan kısmı görünmez.
-     "Yükle": ok yukarı uçup kaybolur, aşağıdan yerine döner (döngü). */
+  /* Top bar buttons.
+          "New folder": a document comes up out of the folder. The folder body is filled with the button's background
+          color, so the part of the document inside the folder is invisible.
+          "Upload": the arrow flies up and disappears, returns from below (loop). */
   #new-folder[hidden] { display: none; }
   #new-folder svg, #upload-btn svg { overflow: visible; }
   #new-folder svg .folder { fill: var(--bg); transition: fill .15s ease; }
@@ -687,12 +687,12 @@
   }
   #upload-btn:hover svg path:first-child { animation: fly-up 1.1s var(--ease) infinite; }
 
-  /* Kenar çubuğu düğmesi: bölme çizgisi kapanacağı yöne kayar (kapalıyken açılacağı yöne) */
+  /* Sidebar button: the divider line moves toward the direction it will close (when closed, toward the direction it will open) */
   .side-toggle svg path { transition: transform var(--duration-fast) var(--ease-smooth-out); }
   .side-toggle:hover svg path { transform: translateX(-3px); }
   body.side-collapsed .side-toggle:hover svg path { transform: translateX(3px); }
 
-  /* Görünüm düğmeleri: ızgaranın kareleri köşelere açılır, listenin çizgileri sırayla kısalıp uzar */
+  /* View buttons: the grid's squares open toward the corners, the list's lines shorten and lengthen in turn */
   .seg svg rect { transition: transform var(--duration-fast) var(--ease-smooth-out); }
   .seg button:hover svg rect:nth-child(1) { transform: translate(-2px, -2px); }
   .seg button:hover svg rect:nth-child(2) { transform: translate(2px, -2px); }
@@ -704,8 +704,8 @@
   .seg button:hover svg path:nth-child(2) { animation-delay: var(--duration-stagger); }
   .seg button:hover svg path:nth-child(3) { animation-delay: calc(var(--duration-stagger) * 2); }
 
-  /* Kenar çubuğundaki "Ana sayfa": alt düğmelerle aynı dil (zemin vurgusu yok, ikon parçaları oynar).
-     Üzerine gelince çatı 2px kalkıp yerine oturur, ikon vurgu rengine döner; yazı yerinde kalır. */
+  /* "Home" in the sidebar: the same language as the bottom buttons (no background highlight, the icon parts move).
+          On hover the roof rises 2px and settles back, the icon turns to the accent color; the text stays in place. */
   #home-node:hover, .crumbs .crumb-home:hover { background: transparent; }
   :is(#home-node, .crumb-home) svg { transition: stroke var(--duration-fast) var(--ease-smooth-out), transform var(--duration-fast) var(--ease-smooth-out); }
   :is(#home-node, .crumb-home) svg path { transition: transform var(--duration-fast) var(--ease-smooth-out); transform-box: fill-box; }
@@ -713,7 +713,7 @@
   :is(#home-node, .crumb-home):is(:hover, :focus-visible) svg path:first-child { transform: translateY(-2px); }
   :is(#home-node, .crumb-home):active svg { transform: scale(var(--scale-large)); }
 
-  /* Klavye erişimi: görünür odak halkası, ⋯ düğmesi odakta görünür, ekran okuyucuya özel başlık */
+  /* Keyboard access: visible focus ring, the ⋯ button is visible on focus, a heading for screen readers only */
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .tile:focus-visible { outline-color: var(--ink); outline-offset: -6px; }
   .tcard:focus-visible, .row:focus-visible, .tab:focus-visible, #tree .node:focus-visible { outline-offset: -2px; }
@@ -728,7 +728,7 @@
 
   .greet { margin: 4px 0 34px; }
   .greet .hi { font-size: 72px; line-height: 1.05; font-weight: 400; letter-spacing: -1px; color: var(--text); }
-  /* Selam animasyonu: harfler sırayla hafifçe yükselip iner; "i" gövdeleri yerinde kalır, noktaları zıplar */
+  /* Greeting animation: the letters rise slightly and settle in turn; the "i" bodies stay in place, their dots hop */
   @keyframes letter-wave { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-.12em); } }
   @keyframes tittle-hop {
     0%, 100% { transform: translate(-50%, 0); }
@@ -740,24 +740,24 @@
   .greet .hi { display: inline-block; cursor: default; }
   .greet .hi .ch { display: inline-block; white-space: pre; }
   .greet .hi .dotted { position: relative; }
-  /* Konumlar Linux Libertine'in "i"/"İ" nokta yüksekliğine göre ölçüldü (canvas measureText) */
+  /* Positions were measured against the dot height of Linux Libertine's "i"/"İ" (canvas measureText) */
   .greet .hi .tittle { position: absolute; left: 50%; top: .02em; transform: translateX(-50%); pointer-events: none; }
   .greet .hi .cap .tittle { top: -.13em; }
   .greet .hi:hover .ch:not(.dotted), .greet .hi.play .ch:not(.dotted) { animation: letter-wave var(--duration-very-slow) var(--ease-smooth-out) both; animation-delay: calc(var(--i) * 40ms); }
   .greet .hi:hover .tittle, .greet .hi.play .tittle { animation: tittle-hop .9s cubic-bezier(.3, .7, .4, 1) both; animation-delay: calc(var(--i) * 40ms + 40ms); }
-  /* Site ilk yüklendiğinde (.play) içerik giriş animasyonu bittikten sonra başlar */
+  /* On the first page load (.play) it starts after the content entrance animation has finished */
   .greet .hi.play .ch:not(.dotted) { animation-delay: calc(.35s + var(--i) * 40ms); }
   .greet .hi.play .tittle { animation-delay: calc(.35s + var(--i) * 40ms + 40ms); }
   .greet .sub { margin-top: 8px; width: fit-content; font-size: 16px; color: var(--muted); }
 
-  /* Ders etiketi: dosyanın yanında dersin rengiyle */
+  /* Course label: next to the file, in the course's color */
   .cbadge {
     flex: none; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     padding: 2px 9px; border-radius: var(--r); font-size: 11.5px; line-height: 1.5; font-weight: 500;
     color: var(--c); background: color-mix(in srgb, var(--c) 15%, transparent);
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 30%, transparent);
   }
-  /* Küçük resim üstündeki ders etiketi: köşeye yaslı, yarı saydam buzlu şerit; ders rengi yalnızca küçük karede */
+  /* Course label on the thumbnail: pinned to the corner, a semi-transparent frosted strip; the course color only in a small square */
   .thumb .cbadge {
     position: absolute; top: 6px; left: 6px; z-index: 1; display: block; max-width: calc(100% - 46px);
     padding: 4px 10px 4px 8px; border-radius: 3px;
@@ -767,7 +767,7 @@
   }
   .thumb .cbadge::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; vertical-align: 1px; background: var(--c); transition: opacity var(--duration-fast) var(--ease-in-out); }
   .thumb .cbadge .cb-name { transition: opacity var(--duration-fast) var(--ease-in-out); }
-  /* Üzerine gelince: ad ve renk karesi solar, dersin şekli dönerek ortada belirir (etiketin genişliği sabit kalır) */
+  /* On hover: the name and the color square fade, the course's shape appears in the middle turning (the label's width stays fixed) */
   .thumb .cbadge svg.cb-shape {
     position: absolute; left: 50%; top: 50%; width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px;
     stroke: var(--c); stroke-width: 1.6; fill: none; opacity: 0; transform: scale(.4) rotate(-90deg);
@@ -777,9 +777,9 @@
   .tcard:hover .thumb .cbadge::before, .tcard:hover .thumb .cbadge .cb-name { opacity: 0; }
   .tcard:hover .thumb .cbadge svg.cb-shape { opacity: 1; transform: none; }
 
-  /* Dosya küçük resimleri */
+  /* File thumbnails */
   @keyframes shimmer { 50% { opacity: .55; } }
-  /* Bölüm başlıkları: ikon + büyük başlık + soluk sayı + sağa uzanan ince çizgi */
+  /* Section headings: icon + large heading + faint count + a thin line extending to the right */
   .sec-head { display: flex; align-items: center; gap: 10px; margin: 38px 0 14px; }
   #content > .sec-head:first-child { margin-top: 4px; }
   .sec-head svg.sec-ic { width: 22px; height: 22px; stroke: var(--muted); stroke-width: 1.3; stroke-linejoin: miter; stroke-linecap: square; }
@@ -799,9 +799,9 @@
   .thumb.loading .badge { animation: shimmer 1.4s var(--ease-linear) infinite; }
   .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; opacity: 0; filter: brightness(.88); transform-origin: 50% 0; transition: opacity .3s ease, transform .6s var(--ease); }
   .thumb img.ready { opacity: 1; }
-  /* Üzerine gelince renk vurgusu yok; görsel kartın içinde yumuşakça yakınlaşır (kart sınırı taşmayı kırpar) */
+  /* No color highlight on hover; the image zooms in smoothly inside the card (the card edge clips the overflow) */
   .tcard:hover .thumb img { transform: scale(1.07); }
-  /* Dosya sayfası: üstte dersin renginde trapez sekme (ders etiketi), altında yüzey */
+  /* File page: a trapezoid tab in the course's color on top (the course label), a surface below */
   .rtab, .ptab {
     height: 28px; width: 104px; padding: 5px 16px 0; font-size: 11.5px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     background: var(--tile, var(--hover)); color: var(--ink, var(--muted)); clip-path: polygon(0 100%, 12.5% 0, 87.5% 0, 100% 100%);
@@ -815,7 +815,7 @@
   .tcard .more {
     position: absolute; top: 34px; right: 6px; border-radius: 3px; color: var(--glass-ink);
     background: var(--glass); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-    /* Üzerine gelince yukarıdan küçükten büyüyerek gelir; noktalar ortada toplu başlayıp yana açılır */
+    /* On hover it comes from above, growing from small; the dots start gathered in the middle and spread sideways */
     transform: translateY(calc(-1 * var(--distance-micro))) scale(var(--scale-medium));
     transition: opacity var(--duration-fast) var(--ease-smooth-out), transform var(--duration-fast) var(--ease-smooth-out), background-color .15s ease, color .15s ease;
   }
@@ -823,21 +823,21 @@
   .tcard .more svg circle { transform-box: fill-box; transform-origin: center; transition: transform var(--duration-fast) var(--ease-smooth-out); }
   .tcard .more svg circle:nth-child(1) { transform: translateX(7px) scale(.6); }
   .tcard .more svg circle:nth-child(3) { transform: translateX(-7px) scale(.6); }
-  .tcard:hover .more svg circle, .tcard .more.on svg circle { transform: none; transition-delay: var(--duration-stagger); } /* gecikme yalnız girişte */
+  .tcard:hover .more svg circle, .tcard .more.on svg circle { transform: none; transition-delay: var(--duration-stagger); } /* the delay only on entry */
   .tcard .more:hover { background: var(--glass-hover); color: var(--glass-ink); }
 
-  /* --- Süreklilik: görünüm geçişleri (View Transitions) ---
-     Ders karosu ⇄ ders sayfası: şekil (vt-shape) konum yolundaki ikona uçar; karo (vt-tile) içine girilir gibi
-     büyüyüp bulanıklaşarak çözülür, dönüşte aynı yoldan geri gelir. Küçük resim (vt-doc) görüntüleyiciye büyür. */
+  /* --- Continuity: view transitions (View Transitions) ---
+          Course tile ⇄ course page: the shape (vt-shape) flies to the icon in the breadcrumb; the tile (vt-tile) grows as if
+          entered, blurs and dissolves, and comes back the same way on return. The thumbnail (vt-doc) grows into the viewer. */
   ::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--duration-fast); }
   ::view-transition-group(vt-shape), ::view-transition-group(vt-doc), ::view-transition-group(vt-gear) { animation-duration: var(--duration-very-slow); animation-timing-function: var(--ease-smooth-out); }
   ::view-transition-old(vt-tile) { animation: vt-tile-out var(--duration-medium) var(--ease-smooth-out) both; }
   ::view-transition-new(vt-tile) { animation: vt-tile-in var(--duration-slow) var(--ease-smooth-out) both; }
   @keyframes vt-tile-out { to { transform: scale(1.6); opacity: 0; filter: blur(var(--blur-medium)); } }
   @keyframes vt-tile-in { from { transform: scale(1.6); opacity: 0; filter: blur(var(--blur-medium)); } }
-  /* Ayarlar penceresi geçişi: kenar çubuğundaki dişli, pencerenin başlığındaki dişliye uçar (ders karosunun şeklinin konum yolundaki
-     ikona uçmasıyla aynı "paylaşılan öğe" dili). Pencerenin kendisi diğer pencereler gibi `dialog[open]`'ın kendi açılışıyla gelir
-     (ölçek 0,96, 250ms); kapanışta pencere ve karartma 150ms'de solar, dişli 250ms'de simgesine döner. Bulanıklık ya da maske yok. */
+  /* Settings window transition: the gear in the sidebar flies to the gear in the window's title (the same "shared element" language as a course tile's shape
+          flying to the icon in the breadcrumb). The window itself comes with its own `dialog[open]` opening like the other windows
+          (scale 0.96, 250ms); on close the window and the scrim fade in 150ms, the gear returns to its icon in 250ms. No blur or mask. */
   :root.vt-set-open::view-transition-group(vt-keys) { animation-duration: var(--duration-slow); animation-timing-function: var(--ease-smooth-out); }
   :root.vt-set-close::view-transition-group(vt-keys) { animation-duration: var(--duration-fast); animation-timing-function: var(--ease-smooth-out); }
   :root.vt-set-open::view-transition-old(vt-keys), :root.vt-set-open::view-transition-new(vt-keys),
@@ -848,32 +848,32 @@
   :root.vt-set-close::view-transition-old(vt-gear), :root.vt-set-close::view-transition-new(vt-gear) { mix-blend-mode: normal; }
   :root.vt-set-open::view-transition-image-pair(vt-gear) { animation: vt-gear-turn var(--duration-slow) var(--ease-smooth-out) both; }
   :root.vt-set-close::view-transition-image-pair(vt-gear) { animation: vt-gear-turn-back var(--duration-fast) var(--ease-smooth-out) both; }
-  :root.vt-set-open::view-transition-old(root), :root.vt-set-open::view-transition-new(root) { animation: none; }   /* açılışta karşılıklı solma yok: pencere kendi açılışıyla gelir, sayfa arkada net kalır */
+  :root.vt-set-open::view-transition-old(root), :root.vt-set-open::view-transition-new(root) { animation: none; }   /* no cross-fade on open: the window comes with its own opening, the page stays sharp behind it */
   :root.vt-set-close::view-transition-old(root), :root.vt-set-close::view-transition-new(root) { animation-duration: var(--duration-quick); }
-  @keyframes vt-gear-turn { from { rotate: 0deg; } to { rotate: 180deg; } }       /* 3 diş: kenar çubuğundaki hover dönüşünün (60°) devamı */
+  @keyframes vt-gear-turn { from { rotate: 0deg; } to { rotate: 180deg; } }       /* 3 teeth: the continuation of the hover turn (60°) in the sidebar */
   @keyframes vt-gear-turn-back { from { rotate: 0deg; } to { rotate: -180deg; } }
   .tile.vt-leaving svg.shape { opacity: .72 !important; transform: none !important; filter: none !important; transition: none !important; }
   .tile.vt-leaving .tile-desc, .tile.vt-leaving .tile-arrow, .tile.vt-leaving .more { opacity: 0 !important; transition: none !important; }
 
-  /* --- Geri bildirim --- */
-  /* Yeni gelen öğe (yükleme, ad değiştirme, taşıma): yerine oturur, kısa bir vurgu halkası söner */
+  /* --- Feedback --- */
+  /* A newly arrived item (upload, rename, move): settles in place, a short highlight ring fades out */
   @keyframes arrive {
     from { opacity: 0; transform: scale(var(--scale-large)); outline-color: var(--accent); }
     45% { opacity: 1; transform: none; outline-color: var(--accent); }
     to { outline-color: transparent; }
   }
   .arrive { outline: 2px solid transparent; outline-offset: 2px; animation: arrive var(--duration-very-slow) var(--ease-smooth-out) both; }
-  /* Bırakma hedefi kabul etti: halka dışa doğru açılıp söner */
+  /* The drop target accepted: the ring opens outward and fades */
   @keyframes accept { from { outline-color: var(--accent); outline-offset: -2px; } to { outline-color: transparent; outline-offset: 5px; } }
   .accept { outline: 2px solid transparent; animation: accept var(--duration-very-slow) var(--ease-smooth-out); }
-  /* Bildirimde ilerleme çizgisi (yükleme) */
+  /* Progress line in the toast (upload) */
   #toast { overflow: hidden; }
   #toast.progress::after {
     content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: calc(var(--p, 0) * 100%);
     background: var(--accent); transition: width var(--duration-fast) var(--ease-smooth-out);
   }
 
-  /* Hareket azaltılınca: yer değiştirme ve ölçek yok, ama durumu anlatan renk vurgusu kalır */
+  /* Under reduced motion: no displacement or scale, but the color highlight that explains the state stays */
   @media (prefers-reduced-motion: reduce) {
     @keyframes arrive-still { from, 50% { outline-color: var(--accent); } to { outline-color: transparent; } }
     .arrive, .accept { animation-name: arrive-still !important; animation-duration: 1.2s !important; outline-offset: 2px; }
@@ -883,7 +883,7 @@
     *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
   }
 
-  /* İkon seçici (ders menüsü): 6 sütunlu ızgara, hover'da ikon hafifçe döner ve büyür (karo hareketiyle aynı dil) */
+  /* Icon picker (course menu): a 6-column grid, on hover the icon turns and grows slightly (the same language as the tile motion) */
   .iconpick { width: 272px; }
   .ip-head { padding: 8px 6px 4px; font-size: 12px; color: var(--faint); }
   .ip-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; }
@@ -894,7 +894,7 @@
   .ip-btn:hover svg, .ip-btn:focus-visible svg { transform: rotate(-6deg) scale(1.1); }
   .ip-btn.sel { color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 
-  /* Menü, iletişim kutusu, bildirim */
+  /* Menu, dialog, toast */
   .menu {
     position: fixed; z-index: 40; min-width: 180px; padding: 5px; border-radius: var(--r);
     background: var(--surface); border: 1px solid var(--line-strong); box-shadow: 0 10px 30px var(--shadow);
@@ -931,16 +931,16 @@
   #toast .toast-act:hover { color: var(--highlight); }
   kbd { font: 12px var(--font); color: var(--muted); border: 1px solid var(--line-strong); border-radius: var(--r); padding: 1px 6px; background: var(--bg); white-space: nowrap; }
   #dlg select { width: 100%; }
-  #dlg-ic[hidden] { display: none; } /* svg öğelerinde hidden özniteliği tek başına işlemez */
+  #dlg-ic[hidden] { display: none; } /* the hidden attribute alone does not work on svg elements */
   #dlg-title { display: flex; align-items: center; gap: 8px; }
   #dlg-ic { width: 16px; height: 16px; flex: none; stroke: var(--muted); stroke-width: 1.3; stroke-linejoin: miter; stroke-linecap: square; }
-  #dlg.shared[open] { animation: fade var(--duration-fast) var(--ease-smooth-out); } /* simge uçan pencereler (yeni ders/klasör) yalnızca solar */
+  #dlg.shared[open] { animation: fade var(--duration-fast) var(--ease-smooth-out); } /* windows whose icon flies (new course/folder) only fade */
   :root.vt-set-open::view-transition-group(vt-dlg) { animation-duration: var(--duration-slow); animation-timing-function: var(--ease-smooth-out); }
   :root.vt-set-close::view-transition-group(vt-dlg) { animation-duration: var(--duration-fast); animation-timing-function: var(--ease-smooth-out); }
   :root.vt-set-open::view-transition-old(vt-dlg), :root.vt-set-open::view-transition-new(vt-dlg),
   :root.vt-set-close::view-transition-old(vt-dlg), :root.vt-set-close::view-transition-new(vt-dlg) { mix-blend-mode: normal; }
   #keys { width: min(460px, calc(100vw - 32px)); }
-  #keys[open] { animation: fade var(--duration-fast) var(--ease-smooth-out); } /* ayarlar penceresi gibi: yalnızca solar, simge karodan uçar */
+  #keys[open] { animation: fade var(--duration-fast) var(--ease-smooth-out); } /* like the Settings window: only fades, the icon flies from the tile */
   .keys-head { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; }
   .keys-head svg { width: 16px; height: 16px; stroke: var(--muted); stroke-width: 1.3; stroke-linejoin: miter; stroke-linecap: square; }
   .keys { display: grid; grid-template-columns: auto 1fr; gap: 9px 16px; align-items: baseline; margin: 0 0 16px; }
@@ -957,7 +957,7 @@
     .btn span { display: none; }
   }
 
-  /* Erişilebilirlik ve tipografi cilası */
+  /* Accessibility and typographic polish */
   .skip { position: absolute; left: 14px; top: -64px; z-index: 60; padding: 8px 18px; border-radius: 999px; background: var(--accent); color: var(--on-accent); transition: top .4s var(--ease-smooth-out); }
   .skip:focus-visible { top: 14px; outline-offset: 3px; }
   #content:focus { outline: none; }
@@ -967,13 +967,13 @@
 </style>
 </head>
 <body>
-<a class="skip" href="#" data-i="nav.skip">İçeriğe geç</a>
+<a class="skip" href="#" data-i="nav.skip">Skip to content</a>
 
 <aside>
   <svg id="side-pcb" aria-hidden="true"></svg>
   <div class="brand">
-    <!-- Logo: rafta birbirine yaslanan üç kitap = "l" (sağa eğik uzun kitap), "i" (dik kısa kitap + nokta),
-         "b" (alt kısmı karın gibi kıvrılan, sola eğik kitap) -->
+    <!-- Logo: three books leaning on each other on a shelf = "l" (tall book leaning right), "i" (short upright book + dot),
+                  "b" (the lower part curves like a belly, leaning left) -->
     <svg class="brand-logo" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M1.5 21.25h21"/>
       <rect class="logo-l" x="3" y="3" width="3" height="18"/>
@@ -984,11 +984,11 @@
     <span>libzie</span>
   </div>
   <div class="widgets">
-    <div class="clock" id="clock" aria-label="Saat" data-i-aria="nav.clock">
+    <div class="clock" id="clock" aria-label="Clock" data-i-aria="nav.clock">
       <span class="clock-time"><span id="clock-h">00</span><span class="clock-sep">:</span><span id="clock-m">00</span></span>
       <span class="clock-date" id="clock-date"></span>
     </div>
-    <button class="weather" id="weather" title="Hava durumu için şehir seçin">
+    <button class="weather" id="weather" title="Choose a city for the weather">
       <span class="w-top">
         <svg class="w-icon" id="w-icon" viewBox="0 0 24 24" aria-hidden="true"></svg>
         <span class="w-temp" id="w-temp"></span>
@@ -1006,26 +1006,26 @@
   </div>
   <div class="node" id="home-node" style="margin: 0 8px">
     <svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg>
-    <span class="label" data-i="nav.home">Ana sayfa</span>
+    <span class="label" data-i="nav.home">Home</span>
   </div>
   <div class="side-head">
     <span class="side-title">
       <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><path d="M17 13.2 20.8 17 17 20.8 13.2 17Z"/></svg>
-      <span data-i="nav.courses">Dersler</span>
+      <span data-i="nav.courses">Courses</span>
     </span>
-    <button class="icon-btn" id="new-course" title="Yeni ders" data-i-title="course.new">
+    <button class="icon-btn" id="new-course" title="New course" data-i-title="course.new">
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
     </button>
   </div>
-  <div id="tree" role="navigation" aria-label="Dersler" data-i-aria="nav.courses"></div>
+  <div id="tree" role="navigation" aria-label="Courses" data-i-aria="nav.courses"></div>
   <div class="side-foot">
-    <button class="node" id="open-keys" title="Klavye kısayolları (?)" data-i-title="nav.shortcuts_title">
+    <button class="node" id="open-keys" title="Keyboard shortcuts (?)" data-i-title="nav.shortcuts_title">
       <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12"/><path class="kd" d="M7 10h.01"/><path class="kd" d="M11 10h.01"/><path class="kd" d="M15 10h.01"/><path class="kspace" d="M7 14h10"/></svg>
-      <span class="label" data-i="nav.shortcuts">Kısayollar</span>
+      <span class="label" data-i="nav.shortcuts">Shortcuts</span>
     </button>
-    <button class="node" id="open-settings" title="Ayarlar" data-i-title="nav.settings">
+    <button class="node" id="open-settings" title="Settings" data-i-title="nav.settings">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-      <span class="label" data-i="nav.settings">Ayarlar</span>
+      <span class="label" data-i="nav.settings">Settings</span>
     </button>
   </div>
 </aside>
@@ -1033,39 +1033,39 @@
 <main id="main">
   <h1 class="sr-only" id="page-title">libzie</h1>
   <div id="tabbar" class="tabbar" hidden>
-    <button class="icon-btn side-toggle" title="Kenar çubuğunu gizle/göster (Ctrl+B)" data-i-title="nav.toggle_sidebar">
+    <button class="icon-btn side-toggle" title="Hide/show sidebar (Ctrl+B)" data-i-title="nav.toggle_sidebar">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
     </button>
-    <div id="tabs" class="tabs" role="tablist" aria-label="Açık dosyalar" data-i-aria="tabs.open_files"></div>
+    <div id="tabs" class="tabs" role="tablist" aria-label="Open files" data-i-aria="tabs.open_files"></div>
     <div class="tabtools">
-      <button class="icon-btn" id="v-full" title="Tam ekran (F)" aria-label="Tam ekran" data-i-title="viewer.fullscreen_f" data-i-aria="viewer.fullscreen" hidden>
+      <button class="icon-btn" id="v-full" title="Full screen (F)" aria-label="Full screen" data-i-title="viewer.fullscreen_f" data-i-aria="viewer.fullscreen" hidden>
         <svg class="fs-ic out" viewBox="0 0 24 24"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg>
       </button>
-      <button class="icon-btn" id="v-app" title="Varsayılan programda aç (Windows'un bu dosya türü için seçtiği program)" data-i-title="viewer.open_default_hint" hidden>
+      <button class="icon-btn" id="v-app" title="Open in default program (the one Windows uses for this file type)" data-i-title="viewer.open_default_hint" hidden>
         <svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
       </button>
     </div>
   </div>
   <div class="topbar">
-    <button class="icon-btn side-toggle" title="Kenar çubuğunu gizle/göster (Ctrl+B)" data-i-title="nav.toggle_sidebar">
+    <button class="icon-btn side-toggle" title="Hide/show sidebar (Ctrl+B)" data-i-title="nav.toggle_sidebar">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
     </button>
     <div class="crumbs" id="crumbs"></div>
     <label class="search">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input id="q" type="search" aria-label="Ara" placeholder="Dosya ara…" title="Ara ( / ) · Tüm derslerde ara ( Ctrl+K ) · Enter ilk sonucu açar" data-i-aria="search.label" data-i-ph="search.placeholder" data-i-title="search.hint" autocomplete="off">
+      <input id="q" type="search" aria-label="Search" placeholder="Search files…" title="Search ( / ) · Search all courses ( Ctrl+K ) · Enter opens the first result" data-i-aria="search.label" data-i-ph="search.placeholder" data-i-title="search.hint" autocomplete="off">
     </label>
-    <button class="btn" id="new-folder" title="Yeni klasör" data-i-title="folder.new">
+    <button class="btn" id="new-folder" title="New folder" data-i-title="folder.new">
       <svg viewBox="0 0 24 24">
         <g class="doc"><path d="M8 4.5h6l2.5 2.5v8H8z"/><path d="M10.5 9h3.5M10.5 11.5h3.5"/></g>
         <path class="folder" d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
         <path class="plus" d="M12 11.5v5M9.5 14h5"/>
       </svg>
-      <span data-i="folder.new">Yeni klasör</span>
+      <span data-i="folder.new">New folder</span>
     </button>
-    <button class="btn primary" id="upload-btn" title="Dosya yükle" data-i-title="upload.files">
+    <button class="btn primary" id="upload-btn" title="Upload files" data-i-title="upload.files">
       <svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
-      <span data-i="upload.button">Yükle</span>
+      <span data-i="upload.button">Upload</span>
     </button>
     <input type="file" id="file-input" multiple hidden>
   </div>
@@ -1094,7 +1094,7 @@
   <div id="content" tabindex="-1"></div>
   <div id="viewer" hidden>
     <div id="frames"></div>
-    <button class="icon-btn" id="fs-exit" title="Tam ekrandan çık (F)" aria-label="Tam ekrandan çık" data-i-title="viewer.exit_fullscreen_f" data-i-aria="viewer.exit_fullscreen">
+    <button class="icon-btn" id="fs-exit" title="Exit full screen (F)" aria-label="Exit full screen" data-i-title="viewer.exit_fullscreen_f" data-i-aria="viewer.exit_fullscreen">
       <span class="t-icon-swap"><span class="t-icon" data-icon="a"><svg class="fs-ic out" viewBox="0 0 24 24"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg></span><span class="t-icon" data-icon="b"><svg class="fs-ic in" viewBox="0 0 24 24"><path d="M9 4v5H4"/><path d="M15 4v5h5"/><path d="M9 20v-5H4"/><path d="M15 20v-5h5"/></svg></span></span>
     </button>
   </div>
@@ -1107,8 +1107,8 @@
     <input id="dlg-input" autocomplete="off" spellcheck="false">
     <select id="dlg-select" hidden></select>
     <div class="actions">
-      <button class="btn" id="dlg-cancel" value="cancel" formnovalidate data-i="dlg.cancel">Vazgeç</button>
-      <button class="btn primary" id="dlg-ok" value="ok" data-i="dlg.ok">Tamam</button>
+      <button class="btn" id="dlg-cancel" value="cancel" formnovalidate data-i="dlg.cancel">Cancel</button>
+      <button class="btn primary" id="dlg-ok" value="ok" data-i="dlg.ok">OK</button>
     </div>
   </form>
 </dialog>
@@ -1116,62 +1116,62 @@
 <dialog id="settings" aria-labelledby="set-title">
   <form method="dialog" onsubmit="return false" class="set">
     <nav class="set-nav" role="tablist" aria-orientation="vertical" aria-labelledby="set-title">
-      <p class="set-title" id="set-title"><svg id="set-gear" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-i="nav.settings">Ayarlar</span></p>
+      <p class="set-title" id="set-title"><svg id="set-gear" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-i="nav.settings">Settings</span></p>
       <button type="button" role="tab" class="node set-tab" id="tab-general" data-tab="general" aria-controls="pane-general">
         <svg class="ti ti-general" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle class="k k1" cx="15" cy="7" r="2"/><circle class="k k2" cx="9" cy="17" r="2"/></svg>
-        <span data-i="set.tab.general">Genel</span>
+        <span data-i="set.tab.general">General</span>
       </button>
       <button type="button" role="tab" class="node set-tab" id="tab-theme" data-tab="theme" aria-controls="pane-theme">
         <svg class="ti ti-theme" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 0 0 16c1.2 0 1.8-.8 1.8-1.7 0-1.3-1-1.5-1-2.5s.8-1.6 1.8-1.6H17a3 3 0 0 0 3-3C20 6.7 16.4 4 12 4Z"/><circle class="d d1" cx="8.3" cy="11" r="1"/><circle class="d d2" cx="11.7" cy="7.8" r="1"/><circle class="d d3" cx="15.5" cy="9.3" r="1"/></svg>
-        <span data-i="set.tab.theme">Tema</span>
+        <span data-i="set.tab.theme">Theme</span>
       </button>
       <button type="button" role="tab" class="node set-tab" id="tab-folder" data-tab="folder" aria-controls="pane-folder">
         <svg class="ti ti-folder" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h6l2 2h10v11H3Z"/><path class="doc" d="M7 13h10"/></svg>
-        <span data-i="set.tab.folder">Kaynak yolu</span>
+        <span data-i="set.tab.folder">Content folder</span>
       </button>
       <button type="button" role="tab" class="node set-tab" id="tab-about" data-tab="about" aria-controls="pane-about">
         <svg class="ti ti-about" viewBox="0 0 24 24" aria-hidden="true"><circle class="ring" cx="12" cy="12" r="8.5"/><path class="stem" d="M12 11v5.2"/><path class="dot" d="M12 7.8h.01"/></svg>
-        <span data-i="set.tab.about">Hakkında</span>
+        <span data-i="set.tab.about">About</span>
       </button>
     </nav>
     <div class="set-main">
-      <button type="button" class="icon-btn set-x" id="s-cancel" aria-label="Kapat" title="Kapat" data-i-aria="dlg.close" data-i-title="dlg.close">
+      <button type="button" class="icon-btn set-x" id="s-cancel" aria-label="Close" title="Close" data-i-aria="dlg.close" data-i-title="dlg.close">
         <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
       </button>
 
       <section class="set-pane" role="tabpanel" id="pane-general" data-pane="general" aria-labelledby="tab-general" hidden>
-        <div class="sec-head"><svg class="sec-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><h2 data-i="set.tab.general">Genel</h2><span class="sec-rule"></span></div>
+        <div class="sec-head"><svg class="sec-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><h2 data-i="set.tab.general">General</h2><span class="sec-rule"></span></div>
         <label class="field" for="s-lang">Dil / Language</label>
         <select id="s-lang"></select>
-        <p class="hint" data-i="set.lang_hint">Arayüz dili. “Otomatik” sistem dilini izler.</p>
-        <label class="chk gen-chk"><input type="checkbox" id="g-tray"><span data-i="set.tray_label">Pencereyi kapatınca arka planda çalışmaya devam et</span></label>
-        <p class="hint" data-i="set.tray_help">libzie sistem tepsisinde kalır; simgeye tıklayınca pencere açılır, sağ tıklayıp tamamen çıkabilirsin.</p>
+        <p class="hint" data-i="set.lang_hint">Interface language. “Automatic” follows your system language.</p>
+        <label class="chk gen-chk"><input type="checkbox" id="g-tray"><span data-i="set.tray_label">Keep running in the background when the window is closed</span></label>
+        <p class="hint" data-i="set.tray_help">libzie stays in the system tray; click the icon to open the window, or right-click it to quit completely.</p>
       </section>
 
       <section class="set-pane" role="tabpanel" id="pane-theme" data-pane="theme" aria-labelledby="tab-theme" hidden>
-        <div class="sec-head"><svg class="sec-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 0 0 16c1.2 0 1.8-.8 1.8-1.7 0-1.3-1-1.5-1-2.5s.8-1.6 1.8-1.6H17a3 3 0 0 0 3-3C20 6.7 16.4 4 12 4Z"/><circle cx="8.3" cy="11" r="1"/><circle cx="11.7" cy="7.8" r="1"/><circle cx="15.5" cy="9.3" r="1"/></svg><h2 data-i="set.tab.theme">Tema</h2><span class="sec-rule"></span></div>
-        <p class="hint set-hint" data-i="set.theme_hint">Uygulamanın renk düzeni. “Sistem” bilgisayarının açık/koyu tercihini izler.</p>
+        <div class="sec-head"><svg class="sec-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 0 0 16c1.2 0 1.8-.8 1.8-1.7 0-1.3-1-1.5-1-2.5s.8-1.6 1.8-1.6H17a3 3 0 0 0 3-3C20 6.7 16.4 4 12 4Z"/><circle cx="8.3" cy="11" r="1"/><circle cx="11.7" cy="7.8" r="1"/><circle cx="15.5" cy="9.3" r="1"/></svg><h2 data-i="set.tab.theme">Theme</h2><span class="sec-rule"></span></div>
+        <p class="hint set-hint" data-i="set.theme_hint">The app's color scheme. “System” follows your computer's light/dark preference.</p>
         <div class="theme-list" id="theme-list" role="radiogroup" aria-labelledby="tab-theme"></div>
       </section>
 
       <section class="set-pane" role="tabpanel" id="pane-folder" data-pane="folder" aria-labelledby="tab-folder" hidden>
-        <div class="sec-head"><svg class="sec-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h6l2 2h10v11H3Z"/></svg><h2 data-i="set.tab.folder">Kaynak yolu</h2><span class="sec-rule"></span></div>
-        <label class="field" for="s-path" data-i="set.root_label">Kaynak klasörü</label>
-        <input id="s-path" autocomplete="off" spellcheck="false" placeholder="Boş bırakırsanız varsayılan klasör kullanılır" data-i-ph="set.root_placeholder">
+        <div class="sec-head"><svg class="sec-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h6l2 2h10v11H3Z"/></svg><h2 data-i="set.tab.folder">Content folder</h2><span class="sec-rule"></span></div>
+        <label class="field" for="s-path" data-i="set.root_label">Content folder</label>
+        <input id="s-path" autocomplete="off" spellcheck="false" placeholder="Leave empty to use the default folder" data-i-ph="set.root_placeholder">
         <p class="hint" id="s-preview" aria-live="polite"></p>
         <p class="hint" data-i-html="set.root_help"></p>
         <p class="hint" id="s-lock" data-i-html="set.root_locked" hidden></p>
-        <p class="hint"><span data-i="set.current">Şu an:</span> <code id="s-current"></code><br><span data-i="set.default">Varsayılan:</span> <code id="s-default"></code></p>
+        <p class="hint"><span data-i="set.current">Currently:</span> <code id="s-current"></code><br><span data-i="set.default">Default:</span> <code id="s-default"></code></p>
         <p class="error" id="s-error"></p>
         <div class="set-actions">
-          <button type="button" class="btn" id="s-reveal" data-i="set.open_explorer">Gezgin'de aç</button>
+          <button type="button" class="btn" id="s-reveal" data-i="set.open_explorer">Open in File Explorer</button>
           <span class="grow"></span>
-          <button type="button" class="btn primary" id="s-save" data-i="dlg.save">Kaydet</button>
+          <button type="button" class="btn primary" id="s-save" data-i="dlg.save">Save</button>
         </div>
       </section>
 
       <section class="set-pane" role="tabpanel" id="pane-about" data-pane="about" aria-labelledby="tab-about" hidden>
-        <div class="sec-head"><svg class="sec-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.2M12 7.8h.01"/></svg><h2 data-i="set.tab.about">Hakkında</h2><span class="sec-rule"></span></div>
+        <div class="sec-head"><svg class="sec-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.2M12 7.8h.01"/></svg><h2 data-i="set.tab.about">About</h2><span class="sec-rule"></span></div>
         <div class="about-brand">
           <svg class="about-logo" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M1.5 21.25h21"/>
@@ -1180,25 +1180,25 @@
             <circle class="logo-dot" cx="10.75" cy="6.1" r="1.45"/>
             <path class="logo-b" d="M15.5 3V21H21.5V14.5Q21.5 11.5 18.5 11.5H15.5"/>
           </svg>
-          <div><div class="about-name">libzie</div><div class="about-ver"><span data-i="upd.current_version">Mevcut sürüm</span> <b id="u-cur">—</b></div></div>
+          <div><div class="about-name">libzie</div><div class="about-ver"><span data-i="upd.current_version">Current version</span> <b id="u-cur">—</b></div></div>
         </div>
-        <p class="hint about-desc" data-i="about.description">Ders notlarını, slaytları ve PDF'leri derse göre düzenleyen, bilgisayarında yerel çalışan küçük bir arşiv.</p>
+        <p class="hint about-desc" data-i="about.description">A small archive that runs locally on your computer and organizes your lecture notes, slides and PDFs by course.</p>
         <section class="upd" aria-labelledby="u-head">
-          <p class="field" id="u-head" data-i="upd.heading">Güncelleme</p>
+          <p class="field" id="u-head" data-i="upd.heading">Updates</p>
           <dl class="ver">
-            <dt data-i="upd.new_version">Yeni sürüm</dt><dd id="u-new">—</dd>
+            <dt data-i="upd.new_version">New version</dt><dd id="u-new">—</dd>
           </dl>
           <p class="hint" id="u-msg" aria-live="polite"></p>
           <div class="bar" id="u-bar" hidden><i></i></div>
-          <label class="chk"><input type="checkbox" id="u-auto"><span data-i="upd.auto_label">Yeni sürümü açılışta otomatik yükle</span></label>
-          <p class="hint" data-i="upd.auto_help">İşaretliyken libzie her açılışta yeni sürüm olup olmadığına bakar, varsa indirir ve yeniden başlar. Bu seçenek hemen kaydedilir.</p>
+          <label class="chk"><input type="checkbox" id="u-auto"><span data-i="upd.auto_label">Install new versions automatically on startup</span></label>
+          <p class="hint" data-i="upd.auto_help">When checked, libzie looks for a new version every time it starts, downloads it if there is one and restarts. This setting is saved immediately.</p>
           <div class="row-btns">
-            <button type="button" class="btn" id="u-check" data-i="upd.check">Güncellemeleri denetle</button>
-            <button type="button" class="btn primary" id="u-apply" data-i="upd.apply" hidden>Şimdi güncelle</button>
+            <button type="button" class="btn" id="u-check" data-i="upd.check">Check for updates</button>
+            <button type="button" class="btn primary" id="u-apply" data-i="upd.apply" hidden>Update now</button>
           </div>
         </section>
-        <p class="hint about-priv" data-i="about.privacy">Gizlilik: verilerini toplamam. Dosyaların bilgisayarında kalır; yalnızca hava durumu (şehir adı, Open-Meteo'ya) ve sürüm denetimi (GitHub'a) internete çıkar.</p>
-        <p class="hint about-lic" data-i="about.license">Lisans: MIT</p>
+        <p class="hint about-priv" data-i="about.privacy">Privacy: no data is collected. Your files stay on your computer; only the weather (city name, to Open-Meteo) and the update check (to GitHub) go online.</p>
+        <p class="hint about-lic" data-i="about.license">License: MIT</p>
       </section>
     </div>
   </form>
@@ -1206,21 +1206,21 @@
 
 <dialog id="keys">
   <form method="dialog">
-    <p class="dlg-head keys-head"><svg id="keys-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg><span data-i="nav.shortcuts">Kısayollar</span></p>
+    <p class="dlg-head keys-head"><svg id="keys-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg><span data-i="nav.shortcuts">Shortcuts</span></p>
     <dl class="keys">
-      <dt><kbd>/</kbd></dt><dd data-i="keys.search">Ara; bulunduğun dersin içinde arar</dd>
-      <dt><kbd>Ctrl</kbd> <kbd>K</kbd></dt><dd data-i-html="keys.search_all">Tüm derslerde ara; <kbd>Enter</kbd> ilk sonucu açar</dd>
-      <dt><kbd>Ctrl</kbd> <kbd>B</kbd></dt><dd data-i="keys.sidebar">Kenar çubuğunu gizle / göster</dd>
-      <dt><kbd>F</kbd></dt><dd data-i="keys.fullscreen">Açık dosyayı tam ekran yap / tam ekrandan çık</dd>
-      <dt><kbd>Esc</kbd></dt><dd data-i="keys.escape">Menüyü kapat, dosya gezginine dön</dd>
-      <dt><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd></dt><dd data-i="keys.arrows">Karolar, kartlar ve satırlar arasında gez</dd>
-      <dt><kbd>Enter</kbd></dt><dd data-i="keys.enter">Odaktaki öğeyi aç</dd>
-      <dt><kbd>F2</kbd></dt><dd data-i="action.rename">Yeniden adlandır</dd>
-      <dt><kbd>Delete</kbd></dt><dd data-i="keys.delete">Sil (onay sorulur, “Geri al” ile döner)</dd>
-      <dt><kbd>?</kbd></dt><dd data-i="keys.help">Bu listeyi aç</dd>
+      <dt><kbd>/</kbd></dt><dd data-i="keys.search">Search; searches inside the current course</dd>
+      <dt><kbd>Ctrl</kbd> <kbd>K</kbd></dt><dd data-i-html="keys.search_all">Search all courses; <kbd>Enter</kbd> opens the first result</dd>
+      <dt><kbd>Ctrl</kbd> <kbd>B</kbd></dt><dd data-i="keys.sidebar">Hide / show the sidebar</dd>
+      <dt><kbd>F</kbd></dt><dd data-i="keys.fullscreen">Make the open file full screen / exit full screen</dd>
+      <dt><kbd>Esc</kbd></dt><dd data-i="keys.escape">Close the menu, return to the file browser</dd>
+      <dt><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd></dt><dd data-i="keys.arrows">Move between tiles, cards and rows</dd>
+      <dt><kbd>Enter</kbd></dt><dd data-i="keys.enter">Open the focused item</dd>
+      <dt><kbd>F2</kbd></dt><dd data-i="action.rename">Rename</dd>
+      <dt><kbd>Delete</kbd></dt><dd data-i="keys.delete">Delete (asks for confirmation, can be undone with “Undo”)</dd>
+      <dt><kbd>?</kbd></dt><dd data-i="keys.help">Open this list</dd>
     </dl>
-    <p class="note" data-i="keys.pdf_note">PDF açıkken sayfa, yakınlaştırma ve yazdırma düğmeleri tarayıcının kendi PDF çubuğundadır. PDF’e tıklayınca Esc ve kısayollar ona gider; gezgine dönmek için “Dosyalar” sekmesine tıkla.</p>
-    <div class="actions"><button class="btn primary" value="ok" data-i="dlg.ok">Tamam</button></div>
+    <p class="note" data-i="keys.pdf_note">While a PDF is open, the page, zoom and print buttons are in the browser's own PDF toolbar. After you click the PDF, Esc and the shortcuts go to it; click the “Files” tab to return to the browser.</p>
+    <div class="actions"><button class="btn primary" value="ok" data-i="dlg.ok">OK</button></div>
   </form>
 </dialog>
 
@@ -1234,7 +1234,7 @@ const ICON = {
   chev: '<svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>',
   x: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   grid: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>',
-  list: '<svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>', // ayrı çizgiler: sırayla canlanır
+  list: '<svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>', // separate lines: they come alive in turn
   more: '<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>',
 };
 const VIEWABLE = new Set(['pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'txt', 'md', 'mp4', 'webm', 'mp3']);
@@ -1250,14 +1250,14 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
 };
 
-/* ---------- diller (i18n) ---------- */
-// Sözlükler static/lang/<dil>.json dosyalarındadır; sunucu hepsini sayfaya gömer (#i18n-data) ve her dosya bir dildir
-// ("_name" dilin kendi adı). Anahtarlar kimliktir ('menu.rename'): t('kimlik', { değişken }) etkin dilden çevirir, eksikse
-// Türkçeye (FALLBACK), o da yoksa kimliğin kendisine düşer. Değer { one, other, ... } nesnesiyse çoğuldur (Intl.PluralRules, vars.n).
-// Yeni dil eklemek için static/lang/ altına dosya koymak yeter; tools/i18n_kontrol.py eksik anahtarları listeler.
+/* ---------- languages (i18n) ---------- */
+// The dictionaries are in the static/lang/<lang>.json files; the server embeds them all in the page (#i18n-data) and each file is one language
+// ("_name" is the language's own name). The keys are ids ('menu.rename'): t('id', { variable }) translates from the active language, falls back
+// to the FALLBACK language (en), and if that is missing too, to the id itself. A { one, other, ... } object value is a plural (Intl.PluralRules, vars.n).
+// To add a language just drop a file into static/lang/; tools/i18n_check.py lists the missing keys.
 const DICT = (() => { try { return JSON.parse($('#i18n-data').textContent) || {}; } catch { return {}; } })();
 const LANGS = Object.keys(DICT);
-const FALLBACK = 'tr';
+const FALLBACK = 'en';
 let langPref = (() => { const v = store.get('lang', 'auto'); return v !== 'auto' && LANGS.includes(v) ? v : 'auto'; })();
 const detectLang = () => {
   const n = (navigator.language || '').toLowerCase().split('-')[0];
@@ -1272,7 +1272,7 @@ function t(id, vars) {
   if (typeof v === 'object') v = v[new Intl.PluralRules(lang).select(vars && vars.n !== undefined ? vars.n : 0)] ?? v.other;
   return vars ? v.replace(/\{(\w+)\}/g, (m, k) => k in vars ? vars[k] : m) : v;
 }
-// Sunucudan gelen hata/uyarı: { error: varsayılan Türkçe metin, code: kimlik, vars } → etkin dilde metin
+// An error/warning from the server: { error: default English text, code: id, vars } → text in the active language
 const errText = j => j && j.code && has(j.code) ? t(j.code, j.vars) : (j && j.error) || t('err.no_response');
 function applyI18n() {
   document.documentElement.lang = lang;
@@ -1284,7 +1284,7 @@ function applyI18n() {
   const meta = document.querySelector('meta[name="description"]');
   if (meta) meta.content = t('app.description');
 }
-// Dil seçici: "Otomatik" + sözlük dosyalarındaki her dil (kendi adıyla)
+// Language picker: "Automatic" + every language in the dictionary files (under its own name)
 function buildLangSelect() {
   const sel = $('#s-lang');
   sel.innerHTML = '';
@@ -1294,30 +1294,30 @@ function buildLangSelect() {
 }
 
 const PALETTE = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#2dd4bf', '#38bdf8', '#a78bfa', '#f472b6'];
-// Eski (pastel) palet: .renkler.json'da kayıtlı eski seçimler aynı sıradaki canlı renge çevrilir
+// Old (pastel) palette: old choices saved in .colors.json are converted to the vivid color at the same position
 const LEGACY_PALETTE = ['#d39a9a', '#d6b38a', '#d3c88f', '#95c2a2', '#8fc0c4', '#8ea7c6', '#b8a3cf', '#cf9fba'];
 let tree = { name: '', path: '', folders: [], files: [], colors: {}, icons: {} };
-// Alt klasörler ve dosyalar, bağlı oldukları dersin rengini taşır
+// Subfolders and files carry the color of the course they belong to
 const colorOf = path => {
   const c = (tree.colors || {})[path.split('/')[0]] || '';
   const i = LEGACY_PALETTE.indexOf(c);
   if (i >= 0) return PALETTE[i];
-  return /^#[0-9a-f]{3,8}$/i.test(c) ? c : ''; // renkler HTML/CSS içine yazılır: yalnızca hex kabul edilir
+  return /^#[0-9a-f]{3,8}$/i.test(c) ? c : ''; // colors are written into HTML/CSS: only hex is accepted
 };
-// Dosyanın bağlı olduğu dersi, dersin rengiyle gösteren etiket (kök dizindeki dosyalarda ders yoktur)
-// withShape: küçük resim kartlarında, üzerine gelince adın yerine dersin ana sayfa karosundaki şekil belirir
+// A label that shows the course a file belongs to, in the course's color (files in the root directory have no course)
+// withShape: on thumbnail cards, on hover the shape from the course's home-page tile appears in place of the name
 const courseBadge = (path, withShape = false) => {
   if (!path.includes('/')) return '';
-  if (!query && cur && path.split('/')[0] === cur.split('/')[0]) return ''; // ders sayfasında hepsi aynı derstendir
+  if (!query && cur && path.split('/')[0] === cur.split('/')[0]) return ''; // on a course page they are all from the same course
   const course = path.split('/')[0];
   const i = tree.folders.findIndex(f => f.name === course);
   const shape = withShape && i >= 0
     ? `<svg class="cb-shape" viewBox="0 0 100 100" aria-hidden="true">${shapeOf(course, i)}</svg>` : '';
   return `<span class="cbadge" style="--c:${colorOf(path) || '#767c86'}" title="${esc(course)}"><span class="cb-name">${esc(course)}</span>${shape}</span>`;
 };
-// Dosyalar doğal sırayla dizilir: "Ders 2", "Ders 10"dan önce gelir
+// Files are sorted naturally: "Lecture 2" comes before "Lecture 10"
 const byName = (a, b) => a.name.localeCompare(b.name, lang, { numeric: true, sensitivity: 'base' });
-// Dosya adından kısa bir etiket çıkarır ("Lecture 3", "Chapter 1", "Midterm"): kartlar bir bakışta ayırt edilsin
+// Extracts a short tag from the file name ("Lecture 3", "Chapter 1", "Midterm"): so the cards can be told apart at a glance
 const TAG_NUM = /\b(lec(?:ture)?|ders|hafta|week|ch(?:apter)?|b[öo]l[üu]m|hw|homework|[öo]dev|quiz|lab|set|ps|exam|s[ıi]nav)\.?[\s._-]*0*(\d{1,2})\b/i;
 const TAG_WORD = /\b(midterm|final|vize|quiz|exam)\b/i;
 function fileTag(name) {
@@ -1331,7 +1331,7 @@ let cur = '';
 let query = '';
 const expanded = new Set(store.get('expanded', []));
 
-/* ---------- yardımcılar ---------- */
+/* ---------- helpers ---------- */
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const dirOf = p => p.includes('/') ? p.slice(0, p.lastIndexOf('/')) : '';
 const baseOf = p => p.slice(p.lastIndexOf('/') + 1);
@@ -1364,11 +1364,11 @@ function allFiles(node, out = []) {
 }
 
 let toastTimer;
-// progress (0–1): bildirimin altında dolan ince çizgi (ör. yükleme)
+// progress (0–1): a thin line that fills up under the toast (e.g. an upload)
 function toast(msg, err = false, stay = false, progress = null, action = null) {
   const t = $('#toast');
   t.textContent = msg;
-  // action: { label, fn } → bildirimin içinde 'toast.undo' gibi bir düğme (daha uzun süre kalır)
+  // action: { label, fn } → a button inside the toast such as 'toast.undo' (it stays longer)
   if (action) {
     const btn = document.createElement('button');
     btn.className = 'toast-act';
@@ -1390,7 +1390,7 @@ async function api(url, body) {
 }
 const fail = e => toast(e.message || String(e), true);
 
-/* ---------- veri ve gezinme ---------- */
+/* ---------- data and navigation ---------- */
 async function load() {
   try {
     tree = await (await fetch('/api/tree')).json();
@@ -1400,7 +1400,7 @@ async function load() {
   }
   syncTabs();
   render();
-  arrivals.clear(); // vurgu yalnızca bir kez, öğenin ilk göründüğü çizimde oynar
+  arrivals.clear(); // the highlight plays only once, in the render where the item first appears
 }
 
 function pathFromHash() {
@@ -1409,11 +1409,11 @@ function pathFromHash() {
 }
 function go(path) {
   animateNav = true;
-  if (active) setActive(null); // klasöre gidilince dosya gezgini görünür
+  if (active) setActive(null); // when navigating to a folder the file browser becomes visible
   const hash = '#/' + (path ? path.split('/').map(encodeURIComponent).join('/') : '');
   if (location.hash === hash) { render(); return; }
-  // Ana sayfa ⇄ ders: karonun şekli konum yolundaki ders ikonuna uçar (görünüm geçişi). Adres pushState ile
-  // değişir (hashchange tetiklenmez, çizim geçişin içinde eşzamanlı yapılır); geri/ileri yine hashchange ile çalışır.
+  // Home ⇄ course: the tile's shape flies to the course icon in the breadcrumb (view transition). The address changes
+  // with pushState (hashchange does not fire, the render is done synchronously inside the transition); back/forward still work through hashchange.
   const intoCourse = !cur && path && !path.includes('/');
   const backHome = !path && cur && !query;
   if ((intoCourse || backHome) && canVT()) {
@@ -1421,7 +1421,7 @@ function go(path) {
     transition(() => {
       history.pushState(null, '', hash);
       cur = path;
-      animateNav = false; // içerik girişini görünüm geçişi üstleniyor
+      animateNav = false; // the view transition takes over the content entrance
       render();
     }, intoCourse ? () => nameCourseTile(course) : nameCourseCrumb,
        intoCourse ? nameCourseCrumb : () => nameCourseTile(course));
@@ -1437,11 +1437,11 @@ window.addEventListener('hashchange', () => {
   render();
 });
 
-/* ---------- çizim ---------- */
+/* ---------- rendering ---------- */
 function render() {
   if (!findFolder(cur)) cur = '';
-  $('#new-folder').hidden = !cur; // ana sayfada kök klasör = ders: kenar çubuğundaki + ve raftaki "Yeni ders" zaten var
-  // açık klasörün üst klasörlerini genişlet
+  $('#new-folder').hidden = !cur; // on the home page the root folder = a course: the + in the sidebar and the "New course" on the shelf already exist
+  // expand the parent folders of the open folder
   let p = dirOf(cur);
   while (p) { expanded.add(p); p = dirOf(p); }
   renderTree();
@@ -1449,7 +1449,7 @@ function render() {
   renderContent();
   renderBanner();
   $('#page-title').textContent = cur ? baseOf(cur) : t('app.title_home');
-  // Dosya görünümünden gezgine dönüş de bir gezinti sayılır
+  // returning from the file view to the browser counts as navigation too
   if (lastViewing && !active) animateNav = true;
   const box = $('#content');
   box.classList.remove('enter');
@@ -1473,8 +1473,8 @@ function renderBanner() {
   b.append(btn);
 }
 
-// Son çizimde seçili olan ders listesi satırı. Liste her çizimde yeniden kurulur; satırlar önce bu eski
-// seçimle kurulup hemen ardından yeni seçime geçirilir, böylece seçim değişince dolma/boşalma animasyonu oynar.
+// The course-list row that was selected in the last render. The list is rebuilt on every render; rows are first built with this old
+// selection and immediately switched to the new one, so the fill/drain animation plays when the selection changes.
 let treeActive = null;
 
 function renderTree() {
@@ -1508,13 +1508,13 @@ function renderTree() {
   if (!tree.folders.length) box.append(h(`<div class="node" style="cursor:default;color:var(--faint)">${t('course.none')}</div>`));
   box.querySelectorAll('.node[data-path]').forEach(n => n.setAttribute('aria-current', n.dataset.path === cur ? 'page' : 'false'));
   if (treeActive !== cur) {
-    void box.offsetWidth; // eski durum çizilsin ki geçiş başlasın
+    void box.offsetWidth; // let the old state be drawn so the transition can start
     box.querySelectorAll('.node[data-path]').forEach(n => n.classList.toggle('active', n.dataset.path === cur));
     treeActive = cur;
   }
 }
 
-// Konum yolu ikonları: ana sayfaya ev, derse ana sayfa karosundaki şekli (dersin renginde), alt klasörlere klasör
+// Breadcrumb icons: a house for home, for a course the shape from its home-page tile (in the course's color), a folder for subfolders
 const CRUMB_HOME = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg>';
 function crumbIcon(name, path, depth) {
   if (depth > 0) return `<svg viewBox="0 0 24 24" aria-hidden="true">${SEC_ICON.folders}</svg>`;
@@ -1549,7 +1549,7 @@ function searchResults() {
   const words = norm(query).split(/\s+/).filter(Boolean);
   const scoped = cur && !searchAll;
   const phrase = norm(query).trim();
-  // Sorgunun bitişik geçtiği dosyalar önce ("lecture 2" → "LECTURE 2", "X LECTURE 1"den önce gelir)
+  // Files that match the query contiguously come first ("lecture 2" → "LECTURE 2" comes before "X LECTURE 1")
   const rank = f => norm(f.name).includes(phrase) ? 0 : 1;
   return allFiles(scoped ? findFolder(cur) : tree).filter(f => { const n = norm(f.path); return words.every(w => n.includes(w)); })
     .sort((a, b) => rank(a) - rank(b) || byName(a, b));
@@ -1579,7 +1579,7 @@ function renderContent() {
 
   if (!cur) {
     box.append(greeting());
-    // Devam et: son açılan 3 dosya, klasör sekmeli kartlar
+    // Continue: the 3 most recently opened files, cards with a folder tab
     const all = new Map(allFiles(tree).map(f => [f.path, f]));
     const recent = store.get('recent', []).map(p => all.get(p)).filter(Boolean).slice(0, 3);
     if (recent.length) {
@@ -1588,7 +1588,7 @@ function renderContent() {
       recent.forEach(f => wrap.append(resumeCard(f)));
       box.append(wrap);
     }
-    // Dersler: rafta duran kitaplar
+    // Courses: books standing on a shelf
     box.append(sectionHead(t('nav.courses'), 'courses', tree.folders.length));
     const shelf = h('<div class="shelf"></div>');
     tree.folders.forEach((f, i) => shelf.append(bookTile(f, i)));
@@ -1600,7 +1600,7 @@ function renderContent() {
 
   if (cur && node.folders.length) {
     box.append(sectionHead(t('folder.plural_title'), 'folders', node.folders.length));
-    // Alt klasörler: dersin renginde küçük karolar
+    // Subfolders: small tiles in the course's color
     const tiles = h('<div class="tiles small"></div>');
     node.folders.forEach((f, i) => tiles.append(courseTile(f, i)));
     box.append(tiles);
@@ -1619,7 +1619,7 @@ function renderContent() {
     }
   }
 
-  // Ana sayfada boş durumu 'course.new' karosu karşılıyor
+  // On the home page the empty state is covered by the 'course.new' tile
   if (cur && !node.folders.length && !node.files.length) {
     const empty = h(`<div class="empty"><p>${t('empty.title')}</p><p>${t('empty.hint')}</p>
            <button class="btn primary">${t('upload.files')}</button></div>`);
@@ -1628,9 +1628,9 @@ function renderContent() {
   }
 }
 
-/* ---------- ders karoları (ana sayfa) ---------- */
-// Dersler alfabetik sırayla şekilleri sırayla alır; böylece (9 derse kadar) her dersin şekli farklıdır
-// Dişli yolu: n dişli, dış yarıçap ro, kök yarıçap ri; off = ilk dişin açısı
+/* ---------- course tiles (home page) ---------- */
+// Courses take the shapes in order alphabetically; so (up to 9 courses) every course has a different shape
+// Gear path: n teeth, outer radius ro, root radius ri; off = angle of the first tooth
 function gearD(cx, cy, ro, ri, n, off = 0) {
   const p = 2 * Math.PI / n, pt = (r, a) => `${(cx + r * Math.cos(a)).toFixed(1)} ${(cy + r * Math.sin(a)).toFixed(1)}`;
   let d = '';
@@ -1640,10 +1640,10 @@ function gearD(cx, cy, ro, ri, n, off = 0) {
   }
   return d + 'Z';
 }
-// Ders ikonları (100x100, yalnızca çizgi). Seçilmemiş derslerde alfabetik sıraya göre dizinin başından verilir
-// (ilk 8 ders hep farklı bir ikon alır); yeni ders açılırken en az kullanılan ikon kalıcı olarak atanır.
-// Kullanıcı ders menüsünden 'folder.pick_icon' ile değiştirir (sunucuda .ikonlar.json). 'icon.group.general' grubu her bölüm için,
-// 'icon.group.engineering' grubu devre/makine dersleri içindir.
+// Course icons (100x100, line only). Courses with no chosen icon get them from the start of the array in alphabetical order
+// (the first 8 courses always get a different icon); when a new course is created the least-used icon is assigned permanently.
+// The user changes it from the course menu with 'folder.pick_icon' (stored on the server in .icons.json). The 'icon.group.general' group is for every field,
+// the 'icon.group.engineering' group is for circuit/machine courses.
 const ICONS = [
   { id: 'atom', label: 'icon.atom', group: 'icon.group.general',
     svg: '<circle cx="50" cy="50" r="5"/><ellipse cx="50" cy="50" rx="44" ry="16"/><ellipse cx="50" cy="50" rx="44" ry="16" transform="rotate(60 50 50)"/><ellipse cx="50" cy="50" rx="44" ry="16" transform="rotate(120 50 50)"/>' },
@@ -1699,16 +1699,16 @@ const ICONS = [
     svg: '<path d="M4 50h92M4 22v56M4 50c12-46 24-46 36 0s24 46 36 0"/>' },
 ];
 const ICON_BY_ID = Object.fromEntries(ICONS.map(i => [i.id, i]));
-// Dersin ikon kimliği: seçilmişse o, değilse alfabetik sıradaki dizin
+// The course's icon id: the chosen one if there is one, otherwise the array item at the alphabetical position
 const iconIdOf = (name, index = 0) => {
   const id = (tree.icons || {})[name];
   return ICON_BY_ID[id] ? id : ICONS[index % ICONS.length].id;
 };
 const shapeOf = (name, index = 0) => ICON_BY_ID[iconIdOf(name, index)].svg;
 
-// Uzay mekiği (süs): yörünge aracı, dış yakıt tankı ve yan roket, yandan ve ana hatlarıyla; burnu solda.
-// Alevler yalnızca mekiğin üzerine gelince çıkar (--thrust 0..1, fireRocket ayarlar); dişlilerin dönüşünden bağımsızdır.
-// Şerit selamdan dişlilere kadar uzanır; genişliğini fitSchem() boşluğa göre ayarlar (viewBox oranı sabit).
+// Space shuttle (ornament): orbiter, external fuel tank and side booster, side view and outline only; the nose is on the left.
+// The flames appear only when hovering over the shuttle (--thrust 0..1, set by fireRocket); independent of the gears' rotation.
+// The strip runs from the greeting to the gears; fitSchem() adjusts its width to the space (the viewBox ratio is fixed).
 function schemSvg() {
   return `<svg class="schem" viewBox="0 0 540 112" aria-hidden="true">
     <path d="M10 60C22 50 38 46 64 46H410V74H64C38 74 22 70 10 60Z"/>
@@ -1741,7 +1741,7 @@ function schemSvg() {
   </svg>`;
 }
 
-// Birbirine geçen iki dişli (süs): üzerine gelince döner
+// Two meshing gears (ornament): they turn on hover
 function gearsSvg() {
   return `<svg class="gears" viewBox="0 0 190 112" aria-hidden="true">
     <g class="g-a"><path d="${gearD(56, 56, 40, 32, 12)}"/><circle cx="56" cy="56" r="10"/><circle cx="56" cy="56" r="3"/></g>
@@ -1749,10 +1749,10 @@ function gearsSvg() {
   </svg>`;
 }
 
-// Karo zemini: ders rengi %15 koyulaştırılır. Yazı rengi sabit bir parlaklık eşiğiyle değil, WCAG kontrastıyla seçilir:
-// koyu (#222831) ve açık (#eeeeee) yazı denenir; hangisi 4,5:1'e daha az renk kaydırmasıyla ulaşırsa o seçilir
-// (açık yazıda zemin biraz koyulaşır, koyu yazıda biraz açılır). Karodaki 19px özet ve seçili satırın 15px yazısı da
-// bu eşiği geçer. Sonuç ders başına sabittir.
+// Tile background: the course color darkened by 15%. The text color is chosen by WCAG contrast, not a fixed brightness threshold:
+// dark (#222831) and light (#eeeeee) text are tried; whichever reaches 4.5:1 with the smaller color shift is chosen
+// (with light text the background darkens a little, with dark text it lightens a little). The 19px summary on the tile and the selected row's 15px text
+// pass this threshold too. The result is fixed per course.
 const INK_DARK = [0x0e, 0x1a, 0x2b], INK_LIGHT = [0xee, 0xee, 0xee];
 const lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
 const relLum = ([r, g, b]) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
@@ -1776,7 +1776,7 @@ function tileColors(color, min = 4.5) {
   return { bg: css(bg), ink: hexOf(ink) };
 }
 
-// Seçili kenar çubuğu öğesi / etkin sekme için karo renkleri (rengi olmayan derste varsayılan gri yüzey kalır)
+// Tile colors for the selected sidebar item / active tab (a course with no color keeps the default gray surface)
 function tileVars(path) {
   const c = colorOf(path);
   if (!c) return '';
@@ -1784,7 +1784,7 @@ function tileVars(path) {
   return `--tile:${bg};--ink:${ink}`;
 }
 
-// Ders kitabı (ana sayfa): sırtta dikey ad, kapakta dosya sayısı ve ders şekli; yükseklik dosya sayısına göre
+// Course book (home page): a vertical name on the spine, file count and course shape on the cover; the height depends on the file count
 function bookTile(f, index) {
   const c = colorOf(f.path);
   const raw = /^#[0-9a-f]{6}$/i.test(c) ? c : '#767c86';
@@ -1811,7 +1811,7 @@ function newBook() {
   return book;
 }
 
-// Devam et kartı: dersin renginde sekme (dosya etiketi) + yüzey
+// Continue card: a tab in the course's color (the file tag) + surface
 function resumeCard(f) {
   const tag = fileTag(f.name) || (f.ext || '').toUpperCase().slice(0, 4);
   const course = f.path.includes('/') ? f.path.split('/')[0] : '';
@@ -1826,7 +1826,7 @@ function resumeCard(f) {
   return card;
 }
 
-// Ders sayfası başlığı: dersin renginde kitap sırtı + büyük ad + sayılar
+// Course page header: a book spine in the course's color + a large name + the counts
 function courseHeader(node) {
   const files = allFiles(node).length, folders = node.folders.length;
   const c = colorOf(cur);
@@ -1862,8 +1862,8 @@ function newCourseTile() {
   return tile;
 }
 
-// Ana sayfa karşılaması: saate göre selam + tarih + ders/dosya sayısı
-let greetPlayed = false; // selam animasyonu yalnızca site açılışında kendiliğinden oynar
+// Home-page greeting: greeting by time of day + date + course/file counts
+let greetPlayed = false; // the greeting animation plays by itself only when the site opens
 function greeting() {
   const now = new Date();
   const hour = now.getHours();
@@ -1871,8 +1871,8 @@ function greeting() {
   const date = now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' });
   const courses = tree.folders.length, files = allFiles(tree).length;
   const stats = courses || files ? ` · ${t('count.courses', { n: courses })} · ${t('count.files', { n: files })}` : '';
-  // Selam harf harf yazılır (üzerine gelince dalga animasyonu için). "i"/"İ" noktasız gövde + ayrı nokta olarak
-  // çizilir ki nokta harfin üstünde tek başına zıplayabilsin. Ekran okuyucular için düz metin aria-label'da.
+  // The greeting is written letter by letter (for the wave animation on hover). "i"/"İ" are drawn as a dotless body + a separate dot,
+  // so the dot can hop on its own above the letter. Plain text in aria-label for screen readers.
   const letters = [...hello].map((ch, i) => {
     if (ch === ' ') return '<span class="ch sp"> </span>';
     if (ch === 'i' || ch === 'İ') {
@@ -1881,7 +1881,7 @@ function greeting() {
     return `<span class="ch" style="--i:${i}">${esc(ch)}</span>`;
   }).join('');
   const el = h(`<div class="greet"><div class="hi" aria-label="${hello}"><span aria-hidden="true">${letters}</span></div><div class="sub">${esc(date)}${stats}</div>${schemSvg()}${gearsSvg()}</div>`);
-  // Site açılışında bir kez oynat; sonra sınıfı kaldır ki üzerine gelince yeniden oynayabilsin
+  // Play once when the site opens; then remove the class so it can play again on hover
   if (!greetPlayed) {
     greetPlayed = true;
     const hi = el.querySelector('.hi');
@@ -1912,7 +1912,7 @@ function fileRow(f, showPath) {
   return row;
 }
 
-// Dosya menüsü (liste satırı ve küçük resim kartı için ortak)
+// File menu (shared by list rows and thumbnail cards)
 function fileMenu(f, showPath, anchor, pos) {
   const where = dirOf(f.path);
   const items = [];
@@ -1931,14 +1931,14 @@ function fileMenu(f, showPath, anchor, pos) {
   menu(anchor, items, pos);
 }
 
-/* ---------- küçük resimler ---------- */
-// PDF'in ilk sayfası pdf.js ile (static/vendor, çevrimdışı) çizilir; sonuç IndexedDB'de önbelleğe alınır,
-// anahtar yol+değişiklik zamanı+boyut olduğundan dosya değişince yeniden üretilir.
-// Görseller doğrudan kendileriyle gösterilir. Yalnızca ekrana yaklaşan kartlar, aynı anda en fazla 2 tane çizilir.
+/* ---------- thumbnails ---------- */
+// The first page of a PDF is drawn with pdf.js (static/vendor, offline); the result is cached in IndexedDB,
+// the key is path+modified time+size, so it is regenerated when the file changes.
+// Images are shown as themselves. Only cards approaching the screen are drawn, at most 2 at a time.
 let fileView = store.get('view', 'grid') === 'list' ? 'list' : 'grid';
-let searchAll = false; // arama bir dersin içindeyken varsayılan olarak o dersle sınırlıdır
+let searchAll = false; // while searching inside a course, the search is limited to that course by default
 const IMG_EXT = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg']);
-const thumbURLs = new Map();   // anahtar → blob adresi (bu oturum boyunca)
+const thumbURLs = new Map();   // key → blob URL (for this session)
 const thumbFailed = new Set();
 const thumbQueue = [];
 let thumbBusy = 0;
@@ -1948,7 +1948,7 @@ const thumbKey = f => `${f.path}|${f.mtime}|${f.size}`;
 const thumbDB = (() => {
   let dbp = null;
   const open = () => dbp || (dbp = new Promise((res, rej) => {
-    const r = indexedDB.open('ders-arsivi', 1);
+    const r = indexedDB.open('libzie-thumbs', 1);
     r.onupgradeneeded = () => r.result.createObjectStore('thumbs');
     r.onsuccess = () => res(r.result);
     r.onerror = () => rej(r.error);
@@ -2001,7 +2001,7 @@ async function buildThumb(f) {
   const key = thumbKey(f);
   if (thumbURLs.has(key)) return thumbURLs.get(key);
   let blob = null;
-  try { blob = await thumbDB.get(key); } catch { /* önbellek yoksa yeniden çizilir */ }
+  try { blob = await thumbDB.get(key); } catch { /* no cache: it is redrawn */ }
   if (!blob) {
     try { blob = await renderPdfThumb(f); } catch { blob = null; }
     if (!blob) { thumbFailed.add(key); return null; }
@@ -2014,7 +2014,7 @@ async function buildThumb(f) {
 
 function pumpThumbs() {
   while (thumbBusy < 3 && thumbQueue.length) {
-    // Ekranda en üstteki kart önce çizilir; üstte kalıp kaydırılmış olanlar sona gider
+    // The card topmost on screen is drawn first; ones that stayed above after scrolling go last
     let bi = 0, bs = Infinity;
     thumbQueue.forEach((q, i) => {
       if (!q.isConnected) return;
@@ -2056,7 +2056,7 @@ function attachThumb(el, f) {
   thumbObserver.observe(el);
 }
 
-// Bölüm başlıklarının ikonları: karolardaki şekillerle aynı ince çizgi dili
+// Icons for the section headings: the same thin-line language as the shapes on the tiles
 const SEC_ICON = {
   courses: '<rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><path d="M17 13.2 20.8 17 17 20.8 13.2 17Z"/>',
   files: '<path d="M6 3h8.5L18 6.5V21H6Z"/><path d="M14.5 3v3.5H18"/><path d="M9 12h6M9 15.5h6"/>',
@@ -2065,7 +2065,7 @@ const SEC_ICON = {
   search: '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.4-4.4"/>',
 };
 
-// Bölüm başlığı: ikon + başlık + soluk sayı + sağa uzanan ince çizgi (+ isteğe bağlı sağdaki araçlar)
+// Section heading: icon + heading + faint count + a thin line extending to the right (+ optional tools on the right)
 function sectionHead(title, icon, count = null, tools = null) {
   const head = h(`<div class="sec-head">
     <svg class="sec-ic" viewBox="0 0 24 24" aria-hidden="true">${SEC_ICON[icon]}</svg>
@@ -2075,7 +2075,7 @@ function sectionHead(title, icon, count = null, tools = null) {
   return head;
 }
 
-// Dosya bölümü başlığı + liste/ızgara geçişi (tercih tüm dosya bölümleri için ortaktır)
+// File section heading + the list/grid toggle (the preference is shared by all file sections)
 function viewHead(title, icon, count) {
   const seg = h(`<div class="seg">
     <button data-v="grid" title="${t('view.thumbnails')}">${ICON.grid}</button>
@@ -2110,7 +2110,7 @@ function fileCard(f, showPath = false) {
   return card;
 }
 
-/* ---------- dosya açma ---------- */
+/* ---------- opening files ---------- */
 function addRecent(path) {
   const list = store.get('recent', []).filter(p => p !== path);
   list.unshift(path);
@@ -2120,30 +2120,30 @@ function openInApp(path) {
   addRecent(path);
   api('/api/open', { path }).then(() => toast(t('toast.opening_default'))).catch(fail);
 }
-// srcEl: tıklanan küçük resim/satır; görüntüleyiciye dönüşerek büyür (süreklilik)
+// srcEl: the clicked thumbnail/row; it grows into the viewer (continuity)
 function openFile(f, srcEl = null) {
   if (!VIEWABLE.has(f.ext)) return openInApp(f.path);
   addRecent(f.path);
   openTab(f, srcEl);
 }
 
-/* ---------- sekmeler ---------- */
-// Açık dosyalar: sekme listesi ve etkin sekme (null = dosya gezgini) tarayıcıda saklanır.
-// Her sekmenin iframe'i bir kez oluşturulur, gizlenip gösterilir; böylece sayfa/kaydırma konumu korunur.
-const TAB_MIME = 'application/x-ders-sekme';
+/* ---------- tabs ---------- */
+// Open files: the tab list and the active tab (null = the file browser) are kept in the browser.
+// Each tab's iframe is created once and hidden/shown, so the page/scroll position is preserved.
+const TAB_MIME = 'application/x-libzie-tab';
 let tabs = store.get('tabs', []).filter(t => t && typeof t.path === 'string');
 let active = store.get('activeTab', null);
 if (!tabs.some(t => t.path === active)) active = null;
 const frames = new Map();
-let animateNav = true;     // sıradaki render içeriği animasyonla getirsin
-let lastViewing = false;   // son çizimde bir dosya açık muydu
-let tabsSig = '';          // sekme listesi değişmediyse çubuk yeniden kurulmaz (vurgu geçişi animasyonlu olsun)
+let animateNav = true;     // have the next render bring the content in with an animation
+let lastViewing = false;   // was a file open in the last render
+let tabsSig = '';          // if the tab list has not changed the bar is not rebuilt (so the highlight transition animates)
 const seenTabs = new Set();
 const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ---------- hareket: süreklilik ve geri bildirim ---------- */
-// Ana an: ders karosu ⇄ ders sayfası. Karonun şekli konum yolundaki ders ikonuna uçar, karo içine girilir gibi
-// büyüyüp bulanıklaşarak çözülür; dönüşte tersi (View Transitions). Destek yoksa ya da hareket azaltılmışsa düz geçiş.
+/* ---------- motion: continuity and feedback ---------- */
+// The main moment: course tile ⇄ course page. The tile's shape flies to the course icon in the breadcrumb, the tile grows as if entered,
+// blurs and dissolves; the reverse on return (View Transitions). A plain transition if unsupported or if motion is reduced.
 const canVT = () => typeof document.startViewTransition === 'function' && !reduceMotion();
 function vtName(el, name) {
   if (!el) return;
@@ -2156,7 +2156,7 @@ function clearVTNames() {
     el.classList.remove('vt-named', 'vt-leaving');
   });
 }
-// nameOld: eski görünümdeki eşleşen öğeleri adlandırır; nameNew: güncellemeden sonra yenilerini
+// nameOld: names the matching elements in the old view; nameNew: names the new ones after the update
 function transition(update, nameOld, nameNew, after) {
   if (!canVT()) { update(); if (after) after(); return; }
   nameOld();
@@ -2169,28 +2169,28 @@ function transition(update, nameOld, nameNew, after) {
     nameNew();
   };
   const vt = document.startViewTransition(run);
-  // Atlanan/iptal edilen geçişte bu sözler reddedilir; konsola yakalanmamış hata düşmesin
+  // These promises are rejected for a skipped/cancelled transition; no uncaught error should reach the console
   vt.ready.catch(() => {});
   vt.updateCallbackDone.catch(() => {});
   vt.finished.catch(() => {}).finally(() => { clearVTNames(); if (after) after(); });
-  // Güvenlik: tarayıcı kare üretmiyorsa (arka plan, donmuş pencere) geçiş başlamaz; gezinme asla takılmasın
+  // Safety: if the browser produces no frame (background, frozen window) the transition does not start; navigation must never hang
   setTimeout(() => { if (!done) { vt.skipTransition(); run(); } }, 400);
 }
 const byPath = (sel, path) => [...document.querySelectorAll(sel)].filter(e => e.dataset.path === path);
 function nameCourseTile(course) {
   const tile = byPath('.tiles:not(.small) .tile[data-path], .shelf .book[data-path]', course)[0];
   if (!tile) return;
-  tile.classList.add('vt-leaving'); // üzerine gelme hali (şekil gizli) anlık görüntüye girmesin
+  tile.classList.add('vt-leaving'); // so that the hover state (shape hidden) does not get into the snapshot
   vtName(tile, 'vt-tile');
   vtName(tile.querySelector('svg.shape'), 'vt-shape');
 }
 const nameCourseCrumb = () => vtName(document.querySelector('#crumbs svg.crumb-shape'), 'vt-shape');
 
-// Yeni gelen öğeler (yükleme, yeniden adlandırma, taşıma): bir sonraki çizimde nereye düştükleri vurgulanır
+// Newly arrived items (upload, rename, move): where they landed is highlighted in the next render
 const arrivals = new Set();
 const arriveClass = path => arrivals.has(path) ? ' arrive' : '';
 
-// Bırakma hedefi "kabul etti" vurgusu (taşıma başarılı olunca)
+// The drop target's "accepted" highlight (when a move succeeds)
 function flashAccept(dir) {
   const els = dir ? byPath('#tree .node[data-path], #content [data-path]', dir) : [$('#home-node')];
   els.forEach(el => {
@@ -2201,7 +2201,7 @@ function flashAccept(dir) {
   });
 }
 
-// Silinecek öğeyi küçültüp soldurur; işlem başarısız olursa geri almak için bir fonksiyon döndürür
+// Shrinks and fades the item to be deleted; returns a function to undo it if the operation fails
 async function leave(path) {
   const els = [...document.querySelectorAll('#content [data-path], #tree [data-path]')]
     .filter(e => e.dataset.path === path || e.dataset.path.startsWith(path + '/'));
@@ -2210,7 +2210,7 @@ async function leave(path) {
     ? [{ opacity: 1 }, { opacity: 0 }]
     : [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.96)' }]; // --scale-large
   const anims = els.map(el => el.animate(kf, { duration: 150, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' } /* --duration-quick, --ease-smooth-out */));
-  // Kare üretilmiyorsa animasyon hiç bitmeyebilir; silme işlemi en fazla 260 ms bekler, asla takılmaz
+  // If no frame is produced the animation may never finish; the delete waits at most 260 ms, it never hangs
   await Promise.race([Promise.all(anims.map(a => a.finished.catch(() => {}))), new Promise(r => setTimeout(r, 260))]);
   return () => anims.forEach(a => a.cancel());
 }
@@ -2241,7 +2241,7 @@ function closeTab(path) {
   const el = [...$('#tabs').querySelectorAll('.tab[data-path]')].find(e => e.dataset.path === path);
   if (!el || reduceMotion()) return removeTab(path);
   if (el.classList.contains('closing')) return;
-  el.classList.add('closing'); // sekme daralıp kaybolur, sonra gerçekten kaldırılır
+  el.classList.add('closing'); // the tab narrows and disappears, then is really removed
   setTimeout(() => removeTab(path), 150);
 }
 function removeTab(path) {
@@ -2253,7 +2253,7 @@ function removeTab(path) {
   saveTabs();
   refresh();
 }
-// Koşulu sağlayan sekmeleri kapatır; etkin sekme kapanırsa `fallback` etkinleşir
+// Closes the tabs that satisfy the condition; if the active tab closes `fallback` becomes active
 function closeWhere(pred, fallback = null) {
   const gone = tabs.filter(pred);
   tabs = tabs.filter(t => !pred(t));
@@ -2273,7 +2273,7 @@ function moveTab(from, to, before) {
   renderTabs();
 }
 
-// Ağaç yenilendikten sonra: silinen/taşınan dosyaların sekmelerini temizle, değişen PDF'i yenile
+// After the tree is refreshed: clean up the tabs of deleted/moved files, refresh a changed PDF
 function syncTabs() {
   const files = new Map(allFiles(tree).map(f => [f.path, f]));
   tabs.filter(t => !files.has(t.path)).forEach(t => dropFrame(t.path));
@@ -2295,7 +2295,7 @@ function refreshView() {
   for (const [p, fr] of frames) fr.classList.toggle('on', p === active);
   if (!showing) return;
   const t = tabs.find(t => t.path === active);
-  const src = fileUrl(active) + '?v=' + (t.mtime || 0); // Notability yedeği dosyayı değiştirirse sürüm değişir, sekme yenilenir
+  const src = fileUrl(active) + '?v=' + (t.mtime || 0); // if the Notability backup changes the file the version changes and the tab is refreshed
   let fr = frames.get(active);
   if (!fr) {
     fr = document.createElement('iframe');
@@ -2303,17 +2303,17 @@ function refreshView() {
     frames.set(active, fr);
     $('#frames').append(fr);
   }
-  // #view=FitH: PDF sayfa genişliğine sığar (alanı doldurur); navpanes=0: yan küçük resim paneli kapalı açılır
+  // #view=FitH: the PDF fits the page width (fills the space); navpanes=0: opens with the side thumbnail panel closed
   if (fr.dataset.src !== src) { fr.dataset.src = src; fr.src = src + '#view=FitH&navpanes=0'; }
-  void fr.offsetWidth; // yeni çerçevenin opaklık geçişi çalışsın
+  void fr.offsetWidth; // so the new frame's opacity transition runs
   fr.classList.add('on');
 }
 
 function renderTabs() {
   const bar = $('#tabs');
   $('#tabbar').hidden = !tabs.length;
-  // Çubuk yalnızca sekme listesi/renkleri değişince yeniden kurulur; yoksa sadece "active" sınıfı
-  // yerinde değişir ve CSS geçişi vurguyu yumuşakça taşır.
+  // The bar is rebuilt only when the tab list/colors change; otherwise only the "active" class
+  // changes in place and the CSS transition carries the highlight smoothly.
   const sig = tabs.map(t => t.path + '|' + colorOf(t.path)).join('\n');
   if (sig !== tabsSig || !bar.firstChild) {
     tabsSig = sig;
@@ -2357,7 +2357,7 @@ function tabMenu(tb, anchor, pos) {
   menu(anchor, items, pos);
 }
 
-// Sekmeleri sürükleyerek yeniden sırala
+// Reorder tabs by dragging
 function tabDrag(el, path) {
   const isTab = e => e.dataTransfer.types.includes(TAB_MIME);
   const before = e => { const r = el.getBoundingClientRect(); return e.clientX < r.left + r.width / 2; };
@@ -2385,7 +2385,7 @@ function tabDrag(el, path) {
 
 $('#v-app').onclick = () => active && openInApp(active);
 
-// Tam ekran: yalnızca görüntüleyici (#viewer) tam ekran olur, sekme çubuğu gizlenir; Esc ya da sağ alttaki düğme çıkarır
+// Full screen: only the viewer (#viewer) goes full screen, the tab bar is hidden; Esc or the button at the bottom right exits
 function toggleFullscreen() {
   if (document.fullscreenElement) return document.exitFullscreen();
   const el = $('#viewer');
@@ -2399,8 +2399,8 @@ document.addEventListener('fullscreenchange', () => {
   $('#v-full').title = t(on ? 'viewer.exit_fullscreen_f' : 'viewer.fullscreen_f');
 });
 
-// Kenar çubuğunu gizle/göster: PDF'e daha çok yer kalır (durum hatırlanır)
-// Dar pencerede (yarıya sabitlenmiş vb.) kenar çubuğu kendiliğinden kapanır; elle seçim (Ctrl+B) kalıcıdır
+// Hide/show the sidebar: leaves more room for the PDF (the state is remembered)
+// On a narrow window (snapped to half, etc.) the sidebar closes by itself; a manual choice (Ctrl+B) is permanent
 const narrowMQ = matchMedia('(max-width: 900px)');
 const savedSide = store.get('sidebar', null);
 let sideCollapsed = savedSide === null ? narrowMQ.matches : savedSide === true;
@@ -2417,7 +2417,7 @@ $('#tabs').addEventListener('wheel', e => {
   if (e.deltaY && !e.deltaX) { e.currentTarget.scrollLeft += e.deltaY; e.preventDefault(); }
 }, { passive: false });
 
-/* ---------- menü ve iletişim kutusu ---------- */
+/* ---------- menu and dialog ---------- */
 let openMenu = null;
 function closeMenu() {
   if (!openMenu) return;
@@ -2425,7 +2425,7 @@ function closeMenu() {
   openMenu.el.remove();
   openMenu = null;
 }
-// Menüyü ya imlecin konumuna (pos: sağ tık) ya da tetikleyen düğmenin altına yerleştirir
+// Places the menu either at the pointer position (pos: right click) or under the button that triggered it
 function placeMenu(el, anchor, pos) {
   document.body.append(el);
   const mw = el.offsetWidth, mh = el.offsetHeight;
@@ -2454,7 +2454,7 @@ function menu(anchor, items, pos) {
   placeMenu(el, anchor, pos);
 }
 const cursorPos = e => ({ x: e.clientX, y: e.clientY });
-// Sağ tık: tarayıcının kendi menüsü yerine bizimkini aç
+// Right click: open ours instead of the browser's own menu
 function onRightClick(el, show) {
   el.addEventListener('contextmenu', e => {
     e.preventDefault();
@@ -2463,7 +2463,7 @@ function onRightClick(el, show) {
   });
 }
 
-// Klasör/ders menüsü (kenar çubuğu, kart ve sağ tık için ortak)
+// Folder/course menu (shared by the sidebar, cards and right click)
 function folderMenu(path, anchor, pos) {
   const items = [[t('folder.new_sub'), () => newFolder(path)]];
   if (!path.includes('/')) items.push([t('folder.pick_color'), () => colorMenu(anchor, path, pos)], [t('folder.pick_icon'), () => iconMenu(anchor, path, pos)]);
@@ -2490,7 +2490,7 @@ function colorMenu(anchor, path, pos) {
   el.append(clear);
   placeMenu(el, anchor, pos);
 }
-// İkon seçici: gruplara ayrılmış ızgara; seçilen ikon dersin ana sayfa karosunda, konum yolunda ve etiketlerde görünür
+// Icon picker: a grid divided into groups; the chosen icon appears on the course's home-page tile, in the breadcrumb and in the labels
 function iconMenu(anchor, path, pos) {
   closeMenu();
   const current = iconIdOf(path, tree.folders.findIndex(f => f.name === path));
@@ -2535,12 +2535,12 @@ function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false,
   input.hidden = value === null || !!options;
   input.value = value ?? '';
   const sel = $('#dlg-select');
-  sel.hidden = !options; // seçme kutusu: options = [[değer, etiket], ...]
+  sel.hidden = !options; // select box: options = [[value, label], ...]
   if (options) { sel.innerHTML = options.map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join(''); sel.value = selected; sel.setAttribute('aria-label', title); }
   okBtn.textContent = ok;
   okBtn.className = 'btn ' + (danger ? 'danger' : 'primary');
   dlg.returnValue = '';
-  // Simgeli pencereler (yeni ders/klasör) ayarlar penceresi gibi açılır: tetikleyicideki simge başlıktaki simgeye uçar
+  // Windows with an icon (new course/folder) open like the Settings window: the icon on the trigger flies to the icon in the title
   const src = icon && from && from.isConnected ? (from.querySelector('svg[viewBox="0 0 24 24"]') || null) : null;
   const root = document.documentElement;
   if (icon) {
@@ -2553,7 +2553,7 @@ function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false,
     const dot = value.lastIndexOf('.');
     input.setSelectionRange(0, selectStem && dot > 0 ? dot : value.length);
   } else okBtn.focus();
-  // Sonuç doğrudan düğmelerden alınır; 'close' olayı yalnızca Esc ile kapanma için yedektir
+  // The result is taken directly from the buttons; the 'close' event is only a fallback for closing with Esc
   return new Promise(res => {
     const cancelBtn = $('#dlg-cancel');
     let done = false;
@@ -2567,7 +2567,7 @@ function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false,
           transition(() => dlg.close(), () => vtName($('#dlg-ic'), 'vt-dlg'), () => vtName(src, 'vt-dlg'), () => root.classList.remove('vt-set-close'));
         } else dlg.close();
       }
-      setTimeout(() => res(result)); // 'close' olayı sıraya girmiş olabilir; hemen ardından açılan ikinci pencere onu kendine almasın
+      setTimeout(() => res(result)); // the 'close' event may be queued; so that a second window opened right after does not take it for itself
     };
     okBtn.onclick = e => { e.preventDefault(); finish(options ? sel.value || null : value === null ? true : input.value.trim() || null); };
     cancelBtn.onclick = e => { e.preventDefault(); finish(null); };
@@ -2576,7 +2576,7 @@ function ask({ title, hint = '', value = null, ok = t('dlg.ok'), danger = false,
   });
 }
 
-/* ---------- işlemler ---------- */
+/* ---------- actions ---------- */
 const IC_PLUS = '<path d="M12 5v14M5 12h14"/>', IC_FOLDER = '<path d="M3 6h6l2 2h10v11H3Z"/>';
 async function newFolder(dir, from) {
   const name = await ask({ title: dir ? t('folder.new_in', { name: baseOf(dir) }) : t('course.new'), value: '', ok: t('dlg.create'), icon: dir ? IC_FOLDER : IC_PLUS, from });
@@ -2584,11 +2584,11 @@ async function newFolder(dir, from) {
   try {
     const { path } = await api('/api/mkdir', { dir, name });
     if (!dir) {
-      // Yeni derse paletteki en az kullanılan rengi ver
+      // Give a new course the least-used color in the palette
       const used = Object.values(tree.colors || {});
       const color = PALETTE.map(c => [c, used.filter(u => u === c).length]).sort((a, b) => a[1] - b[1])[0][0];
       await api('/api/color', { path, color });
-      // Ve en az kullanılan ikonu (alfabetik sıra kayınca ikon değişmesin diye kalıcı olarak)
+      // And the least-used icon (permanently, so the icon does not change when the alphabetical order shifts)
       const usage = new Map(ICONS.map(i => [i.id, 0]));
       tree.folders.forEach((f, k) => { const id = iconIdOf(f.name, k); usage.set(id, usage.get(id) + 1); });
       const icon = ICONS.map(i => i.id).sort((x, y) => usage.get(x) - usage.get(y))[0];
@@ -2610,7 +2610,7 @@ function afterMove(from, to) {
   for (const t of tabs) {
     const next = remap(t.path, from, to);
     if (next === t.path) continue;
-    dropFrame(t.path); // yeni yolla yeniden oluşturulur
+    dropFrame(t.path); // recreated with the new path
     if (active === t.path) active = next;
     t.path = next;
   }
@@ -2640,7 +2640,7 @@ async function remove(path, isDir) {
   });
   if (!ok) return;
   const color = path.includes('/') ? '' : (tree.colors || {})[path] || '';
-  const undo = await leave(path); // öğe küçülüp solarak çıkar; hata olursa geri gelir
+  const undo = await leave(path); // the item leaves shrinking and fading; if there is an error it comes back
   try {
     const r = await api('/api/delete', { path });
     if (cur === path || cur.startsWith(path + '/')) go(dirOf(path));
@@ -2682,7 +2682,7 @@ async function moveTo(src, dir) {
   } catch (e) { fail(e); }
 }
 
-/* ---------- yükleme ---------- */
+/* ---------- upload ---------- */
 async function uploadItems(items, dir) {
   if (!items.length) return;
   let done = 0;
@@ -2694,7 +2694,7 @@ async function uploadItems(items, dir) {
       const j = await r.json().catch(() => ({ error: 'x', code: 'err.upload_failed' }));
       if (j.error) throw new Error(`${file.name}: ${errText(j)}`);
       arrivals.add(j.path);
-      if (rel) arrivals.add(join(dir, rel.split('/')[0])); // klasör bırakıldıysa üst klasörü de vurgula
+      if (rel) arrivals.add(join(dir, rel.split('/')[0])); // if a folder was dropped, highlight its parent folder too
       done++;
     }
     toast(t('upload.done', { n: done }), false, false, 1);
@@ -2708,7 +2708,7 @@ $('#file-input').onchange = e => {
   e.target.value = '';
 };
 
-// Sürüklenen öğelerden (klasörler dahil) dosya listesi çıkar
+// Build a file list from the dragged items (folders included)
 function collectDropped(dt) {
   const entries = [...dt.items].map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);
   if (!entries.length) return Promise.resolve([...dt.files].map(file => ({ file, rel: '' })));
@@ -2730,7 +2730,7 @@ function collectDropped(dt) {
   return Promise.all(entries.map(e => walk(e, ''))).then(() => out);
 }
 
-const INTERNAL = 'application/x-ders-yol';
+const INTERNAL = 'application/x-libzie-path';
 function draggable(el, path) {
   el.addEventListener('dragstart', e => {
     e.dataTransfer.setData(INTERNAL, path);
@@ -2762,11 +2762,11 @@ main.addEventListener('drop', e => {
   main.classList.remove('dropping');
   if (!query) handleDrop(e, cur);
 });
-// Pencerenin başka yerine bırakılan dosyalar tarayıcıda açılmasın
+// Files dropped elsewhere in the window must not open in the browser
 window.addEventListener('dragover', e => e.preventDefault());
 window.addEventListener('drop', e => e.preventDefault());
 
-/* ---------- arama ve klavye ---------- */
+/* ---------- search and keyboard ---------- */
 $('#q').addEventListener('input', e => {
   if (active) { setActive(null); refreshView(); }
   query = e.target.value.trim();
@@ -2800,15 +2800,15 @@ document.addEventListener('keydown', e => {
     showKeysDialog();
   } else if ((e.key === '/' && !typing) || (e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey))) {
     e.preventDefault();
-    if (e.key !== '/') { searchAll = true; if (query) renderContent(); } // Ctrl+K: tüm derslerde hızlı aç
-    if (active) activate(null); // arama üst çubukta; PDF açıkken üst çubuk gizli olduğundan önce gezgine dön
+    if (e.key !== '/') { searchAll = true; if (query) renderContent(); } // Ctrl+K: quick open across all courses
+    if (active) activate(null); // search is in the top bar; since the top bar is hidden while a PDF is open, return to the browser first
     $('#q').focus();
     $('#q').select();
   }
 });
 
-// Klavye: Enter/Boşluk "tıklar", oklar ızgarada/listede/sekmelerde gezdirir, F2 yeniden adlandırır, Delete siler.
-// Karo/kart/satır içindeki düğmeler (⋯, ×) kendi davranışını korur (yalnızca öğenin kendisi odaktayken çalışır).
+// Keyboard: Enter/Space "click", arrows move through the grid/list/tabs, F2 renames, Delete deletes.
+// Buttons inside a tile/card/row (⋯, ×) keep their own behavior (it works only when the item itself has focus).
 const NAV_ITEMS = '.tile, .book, .rcard, .tcard, .row, .node, .tab';
 function neighbor(el, key) {
   const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
@@ -2843,17 +2843,17 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'Delete') { e.preventDefault(); remove(path, isDir); }
 });
 
-// Gezgin'den eklenen dosyalar da görünsün
-// (Açılıştan sonraki ilk 3 sn atlanır: yeniden çizim, açılıştaki selam animasyonunu yarıda keserdi)
+// so that files added from Explorer show up too
+// (the first 3 s after startup are skipped: a redraw would cut the startup greeting animation short)
 const bootAt = performance.now();
 window.addEventListener('focus', () => {
   if (performance.now() - bootAt < 3000) return;
   if (!document.querySelector('dialog[open]')) load();
 });
 
-/* ---------- ayarlar ---------- */
-// Sekmeler: genel, tema, kaynak yolu, hakkında. Seçili sekme oturum boyunca hatırlanır. Sürüm denetimi (internete çıkar)
-// yalnızca "Hakkında" sekmesi açılınca yapılır.
+/* ---------- settings ---------- */
+// Tabs: General, Theme, Content folder, About. The selected tab is remembered for the session. The version check (goes online)
+// runs only when the "About" tab is opened.
 let settingsData = null, lastSettingsTab = 'general', aboutLoaded = false;
 function selectSettingsTab(name, focus = false) {
   if (!$('#pane-' + name)) name = 'general';
@@ -2864,7 +2864,7 @@ function selectSettingsTab(name, focus = false) {
     if (on && $('#settings').open && b.dataset.tab !== lastSettingsTab) { void b.offsetWidth; b.classList.add('play'); }
     b.tabIndex = on ? 0 : -1;
   });
-  const animate = $('#settings').open; // pencere açılırken panel ayrıca animasyon oynatmaz; yalnızca açıkken sekme değişince
+  const animate = $('#settings').open; // the panel does not animate separately while the window is opening; only when the tab changes while it is open
   document.querySelectorAll('#settings .set-pane').forEach(p => {
     p.hidden = p.dataset.pane !== name;
     p.classList.remove('enter');
@@ -2873,7 +2873,7 @@ function selectSettingsTab(name, focus = false) {
   lastSettingsTab = name;
   if (focus) $('#tab-' + name).focus();
   if (name === 'about') {
-    // Logo, kenar çubuğundaki gibi bir kez devrilip kalkar (her açılışta yeniden oynasın diye sınıf sıfırlanır)
+    // The logo topples and rises once like the one in the sidebar (the class is reset so it plays again on every open)
     const brand = $('#pane-about .about-brand');
     brand.classList.remove('play');
     void brand.offsetWidth;
@@ -2883,7 +2883,7 @@ function selectSettingsTab(name, focus = false) {
   }
 }
 $('#settings .set-nav').addEventListener('click', e => { const b = e.target.closest('.set-tab'); if (b) selectSettingsTab(b.dataset.tab); });
-// Klavye: ↑/↓ (← / → dar pencerede), Home, End sekmeler arasında gezer ve sekmeyi açar
+// Keyboard: ↑/↓ (← / → in a narrow window), Home, End move between the tabs and open the tab
 $('#settings .set-nav').addEventListener('keydown', e => {
   const tabs = [...document.querySelectorAll('#settings .set-tab')];
   const i = tabs.findIndex(b => b.dataset.tab === lastSettingsTab);
@@ -2896,8 +2896,8 @@ $('#settings .set-nav').addEventListener('keydown', e => {
   e.preventDefault();
   selectSettingsTab(tabs[j].dataset.tab, true);
 });
-// Ayarlar penceresi: kenar çubuğundaki dişli pencere başlığındaki dişliye uçar (paylaşılan öğe geçişi); kapanırken geri döner.
-// Ders karosu → ders sayfası geçişiyle aynı View Transitions altyapısı; destek yoksa/hareket azaltılmışsa doğrudan açılır.
+// The Settings window: the gear in the sidebar flies to the gear in the window title (shared-element transition); it returns when closing.
+// The same View Transitions infrastructure as the course tile → course page transition; opens directly if unsupported / motion is reduced.
 function showSettingsDialog() {
   const dlg = $('#settings'), root = document.documentElement;
   if (dlg.open) return;
@@ -2920,7 +2920,7 @@ function closeSettingsDialog() {
     () => root.classList.remove('vt-set-close')
   );
 }
-// Kısayollar penceresi: aynı dil, dönüşsüz (klavye simgesi başlıktaki simgeye uçar)
+// The Shortcuts window: the same language, without the turning (the keyboard icon flies to the icon in the title)
 function showKeysDialog() {
   const dlg = $('#keys'), root = document.documentElement;
   if (dlg.open) return;
@@ -2944,7 +2944,7 @@ function closeKeysDialog() {
   );
 }
 async function openSettings(tab) {
-  // Animasyon tıklamayla aynı anda başlar; ayarlar sunucudan gelirken alanlar doldurulur (bekleme, gecikme eklemez)
+  // The animation starts at the same time as the click; the fields are filled while the settings come from the server (no waiting, no added delay)
   settingsData = null;
   aboutLoaded = false;
   selectSettingsTab(tab || lastSettingsTab);
@@ -2964,7 +2964,7 @@ async function openSettings(tab) {
     $('#s-current').textContent = s.root;
     $('#s-default').textContent = s.default;
     $('#s-error').textContent = '';
-    if (lastSettingsTab === 'about' && !aboutLoaded) { aboutLoaded = true; initUpdate(s); } // Hakkında açık açıldıysa denetim şimdi başlar
+    if (lastSettingsTab === 'about' && !aboutLoaded) { aboutLoaded = true; initUpdate(s); } // if About is opened right away the check starts now
   } catch {
     toast(t('set.read_failed'), true);
     closeSettingsDialog();
@@ -2972,7 +2972,7 @@ async function openSettings(tab) {
 }
 async function saveSettings() {
   try {
-    await api('/api/settings', { kaynak_klasoru: $('#s-path').value });
+    await api('/api/settings', { materials_dir: $('#s-path').value });
   } catch (e) {
     $('#s-error').textContent = e.message;
     return;
@@ -2985,7 +2985,7 @@ async function saveSettings() {
   go('');
   toast(t('set.root_updated'));
 }
-// Yol yazılırken (gecikmeli) klasörde kaç ders/dosya olduğunu gösterir; yanlış yol kaydetmeden önce fark edilir
+// While a path is being typed (with a delay) shows how many courses/files are in the folder; a wrong path is noticed before saving
 let previewTimer;
 async function updatePreview() {
   const el = $('#s-preview');
@@ -2999,14 +2999,14 @@ async function updatePreview() {
 $('#s-path').addEventListener('input', () => { clearTimeout(previewTimer); previewTimer = setTimeout(updatePreview, 350); });
 $('#open-settings').onclick = () => openSettings();
 $('#open-keys').onclick = showKeysDialog;
-$('#keys form').addEventListener('submit', e => { e.preventDefault(); closeKeysDialog(); }); // Tamam
+$('#keys form').addEventListener('submit', e => { e.preventDefault(); closeKeysDialog(); }); // OK
 $('#keys').addEventListener('cancel', e => { e.preventDefault(); closeKeysDialog(); });
 $('#keys').addEventListener('click', e => { const r = e.currentTarget.getBoundingClientRect(); if (e.target === e.currentTarget && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) closeKeysDialog(); });
 document.querySelector('.skip').addEventListener('click', e => { e.preventDefault(); $('#content').focus(); });
 $('#s-save').onclick = saveSettings;
 $('#s-cancel').onclick = closeSettingsDialog;
-$('#settings').addEventListener('cancel', e => { e.preventDefault(); closeSettingsDialog(); }); // Esc de animasyonlu kapansın
-// Pencerenin dışına (karartılmış alana) tıklayınca kapanır. Basış da dışarıda başlamalı: metin seçerken fareyi dışarıda bırakmak kapatmasın.
+$('#settings').addEventListener('cancel', e => { e.preventDefault(); closeSettingsDialog(); }); // so that Esc also closes with the animation
+// Clicking outside the window (on the dimmed area) closes it. The press must also start outside: releasing the mouse outside while selecting text must not close it.
 (() => {
   const dlg = $('#settings');
   let downOutside = false;
@@ -3024,19 +3024,19 @@ $('#g-tray').onchange = async e => {
   catch (err) { e.target.checked = !e.target.checked; fail(err); }
 };
 $('#s-path').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveSettings(); } });
-// Kenar çubuğunda boş alana sağ tık → yeni ders
+// Right click on empty space in the sidebar → new course
 onRightClick($('#tree'), (el, pos) => menu(el, [[t('course.new'), () => newFolder('')]], pos));
 
-/* ---------- kenar çubuğu PCB'si ---------- */
-// Sağ kenarda birbirine sarılan iki büyük sarmal (çift sarmal) tüm çubuk boyunca iner. İki iz x = cx ± A cos t ile
-// çizilir, derinlik ±sin t: önde olan parça tam, arkada kalan soluk ve ince. İzlerin kesiştiği her ikinci noktada,
-// ayrıca iki uçta lehim noktası. Yükseklik değişince yeniden çizilir.
+/* ---------- the sidebar's PCB ---------- */
+// Two large helices wound around each other run down the whole bar along the right edge. The two traces are drawn as x = cx ± A cos t,
+// the depth is ±sin t: the part in front is full, the part behind is faint and thin. A solder pad at every second point where the traces cross,
+// and at the two ends. Redrawn when the height changes.
 function drawSidePcb() {
   const svg = $('#side-pcb'), H = $('aside').clientHeight;
   if (!H) return;
   svg.setAttribute('viewBox', `0 0 260 ${H}`);
   const cx = 224, A = 24, pitch = 120, top = 24, bottom = H - 24, step = 0.08;
-  const k = pitch / (2 * Math.PI);                       // tur başına dikey ilerleme
+  const k = pitch / (2 * Math.PI);                       // vertical advance per turn
   const tEnd = (bottom - top) / k;
   const pt = (sgn, t) => [cx + sgn * A * Math.cos(t), top + k * t];
   const back = [], front = [];
@@ -3058,8 +3058,8 @@ function drawSidePcb() {
 drawSidePcb();
 if (window.ResizeObserver) new ResizeObserver(drawSidePcb).observe($('aside'));
 
-// Dişliler: üzerine gelince sabit ivmeyle hızlanır (1,5 sn'de 140°/sn), bırakınca sabit yavaşlamayla durur (2,3 sn).
-// B dişlisi (8 diş) A'nın (12 diş) 1,5 katı hızda ters döner; böylece dişler hep geçmeli kalır.
+// The gears: on hover they speed up at a constant acceleration (140°/s in 1.5 s), on release they stop at a constant deceleration (2.3 s).
+// Gear B (8 teeth) turns in reverse at 1.5 times the speed of A (12 teeth); so the teeth always stay meshed.
 const GEAR = { speed: 140, acc: 140 / 1.5, dec: 140 / 2.3 };
 const gearState = new WeakMap();
 function spinGears(svg, on) {
@@ -3070,7 +3070,7 @@ function spinGears(svg, on) {
   st.t = performance.now();
   const a = svg.querySelector('.g-a'), b = svg.querySelector('.g-b');
   const tick = now => {
-    if (!svg.isConnected) { st.raf = 0; st.w = 0; return; } // sayfa yeniden çizildi; eski SVG'yi bırak
+    if (!svg.isConnected) { st.raf = 0; st.w = 0; return; } // the page was redrawn; drop the old SVG
     const dt = Math.min(.05, (now - st.t) / 1000); st.t = now;
     st.w = st.w < st.target ? Math.min(st.target, st.w + GEAR.acc * dt) : Math.max(st.target, st.w - GEAR.dec * dt);
     st.th = (st.th + st.w * dt) % 360;
@@ -3081,8 +3081,8 @@ function spinGears(svg, on) {
   st.raf = requestAnimationFrame(tick);
 }
 
-// Mekik: üzerine gelince motorlar ateşlenir (--thrust 0..1, .fire); dişlilerden bağımsızdır.
-const FIRE = { up: 1 / .5, down: 1 / 1.1 }; // 0,5 sn'de tam itki, 1,1 sn'de söner
+// The shuttle: the engines fire on hover (--thrust 0..1, .fire); independent of the gears.
+const FIRE = { up: 1 / .5, down: 1 / 1.1 }; // full thrust in 0.5 s, dies out in 1.1 s
 const fireState = new WeakMap();
 function fireRocket(ship, on) {
   let st = fireState.get(ship);
@@ -3101,7 +3101,7 @@ function fireRocket(ship, on) {
   st.raf = requestAnimationFrame(tick);
 }
 
-// Mekik şeridi: selam/ders başlığı metninin sağından (56px boşluk) dişlinin sol ucuna kadar uzanır
+// The shuttle strip: extends from the right of the greeting/course title text (56px gap) to the left end of the gear
 function fitSchem() {
   for (const box of document.querySelectorAll('.greet, .chead')) {
     const ship = box.querySelector('.schem'), gears = box.querySelector('.gears');
@@ -3109,7 +3109,7 @@ function fitSchem() {
     const base = box.getBoundingClientRect().left;
     let textRight = 0;
     box.querySelectorAll('.hi, .sub, .ctitle, .csub').forEach(el => { textRight = Math.max(textRight, el.getBoundingClientRect().right - base); });
-    const left = textRight + 56, right = gears.getBoundingClientRect().left - base + 16, w = right - left; // 16: dişlinin ilk dişine kadar (SVG'de offsetLeft yok)
+    const left = textRight + 56, right = gears.getBoundingClientRect().left - base + 16, w = right - left; // 16: up to the gear's first tooth (SVG has no offsetLeft)
     ship.style.display = w < 240 ? 'none' : '';
     if (w >= 240) { ship.style.left = left + 'px'; ship.style.width = w + 'px'; }
   }
@@ -3120,11 +3120,11 @@ for (const [type, on] of [['mouseover', true], ['mouseout', false]]) {
   $('#content').addEventListener(type, e => {
     const part = e.target.closest?.('.gears, .schem');
     if (!part || part.contains(e.relatedTarget)) return;
-    if (part.classList.contains('gears')) spinGears(part, on); else fireRocket(part, on); // dişliler dönmeden mekik ateşlenmez, mekik de dişlileri döndürmez
+    if (part.classList.contains('gears')) spinGears(part, on); else fireRocket(part, on); // the shuttle does not fire when the gears turn, and the shuttle does not turn the gears
   });
 }
 
-/* ---------- dijital saat ---------- */
+/* ---------- digital clock ---------- */
 function renderClock() {
   const d = new Date();
   $('#clock-h').textContent = String(d.getHours()).padStart(2, '0');
@@ -3136,22 +3136,22 @@ renderClock();
 setInterval(renderClock, 1000);
 document.addEventListener('visibilitychange', () => document.documentElement.classList.toggle('paused', document.hidden));
 
-/* ---------- hava durumu (Open-Meteo: ücretsiz, anahtar gerekmez) ---------- */
-// Konum tarayıcıdan istenmez; kullanıcı şehir adını yazar, servise yalnızca o şehrin koordinatları gider.
-// Son sonuç 15 dk önbellekte tutulur (Open-Meteo 15 dakikada bir güncellenir); internet yoksa son bilinen değer gösterilir.
+/* ---------- weather (Open-Meteo: free, no key needed) ---------- */
+// The location is not requested from the browser; the user types the city name and only that city's coordinates go to the service.
+// The last result is cached for 15 min (Open-Meteo updates every 15 minutes); when offline the last known value is shown.
 const WMO = {
   0: 'wmo.0', 1: 'wmo.1', 2: 'wmo.2', 3: 'wmo.3', 45: 'wmo.45', 48: 'wmo.48', 51: 'wmo.51', 53: 'wmo.53', 55: 'wmo.55', 56: 'wmo.56', 57: 'wmo.57', 61: 'wmo.61', 63: 'wmo.63', 65: 'wmo.65', 66: 'wmo.66', 67: 'wmo.67', 71: 'wmo.71', 73: 'wmo.73', 75: 'wmo.75', 77: 'wmo.77', 80: 'wmo.80', 81: 'wmo.81', 82: 'wmo.82', 85: 'wmo.85', 86: 'wmo.86', 95: 'wmo.95', 96: 'wmo.96', 99: 'wmo.99',
 };
-// Hava durumu ikonları (WMO kod grubuna göre), sitenin ince çizgi dilinde
-// Her parçanın sınıfı CSS animasyonunu seçer (wi-rays döner, wi-cloud kayar, wi-rain/wi-drop/wi-flake düşer,
-// wi-bolt çakar); --d düşen parçaların sırayla gelmesi için gecikmedir.
+// Weather icons (by WMO code group), in the site's thin-line language
+// Each part's class selects the CSS animation (wi-rays turn, wi-cloud drifts, wi-rain/wi-drop/wi-flake fall,
+// wi-bolt flashes); --d is the delay so the falling parts arrive in turn.
 const W_CLOUD_HI = '<path class="wi-cloud" d="M7.5 14h9a3.5 3.5 0 0 0 .3-7A5 5 0 0 0 7.2 8.4 2.8 2.8 0 0 0 7.5 14Z"/>';
 const W_ICONS = {
   clear: '<circle cx="12" cy="12" r="4"/>' +
          '<path class="wi-rays" d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/>',
   partly: '<g class="wi-sun"><circle cx="9" cy="9" r="3"/><path d="M9 3.5V5M3.5 9H5M5.1 5.1l1 1M12.9 5.1l-1 1"/></g>' +
           '<path class="occlude wi-cloud" d="M9 19h8a3.5 3.5 0 0 0 .3-7 4.5 4.5 0 0 0-8.6 1.3A2.9 2.9 0 0 0 9 19Z"/>',
-  // Geceleri güneş yerine ay (is_day = 0)
+  // A moon instead of the sun at night (is_day = 0)
   clearNight: '<path d="M20 14.2A8 8 0 1 1 9.8 4a6.4 6.4 0 0 0 10.2 10.2Z"/>',
   partlyNight: '<path d="M11.6 8.4A4.2 4.2 0 1 1 6.6 3.2a3.3 3.3 0 0 0 5 5.2Z"/>' +
                '<path class="occlude wi-cloud" d="M9 19h8a3.5 3.5 0 0 0 .3-7 4.5 4.5 0 0 0-8.6 1.3A2.9 2.9 0 0 0 9 19Z"/>',
@@ -3184,18 +3184,18 @@ const placeKey = () => weatherPlace ? `${weatherPlace.lat},${weatherPlace.lon}` 
 function showWeather(w) {
   $('#w-temp').textContent = `${w.temp}°`;
   $('#w-cond').textContent = t(WMO[w.code] || '—');
-  $('#w-icon').innerHTML = weatherIcon(w.nowCode ?? w.code, w.day === 0); // ikon şu anki durum, yazı günün beklentisi
-  $('#w-extra').hidden = w.feel == null; // eski önbellekte yok
+  $('#w-icon').innerHTML = weatherIcon(w.nowCode ?? w.code, w.day === 0); // the icon is the current condition, the text is the day's expectation
+  $('#w-extra').hidden = w.feel == null; // not present in the old cache
   if (w.feel != null) { $('#w-feel').textContent = t('weather.feel', { n: w.feel }); $('#w-pop').textContent = `%${w.pop ?? 0}`; }
   $('#w-max').textContent = `${w.max}°`;
   $('#w-min').textContent = `${w.min}°`;
-  $('#w-range').hidden = w.min == null || w.max == null; // günün en yüksek / en düşük sıcaklığı (aynı istekten, ek ağ çağrısı yok)
+  $('#w-range').hidden = w.min == null || w.max == null; // the day's highest / lowest temperature (from the same request, no extra network call)
   $('#weather').title = t('weather.tooltip',
     { place: weatherPlace.name, now: t(WMO[w.nowCode] || '—'), temp: w.temp, min: w.min, max: w.max })
     + (w.feel != null ? ' · ' + t('weather.tooltip_more', { feel: w.feel, pop: w.pop ?? 0 }) : '');
 }
-// Günün beklenen durumu: günlük WMO kodu günün en şiddetlisini verir (tek saatlik sağanak "yağmurlu gün" yazdırır).
-// Bunun yerine günün kalan saatlerine bakılır: şiddetli (yağış/kar/fırtına, kod >= 51) en az 2 saat sürüyorsa en sık geçeni, yoksa en sık geçen sakin durumu seç.
+// The day's expected condition: the daily WMO code gives the day's most severe one (a single-hour shower would print "rainy day").
+// Instead the remaining hours of the day are looked at: if a severe one (rain/snow/storm, code >= 51) lasts at least 2 hours the most frequent one is taken, otherwise the most frequent calm condition.
 function dayCode(codes, fallback) {
   if (!codes.length) return fallback;
   const count = {};
@@ -3210,7 +3210,7 @@ function dayCode(codes, fallback) {
 async function loadWeather(force = false) {
   const box = $('#weather');
   if (!weatherPlace) {
-    $('#w-icon').innerHTML = '<path d="M12 5v14M5 12h14"/>'; // bozuk görünen "—" yerine sakin bir "ekle" eylemi
+    $('#w-icon').innerHTML = '<path d="M12 5v14M5 12h14"/>'; // a calm "add" action instead of a broken-looking "—"
     $('#w-temp').textContent = '';
     $('#w-range').hidden = true;
     $('#w-extra').hidden = true;
@@ -3219,7 +3219,7 @@ async function loadWeather(force = false) {
     return;
   }
   const cached = store.get('weather', null);
-  const fresh = cached && cached.key === placeKey() && cached.feel != null && Date.now() - cached.at < 15 * 60e3; // eski biçimli önbellek (hissedilen/gece bilgisi yok) bayat sayılır
+  const fresh = cached && cached.key === placeKey() && cached.feel != null && Date.now() - cached.at < 15 * 60e3; // an old-format cache (no feels-like / night info) is considered stale
   if (cached && cached.key === placeKey()) showWeather(cached);
   if (fresh && !force) return;
   box.classList.add('loading');
@@ -3229,7 +3229,7 @@ async function loadWeather(force = false) {
       '&current=temperature_2m,apparent_temperature,is_day,weather_code&hourly=weather_code,precipitation_probability' +
       '&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1';
     const j = await (await fetch(url)).json();
-    // Günün kalan saatleri (şu andan 23:00'e); gece yarısına yakınsa tüm gün
+    // The remaining hours of the day (from now to 23:00); the whole day if it is near midnight
     const hrs = j.hourly.time.map((x, i) => i).filter(i => j.hourly.time[i] >= j.current.time.slice(0, 13));
     const rest = hrs.length >= 3 ? hrs : j.hourly.time.map((x, i) => i);
     const w = {
@@ -3256,12 +3256,12 @@ async function loadWeather(force = false) {
   }
 }
 $('#weather').onclick = async () => {
-  // Şehir bir seçme kutusundan seçilir (Türkiye'nin 81 ili); listede olmayan için "Başka şehir…" yazarak aramaya düşer
+  // The city is chosen from a select box (Türkiye's 81 provinces); for one not in the list typing "Other city…" falls back to search
   const OTHER = '__other';
   const curCity = weatherPlace && TR_PROVINCES.includes(weatherPlace.name) ? weatherPlace.name : '';
   const pick = await ask({
     title: t('weather.city_prompt'), ok: t('dlg.save'), selected: curCity || (weatherPlace ? OTHER : 'İzmir'),
-    options: [...TOP_CITIES, ...TR_PROVINCES.filter(n => !TOP_CITIES.includes(n))].map(n => [n, n]).concat([[OTHER, t('weather.other_city')]]), // büyük şehirler üstte
+    options: [...TOP_CITIES, ...TR_PROVINCES.filter(n => !TOP_CITIES.includes(n))].map(n => [n, n]).concat([[OTHER, t('weather.other_city')]]), // big cities on top
   });
   if (!pick) return;
   let name = pick, country = 'TR';
@@ -3274,16 +3274,16 @@ $('#weather').onclick = async () => {
     const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=${lang}&format=json${country ? '&countryCode=' + country : ''}`;
     const r = ((await (await fetch(url)).json()).results || [])[0];
     if (!r) return toast(t('weather.city_not_found'), true);
-    weatherPlace = { name: country ? name : r.name, lat: r.latitude, lon: r.longitude }; // listeden seçilen il adı olduğu gibi kalır (Hatay → Antakya olmasın)
+    weatherPlace = { name: country ? name : r.name, lat: r.latitude, lon: r.longitude }; // a province name chosen from the list stays as it is (so Hatay does not become Antakya)
     store.set('weatherPlace', weatherPlace);
     loadWeather(true);
   } catch { toast(t('weather.service_error'), true); }
 };
 loadWeather();
-setInterval(loadWeather, 5 * 60e3); // önbellek 15 dk dolmadıkça istek atmaz
+setInterval(loadWeather, 5 * 60e3); // no requests while the 15 min cache is still fresh
 
-/* ---------- güncelleme ---------- */
-// Sunucu GitHub'daki son sürüme bakar (internete çıkan, isteğe bağlı ikinci istek); indirme ve yerine koyma da sunucuda yapılır.
+/* ---------- update ---------- */
+// The server looks at the latest release on GitHub (the second, optional request that goes online); the download and the swap are done on the server too.
 let lastUpd = { id: '', err: false, vars: null, raw: '' };
 function showUpd() {
   const u = lastUpd, m = $('#u-msg');
@@ -3291,7 +3291,7 @@ function showUpd() {
   m.style.color = u.err ? 'var(--danger)' : '';
 }
 function updMsg(id, err, vars) { lastUpd = { id, err: !!err, vars: vars || null, raw: '' }; showUpd(); }
-// Sunucu hatası ({ error: Türkçe varsayılan, code: kimlik, vars }): kimlik sözlükte varsa etkin dilde, yoksa varsayılan metinle
+// A server error ({ error: English default, code: id, vars }): in the active language if the id is in the dictionary, otherwise the default text
 function updErr(j) { lastUpd = { id: (j && j.code) || '', err: true, vars: (j && j.vars) || null, raw: (j && j.error) || '' }; showUpd(); }
 const srvErr = st => ({ error: st.error, code: st.error_code, vars: st.error_vars });
 function updBar(frac) { $('#u-bar').hidden = false; $('#u-bar i').style.width = Math.round(Math.min(1, frac) * 100) + '%'; }
@@ -3299,7 +3299,7 @@ function pollUpdate(render) {
   const tick = async () => {
     let st;
     try { st = await (await fetch('/api/update/status')).json(); }
-    catch { render({ phase: 'restarting' }); return; } // sunucu kapandı: yeniden başlıyor
+    catch { render({ phase: 'restarting' }); return; } // the server closed: it is restarting
     render(st);
     if (st.phase === 'downloading' || st.phase === 'restarting') setTimeout(tick, 400);
   };
@@ -3322,7 +3322,7 @@ async function checkUpdate() {
     $('#u-new').textContent = u.latest;
     $('#u-new').classList.toggle('new', u.available);
     if (!u.available) updMsg('upd.up_to_date');
-    else if (u.kind === 'kaynak') updMsg('upd.new_from_source');
+    else if (u.kind === 'source') updMsg('upd.new_from_source');
     else if (!u.downloadable) updMsg('upd.new_not_ready');
     else { updMsg('upd.new_ready'); $('#u-apply').hidden = false; }
   } catch { updMsg('upd.check_failed', true); }
@@ -3336,8 +3336,8 @@ function initUpdate(s) {
   $('#u-apply').hidden = true;
   $('#u-apply').disabled = false;
   $('#u-auto').checked = !!s.auto_update;
-  $('#u-auto').disabled = s.update_kind === 'kaynak';
-  $('#u-auto').title = s.update_kind === 'kaynak' ? t('upd.auto_unavailable') : '';
+  $('#u-auto').disabled = s.update_kind === 'source';
+  $('#u-auto').title = s.update_kind === 'source' ? t('upd.auto_unavailable') : '';
   checkUpdate();
 }
 $('#u-check').onclick = checkUpdate;
@@ -3352,11 +3352,11 @@ $('#u-apply').onclick = async () => {
   catch (e) { updErr({ error: e.message }); $('#u-apply').disabled = false; $('#u-check').disabled = false; return; }
   pollUpdate(renderUpdateProgress);
 };
-// Otomatik güncelleme açıksa: açılışta bir kez bakar, yeni sürüm varsa indirip yeniden başlar
+// If automatic update is on: looks once at startup, and if there is a new version downloads it and restarts
 async function autoUpdate() {
   try {
     const s = await (await fetch('/api/settings')).json();
-    if (!s.auto_update || s.update_kind === 'kaynak') return;
+    if (!s.auto_update || s.update_kind === 'source') return;
     const u = await (await fetch('/api/update/check')).json();
     if (!u.available || !u.downloadable) return;
     toast(t('upd.toast_downloading', { v: u.latest }), false, true, 0);
@@ -3371,11 +3371,11 @@ async function autoUpdate() {
 }
 setTimeout(autoUpdate, 4000);
 
-// Dili değiştirir: statik metinler applyI18n() ile, dinamik içerik yeniden çizilerek güncellenir
+// Changes the language: static texts through applyI18n(), dynamic content by redrawing
 function setLang(pref) {
   langPref = pref === 'tr' || pref === 'en' ? pref : 'auto';
   store.set('lang', langPref);
-  api('/api/settings/general', { lang: langPref }).catch(() => {}); // tepsi menüsü de aynı dili kullansın
+  api('/api/settings/general', { lang: langPref }).catch(() => {}); // so the tray menu uses the same language
   lang = langPref === 'auto' ? detectLang() : langPref;
   applyI18n();
   buildThemePane();
@@ -3385,10 +3385,10 @@ function setLang(pref) {
   showUpd();
   if ($('#u-auto').disabled) $('#u-auto').title = t('upd.auto_unavailable');
 }
-/* ---------- tema ---------- */
-// Temalar static/themes/*.json dosyalarındadır; sunucu hepsini CSS'e çevirip sayfaya gömer (renkler yalnızca CSS değişkenidir) ve
-// buraya yalnızca [{ id, scheme }] listesi gelir. Seçim: localStorage 'theme' = 'auto' (varsayılan, sistemin açık/koyu tercihi) | tema kimliği.
-// Etkin tema <html data-theme="..."> ile seçilir; ilk boyamadan önce <head> içindeki küçük betik de aynısını yapar.
+/* ---------- theme ---------- */
+// The themes are in the static/themes/*.json files; the server turns them all into CSS and embeds it in the page (colors are only CSS variables) and
+// only a [{ id, scheme }] list comes here. The choice: localStorage 'theme' = 'auto' (default, the system's light/dark preference) | a theme id.
+// The active theme is selected with <html data-theme="...">; the small script in <head> does the same before the first paint.
 const THEMES = (() => { try { return JSON.parse($('#themes-data').textContent) || []; } catch { return []; } })();
 let themePref = (() => { const v = store.get('theme', 'auto'); return v === 'auto' || THEMES.some(x => x.id === v) ? v : 'auto'; })();
 const systemTheme = () => {
@@ -3424,7 +3424,7 @@ function buildThemePane() {
   }
   applyTheme();
 }
-// Radyo grubu: ←/↑ ve →/↓ seçimi değiştirir
+// Radio group: ←/↑ and →/↓ change the selection
 $('#theme-list').addEventListener('keydown', e => {
   const cards = [...document.querySelectorAll('#theme-list .theme-card')];
   const i = cards.findIndex(c => c.dataset.id === themePref);

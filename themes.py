@@ -1,9 +1,9 @@
-"""libzie temaları: static/themes/<kimlik>.json. Sunucu hepsini doğrulayıp CSS'e çevirir ve ana sayfaya gömer.
+"""libzie themes: static/themes/<id>.json. The server validates them all, turns them into CSS and embeds it in the main page.
 
-Tema dosyası: { "scheme": "dark" | "light", "vars": { "--bg": "#0e1a2b", ... } }. Dosya adı (uzantısız) temanın kimliğidir.
-Yalnızca ALLOWED listesindeki değişkenler ve yalnızca renk değerleri (#hex, rgb(), hsl()) kabul edilir; böylece bir tema dosyası sayfaya
-başka bir CSS kuralı, dış kaynak ya da </style> sokamaz. Varsayılan tema (DEFAULT) her zaman bulunmalıdır: öteki temalarda eksik
-değişkenler onunkilerden gelir. Temanın görünen adı dil dosyalarında `theme.<kimlik>` kimliğiyle tutulur.
+Theme file: { "scheme": "dark" | "light", "vars": { "--bg": "#0e1a2b", ... } }. The file name (without extension) is the theme's id.
+Only variables in the ALLOWED list and only color values (#hex, rgb(), hsl()) are accepted, so a theme file cannot slip another CSS
+rule, an external resource or </style> into the page. The default theme (DEFAULT) must always exist: variables missing from the
+other themes come from it. The theme's display name is kept in the language files under the id `theme.<id>`.
 """
 import json
 import re
@@ -22,7 +22,7 @@ _NUM = r"[\d.]+%?"
 COLOR = re.compile(r"(?:#[0-9a-fA-F]{3,8}|(?:rgb|hsl)a?\(\s*" + _NUM + r"(?:\s*[,\s]\s*" + _NUM + r"){2}(?:\s*[,/]\s*" + _NUM + r")?\s*\))")
 ID = re.compile(r"[a-z][a-z0-9_-]{1,23}")
 _cache = None
-_warned = set()  # kaynak koddan çalışırken tema her istekte okunur; aynı uyarı bir kez yazılsın
+_warned = set()  # when running from source themes are read on every request; print each warning once
 
 
 def load():
@@ -39,22 +39,22 @@ def load():
             clean = {}
             for k, v in vars_.items():
                 if k not in ALLOWED or not isinstance(v, str) or not COLOR.fullmatch(v.strip()):
-                    raise ValueError(f"geçersiz değişken ya da değer: {k}")
+                    raise ValueError(f"invalid variable or value: {k}")
                 clean[k] = v.strip()
         except (OSError, ValueError, KeyError, TypeError) as e:
             if f.name not in _warned:
                 _warned.add(f.name)
-                print(f"UYARI: {f.name} teması yüklenmedi ({e})", file=sys.stderr)
+                print(f"WARNING: theme {f.name} was not loaded ({e})", file=sys.stderr)
             continue
         out[f.stem] = {"scheme": scheme, "vars": clean}
     if DEFAULT not in out:
-        raise SystemExit(f"Varsayılan tema dosyası yok ya da geçersiz: {THEME_DIR / (DEFAULT + '.json')}")
-    # varsayılan tema önce, ötekiler alfabetik
+        raise SystemExit(f"The default theme file is missing or invalid: {THEME_DIR / (DEFAULT + '.json')}")
+    # default theme first, the others alphabetical
     return {DEFAULT: out[DEFAULT], **{k: out[k] for k in sorted(out) if k != DEFAULT}}
 
 
 def themes():
-    """Paketlenmiş uygulamada bir kez okunur; kaynak koddan çalışırken her çağrıda (dosya düzenleyince yenilensin)."""
+    """Read once in the packaged app; on every call when running from source (so edits show up)."""
     global _cache
     if _cache is None or not FROZEN:
         _cache = load()
@@ -74,8 +74,8 @@ ARROWS = {
 
 
 def css():
-    """Tüm temaların CSS'i. Varsayılan tema ek olarak :root'a (öznitelik yokken de geçerli), her tema da .theme-prev[data-theme]
-    önizleme kartlarına uygulanır. Kaydırma çubuğu okları (veri adresi olduğundan CSS değişkeni alamaz) vurgu renginden üretilir."""
+    """The CSS of all themes. The default theme is also applied to :root (valid when there is no attribute), and every theme to the
+    .theme-prev[data-theme] preview cards. Scrollbar arrows (a data URL cannot take a CSS variable) are generated from the accent color."""
     default_vars = themes()[DEFAULT]["vars"]
     parts = []
     for tid, th in themes().items():
@@ -92,5 +92,5 @@ def css():
 
 
 def meta():
-    """İstemci için: [{id, scheme}] (varsayılan ilk). Renkler CSS'te olduğundan burada yoktur."""
+    """For the client: [{id, scheme}] (default first). The colors are in the CSS, so they are not here."""
     return [{"id": tid, "scheme": th["scheme"]} for tid, th in themes().items()]

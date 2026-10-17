@@ -388,16 +388,16 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The one filled action on a screen (Yükle).",
-      "html": "<button class=\"ds-btn-primary\">Yükle</button>",
+      "description": "The one filled action on a screen (Upload).",
+      "html": "<button class=\"ds-btn-primary\">Upload</button>",
       "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 2px; border: 1px solid #76abae; background: #76abae; color: #222831; font: inherit; cursor: pointer; transition: background-color .15s ease; } .ds-btn-primary:hover { background: #92c4c7; } .ds-btn-primary:focus-visible { outline: 2px solid #eeeeee; outline-offset: 2px; }"
     },
     {
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Default quiet action (Yeni klasör).",
-      "html": "<button class=\"ds-btn-secondary\">Yeni klasör</button>",
+      "description": "Default quiet action (New folder).",
+      "html": "<button class=\"ds-btn-secondary\">New folder</button>",
       "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 2px; border: 1px solid #3a3f48; background: transparent; color: #b6bac0; font: inherit; cursor: pointer; transition: background-color .15s ease, color .15s ease; } .ds-btn-secondary:hover { background: #3a404a; color: #eeeeee; } .ds-btn-secondary:focus-visible { outline: 2px solid #76abae; outline-offset: 2px; }"
     },
     {
@@ -434,7 +434,7 @@
     }
   ],
   "narrative": {
-    "northStar": "Çalışma Rafı",
+    "northStar": "The Study Shelf",
     "overview": "libzie is a quiet shelf in a dim room. Everything sits where it belongs, flat and at arm's reach: courses are solid colored blocks standing side by side like book spines, files are cards laid out beneath them, and the interface itself recedes to a calm charcoal so the documents are the only bright things. The brand logo — three books leaning on a shelf spelling \"lib\" — is the whole system in miniature: upright, tidy, slightly relaxed.\n\nThe system is built for long sessions, not first impressions. Surfaces are flat and tonal, borders are hairlines, corners are almost square, and motion explains what changed rather than decorating it. Color is concentrated in exactly one place — the per-course tiles — so a course is recognizable at a glance, and the chrome around it stays neutral. Type pairs a regular-weight serif for headings with its sans companion for everything that has to be read quickly.\n\nIt borrows its landing grid from jackywinter.com (flat saturated blocks, thin outline shapes, dark gaps) but turns it down: darker ground, one muted accent, and no hard-offset or glossy effects.",
     "keyCharacteristics": [
       "Flat, tonal surfaces; depth comes from one step lighter, never from shadows on cards.",

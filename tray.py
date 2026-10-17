@@ -1,8 +1,8 @@
-"""Windows sistem tepsisi (bildirim alanı) simgesi: ek bağımlılık olmadan, ctypes ile Shell_NotifyIcon.
+"""Windows system tray (notification area) icon: no extra dependency, Shell_NotifyIcon through ctypes.
 
-libzie penceresi kapatılınca uygulama arka planda çalışmaya devam eder; bu simge geri dönüş yoludur:
-sol tık / çift tık → pencereyi göster, sağ tık → menü (Aç, Çıkış). Simge kendi iş parçacığında (gizli bir pencere ve ileti
-döngüsüyle) çalışır; geri çağırmalar da bu iş parçacığında yapılır. Windows dışında `Tray.start()` False döner (özellik kapalı kalır).
+When the libzie window is closed the app keeps running in the background; this icon is the way back:
+left click / double click → show the window, right click → menu (Open, Quit). The icon runs in its own thread (with a hidden
+window and a message loop); callbacks are made on that thread too. Outside Windows `Tray.start()` returns False (the feature stays off).
 """
 import sys
 import threading
@@ -82,7 +82,7 @@ ICON_FILE = Path(__file__).resolve().parent / "assets" / "icon.ico"
 
 
 def system_lang():
-    """Windows'un arayüz dili Türkçeyse 'tr', değilse 'en' (kullanıcı libzie'de dil seçmediyse tepsi menüsü bunu kullanır)."""
+    """'tr' if the Windows UI language is Turkish, otherwise 'en' (the tray menu uses this if the user has not chosen a language in libzie)."""
     try:
         return "tr" if ctypes.windll.kernel32.GetUserDefaultUILanguage() & 0x3FF == 0x1F else "en"
     except Exception:  # noqa: BLE001
@@ -90,7 +90,7 @@ def system_lang():
 
 
 def load_icon():
-    """Paketlenmiş uygulamada exe'nin kendi simgesi, kaynak koddan çalışırken assets/icon.ico; bulunamazsa sistem simgesi."""
+    """In the packaged app the exe's own icon, from source assets/icon.ico; the system icon if neither is found."""
     hicon = None
     if getattr(sys, "frozen", False):
         hicon = shell32.ExtractIconW(kernel32.GetModuleHandleW(None), sys.executable, 0)
@@ -104,8 +104,8 @@ def load_icon():
 
 
 class Tray:
-    """on_show(): pencereyi göster · on_quit(): uygulamayı kapat · lang(): 'tr'/'en' (menü her açılışta güncel dili okur) ·
-    on_update(): "Güncellemeleri denetle" (verilmezse menüde görünmez)."""
+    """on_show(): show the window · on_quit(): close the app · lang(): 'tr'/'en' (the menu reads the current language every time it opens) ·
+    on_update(): "Check for updates" (not shown in the menu if not given)."""
 
     def __init__(self, on_show, on_quit, lang=system_lang, on_update=None):
         self.on_show, self.on_quit, self.lang, self.on_update = on_show, on_quit, lang, on_update
@@ -114,12 +114,12 @@ class Tray:
         self._ready = threading.Event()
         self._nid = None
         self._taskbar_msg = 0
-        self._proc = None  # WNDPROC referansı, çöp toplayıcı silmesin
+        self._proc = None  # WNDPROC reference, so the garbage collector does not delete it
 
     def start(self):
         if not WINDOWS:
             return False
-        threading.Thread(target=self._run, name="libzie-tepsi", daemon=True).start()
+        threading.Thread(target=self._run, name="libzie-tray", daemon=True).start()
         self._ready.wait(5)
         return self.ok
 
@@ -128,12 +128,12 @@ class Tray:
             user32.PostMessageW(self.hwnd, WM_STOP, 0, 0)
 
     def remove(self):
-        """Simgeyi hemen kaldırır (os._exit ile ani kapanmadan önce; yoksa simge fare üstüne gelene dek hayalet olarak kalır)."""
+        """Removes the icon immediately (before an abrupt close with os._exit; otherwise the icon stays as a ghost until the mouse hovers over it)."""
         if self.ok and self._nid:
             shell32.Shell_NotifyIconW(NIM_DELETE, ctypes.byref(self._nid))
 
     def balloon(self, title, text):
-        """Tepsi simgesinden kısa bir bildirim (yalnızca bilgi); simge yoksa sessizce atlanır."""
+        """A short notification from the tray icon (information only); skipped silently if there is no icon."""
         if not (self.ok and self._nid):
             return
         nid = self._nid
@@ -142,7 +142,7 @@ class Tray:
         shell32.Shell_NotifyIconW(NIM_MODIFY, ctypes.byref(nid))
         nid.uFlags &= ~NIF_INFO
 
-    # --- iş parçacığı
+    # --- thread
     def _add_icon(self):
         return bool(shell32.Shell_NotifyIconW(NIM_ADD, ctypes.byref(self._nid)))
 
@@ -151,10 +151,10 @@ class Tray:
             hinst = kernel32.GetModuleHandleW(None)
             self._proc = WNDPROC(self._wndproc)
             cls = WNDCLASSW()
-            cls.lpfnWndProc, cls.hInstance, cls.lpszClassName = self._proc, hinst, "LibzieTepsi"
+            cls.lpfnWndProc, cls.hInstance, cls.lpszClassName = self._proc, hinst, "LibzieTray"
             user32.RegisterClassW(ctypes.byref(cls))
-            # Gizli, üst düzey bir pencere: Gezgin yeniden başlayınca gönderilen "TaskbarCreated" yalnızca bunlara ulaşır
-            self.hwnd = user32.CreateWindowExW(0, "LibzieTepsi", "libzie", 0x80000000, 0, 0, 0, 0, None, None, hinst, None)
+            # A hidden, top-level window: the "TaskbarCreated" message sent when Explorer restarts reaches only such windows
+            self.hwnd = user32.CreateWindowExW(0, "LibzieTray", "libzie", 0x80000000, 0, 0, 0, 0, None, None, hinst, None)
             self._taskbar_msg = user32.RegisterWindowMessageW("TaskbarCreated")
             nid = NOTIFYICONDATAW()
             nid.cbSize = ctypes.sizeof(NOTIFYICONDATAW)
@@ -163,7 +163,7 @@ class Tray:
             nid.szTip = "libzie"
             self._nid = nid
             self.ok = bool(self.hwnd) and self._add_icon()
-        except Exception:  # noqa: BLE001 — tepsi olmadan da uygulama çalışır
+        except Exception:  # noqa: BLE001 — the app also works without the tray
             self.ok = False
         finally:
             self._ready.set()
@@ -197,7 +197,7 @@ class Tray:
         menu = self._build_menu()
         pt = POINT()
         user32.GetCursorPos(ctypes.byref(pt))
-        user32.SetForegroundWindow(self.hwnd)  # menü dışına tıklanınca kapanması için gerekli
+        user32.SetForegroundWindow(self.hwnd)  # needed so the menu closes when clicking outside it
         cmd = user32.TrackPopupMenu(menu, TPM_RIGHTBUTTON | TPM_RETURNCMD, pt.x, pt.y, 0, self.hwnd, None)
         user32.PostMessageW(self.hwnd, WM_NULL, 0, 0)
         user32.DestroyMenu(menu)
@@ -206,7 +206,7 @@ class Tray:
     def _safe(self, fn):
         try:
             fn()
-        except Exception:  # noqa: BLE001 — bir geri çağırma hatası ileti döngüsünü durdurmasın
+        except Exception:  # noqa: BLE001 — a callback error must not stop the message loop
             pass
 
     def _wndproc(self, hwnd, msg, wparam, lparam):
@@ -218,10 +218,10 @@ class Tray:
                 self._dispatch(self._menu())
             return 0
         if msg == self._taskbar_msg and self._taskbar_msg:
-            self._add_icon()  # Gezgin yeniden başladı: simgeyi geri koy
+            self._add_icon()  # Explorer restarted: put the icon back
             return 0
         if msg in (WM_CLOSE, WM_ENDSESSION) and (msg == WM_CLOSE or wparam):
-            self._safe(self.on_quit)  # kurulum sihirbazı / oturum kapanışı
+            self._safe(self.on_quit)  # setup wizard / session end
             return 0
         if msg == WM_QUERYENDSESSION:
             return 1

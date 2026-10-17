@@ -5,4 +5,4 @@
 *.ico binary
 *.pdf binary
 
-installer/gizlilik-*.txt text eol=crlf
+installer/privacy-*.txt text eol=crlf
